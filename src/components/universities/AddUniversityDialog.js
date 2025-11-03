@@ -64,6 +64,172 @@ import  CkEditor  from "@/components/CKEditor";
 
 //   return <CKEditor value={value} onChange={onChange} />;
 // };
+// Approval Selector Component (separate component to avoid useState in render callback)
+function ApprovalSelector({ field, approvals }) {
+  const selected = field.value || [];
+  const [selectValue, setSelectValue] = useState("");
+
+  const addApproval = (approval) => {
+    if (!approval?.id) return;
+    if (!selected.some((s) => s.id === approval.id)) {
+      field.onChange([...selected, approval]);
+    }
+    setSelectValue("");
+  };
+
+  const removeApproval = (approval) => {
+    field.onChange(selected.filter((s) => s.id !== approval.id));
+  };
+
+  return (
+    <>
+      <Select
+        value={selectValue || ""}
+        onValueChange={(val) => {
+          if (!val) return;
+          const id = parseInt(val, 10);
+          if (isNaN(id)) return;
+          const approval = approvals.find((a) => a.id === id);
+          if (approval) addApproval(approval);
+        }}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Select approvals" />
+        </SelectTrigger>
+        <SelectContent>
+          {approvals.map((a) => {
+            if (!a?.title) return null;
+            const disabled = selected.some((s) => s.id === a.id);
+            return (
+              <SelectItem
+                key={a.id}
+                value={a.id.toString()}
+                disabled={disabled}
+              >
+                {a.title}
+              </SelectItem>
+            );
+          })}
+        </SelectContent>
+      </Select>
+
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {selected.map((a) => (
+            <span
+              key={a.id}
+              className="flex items-center bg-gray-200 text-sm px-2 py-1 rounded-full"
+            >
+              {a.title}
+              <button
+                type="button"
+                onClick={() => removeApproval(a)}
+                className="ml-2 text-gray-600 hover:text-red-500"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+// Banner Section Component (separate component to avoid hooks in IIFE)
+function BannerSection({ control, register, previewBanners, setPreviewBanners }) {
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "banners",
+  });
+
+  // Keep track of how many banners were initially loaded (existing ones)
+  const [initialCount] = useState(fields.length);
+
+  return (
+    <div className="space-y-4 mt-2">
+      {fields.map((banner, index) => {
+        const bannerField = `banners.${index}`;
+        return (
+          <div
+            key={banner.id}
+            className="relative p-4 border rounded-lg bg-gray-30 shadow-sm"
+          >
+            <div className="grid grid-cols-2 gap-4">
+              {/* Banner Image */}
+              <div className="space-y-2">
+                <Label>Banner Image</Label>
+                {previewBanners[index] && (
+                  <img
+                    src={previewBanners[index]}
+                    alt="Banner Preview"
+                    className="h-20 object-contain rounded border mb-2"
+                  />
+                )}
+                <Input
+                  type="file"
+                  accept="image/*"
+                  {...register(`${bannerField}.banner_image`)}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setPreviewBanners((prev) => {
+                        const copy = [...prev];
+                        copy[index] = URL.createObjectURL(file);
+                        return copy;
+                      });
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Video ID */}
+              <div className="space-y-2">
+                <Label>Video ID</Label>
+                <Input {...register(`${bannerField}.video_id`)} />
+              </div>
+
+              {/* Video Title */}
+              <div className="space-y-2 col-span-2">
+                <Label>Video Title</Label>
+                <Input {...register(`${bannerField}.video_title`)} />
+              </div>
+            </div>
+
+            {/* Show Remove button ONLY for newly added banners */}
+            {index >= initialCount && (
+              <div className="flex mt-3">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => remove(index)}
+                >
+                  Remove
+                </Button>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Add More button */}
+      <div className="flex justify-start">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() =>
+            append({ banner_image: null, video_id: "", video_title: "" })
+          }
+        >
+          + Add More Banner
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 const DynamicArrayField = ({
   control,
   register,
@@ -727,80 +893,9 @@ export default function AddUniversityDialog({ item, open, onOpenChange, onItemAd
                 control={control}
                 defaultValue={item?.approval_ids || []}
                 rules={{ required: "At least one approval is required" }}
-                render={({ field }) => {
-                  const selected = field.value || [];
-                  const [selectValue, setSelectValue] = useState("");
-
-                  console.log("field.value:", field.value); // DEBUG: current selected approvals
-                  console.log("approvals from API:", approvals); // DEBUG: approvals list
-                  console.log("item.approval_ids:", item?.approval_ids); // DEBUG: university approvals
-
-                  const addApproval = (approval) => {
-                    if (!approval?.id) return;
-                    if (!selected.some((s) => s.id === approval.id)) {
-                      field.onChange([...selected, approval]);
-                    }
-                    setSelectValue("");
-                  };
-
-                  const removeApproval = (approval) => {
-                    field.onChange(selected.filter((s) => s.id !== approval.id));
-                  };
-
-                  return (
-                    <>
-                      <Select
-                        value={selectValue || ""}
-                        onValueChange={(val) => {
-                          if (!val) return;
-                          const id = parseInt(val, 10);
-                          if (isNaN(id)) return;
-                          const approval = approvals.find((a) => a.id === id);
-                          if (approval) addApproval(approval);
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select approvals" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {approvals.map((a) => {
-                            if (!a?.title) return null;
-                            const disabled = selected.some((s) => s.id === a.id);
-                            return (
-                              <SelectItem
-                                key={a.id}
-                                value={a.id.toString()}
-                                disabled={disabled}
-                              >
-                                {a.title}
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-
-                      {selected.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {selected.map((a) => (
-                            <span
-                              key={a.id}
-                              className="flex items-center bg-gray-200 text-sm px-2 py-1 rounded-full"
-                            >
-                              {a.title}
-                              <button
-                                type="button"
-                                onClick={() => removeApproval(a)}
-                                className="ml-2 text-gray-600 hover:text-red-500"
-                              >
-                                ×
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  );
-                }}
+                render={({ field }) => (
+                  <ApprovalSelector field={field} approvals={approvals} />
+                )}
               />
 
 
@@ -829,99 +924,12 @@ export default function AddUniversityDialog({ item, open, onOpenChange, onItemAd
           {/* Banner Info */}
           <div className="border-t pt-4 mt-6">
             <h3 className="text-lg font-semibold">Banner Information</h3>
-
-            {(() => {
-              const { fields, append, remove } = useFieldArray({
-                control,
-                name: "banners",
-              });
-
-              // Keep track of how many banners were initially loaded (existing ones)
-              const [initialCount] = useState(fields.length);
-
-              return (
-                <div className="space-y-4 mt-2">
-                  {fields.map((banner, index) => {
-                    const bannerField = `banners.${index}`;
-                    return (
-                      <div
-                        key={banner.id}
-                        className="relative p-4 border rounded-lg bg-gray-30 shadow-sm"
-                      >
-                        <div className="grid grid-cols-2 gap-4">
-                          {/* Banner Image */}
-                          <div className="space-y-2">
-                            <Label>Banner Image</Label>
-                            {previewBanners[index] && (
-                              <img
-                                src={previewBanners[index]}
-                                alt="Banner Preview"
-                                className="h-20 object-contain rounded border mb-2"
-                              />
-                            )}
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              {...register(`${bannerField}.banner_image`)}
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  setPreviewBanners((prev) => {
-                                    const copy = [...prev];
-                                    copy[index] = URL.createObjectURL(file);
-                                    return copy;
-                                  });
-                                }
-                              }}
-                            />
-                          </div>
-
-                          {/* Video ID */}
-                          <div className="space-y-2">
-                            <Label>Video ID</Label>
-                            <Input {...register(`${bannerField}.video_id`)} />
-                          </div>
-
-                          {/* Video Title */}
-                          <div className="space-y-2 col-span-2">
-                            <Label>Video Title</Label>
-                            <Input {...register(`${bannerField}.video_title`)} />
-                          </div>
-                        </div>
-
-                        {/* Show Remove button ONLY for newly added banners */}
-                        {index >= initialCount && (
-                          <div className="flex mt-3">
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => remove(index)}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-
-                  {/* Add More button */}
-                  <div className="flex justify-start">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() =>
-                        append({ banner_image: null, video_id: "", video_title: "" })
-                      }
-                    >
-                      + Add More Banner
-                    </Button>
-                  </div>
-                </div>
-              );
-            })()}
+            <BannerSection
+              control={control}
+              register={register}
+              previewBanners={previewBanners}
+              setPreviewBanners={setPreviewBanners}
+            />
           </div>
 
 
