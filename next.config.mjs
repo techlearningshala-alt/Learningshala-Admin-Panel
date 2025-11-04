@@ -6,6 +6,9 @@ const __dirname = path.dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    turbo: false, // ✅ disable Turbopack, use Webpack instead
+  },
   reactStrictMode: true,
   webpack: (config) => {
     config.resolve.alias = {
