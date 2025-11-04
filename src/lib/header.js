@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://3.111.58.222:4000/api/cms",
+  baseURL: "process.env.NEXT_PUBLIC_API_URL",
 });
 
 // Attach token before every request
