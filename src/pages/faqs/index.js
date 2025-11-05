@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import FaqTable from "@/components/faq/FaqTable";
-import AddFaqDialog from "@/components/faq/AddFaqDialog";
+import AddFaqForm from "@/components/faq/AddFaqForm";
 import {
   fetchFaqs,
   fetchCategories,
@@ -12,12 +13,12 @@ import {
   addFaq,
   updateFaq,
 } from "@/lib/api";
-import toast from "react-hot-toast";
+import { notifySuccess, notifyError } from "@/lib/notify";
 
 export default function FaqPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
-  const [open, setOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [editingFaq, setEditingFaq] = useState(null);
 
   // Fetch FAQs
@@ -27,44 +28,52 @@ export default function FaqPage() {
     keepPreviousData: true,
   });
 
-  // console.log(data,"data")
-
   // Fetch Categories
   const { data: categoriesData } = useQuery({
     queryKey: ["faqCategories"],
     queryFn: fetchCategories,
   });
   const categories = categoriesData?.data?.data || [];
-  console.log(categories,"categories")
 
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: deleteFaq,
     onSuccess: () => {
-      toast.success("FAQ deleted");
+      notifySuccess("FAQ deleted successfully");
       queryClient.invalidateQueries(["faqs"]);
     },
-    onError: () => toast.error("Failed to delete FAQ"),
+    onError: (err) => notifyError(err.response?.data?.message || "Delete failed"),
   });
 
   // Add mutation
   const addMutation = useMutation({
     mutationFn: addFaq,
     onSuccess: () => {
-      toast.success("FAQ added");
+      notifySuccess("FAQ added successfully");
       queryClient.invalidateQueries(["faqs"]);
     },
-    onError: () => toast.error("Failed to add FAQ"),
+    onError: (err) => notifyError(err.response?.data?.message || "Add failed"),
   });
+
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => updateFaq(id, data),
     onSuccess: () => {
-      toast.success("FAQ updated");
+      notifySuccess("FAQ updated successfully");
       queryClient.invalidateQueries(["faqs"]);
     },
-    onError: () => toast.error("Failed to update FAQ"),
+    onError: (err) => notifyError(err.response?.data?.message || "Update failed"),
   });
+
+  const handleAdd = () => {
+    setEditingFaq(null);
+    setShowForm(true);
+  };
+
+  const handleEdit = (faq) => {
+    setEditingFaq(faq);
+    setShowForm(true);
+  };
 
   const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete this FAQ?")) {
@@ -72,41 +81,54 @@ export default function FaqPage() {
     }
   };
 
-  const handleSave = (data, saveWithDate, item) => {
-    if (item?.id) {
-      updateMutation.mutate({ id: item.id, data: { ...data, saveWithDate } });
-    } else {
-      addMutation.mutate({ ...data, saveWithDate });
-    }
-    setOpen(false);
+  const handleFormClose = () => {
+    setShowForm(false);
+    setEditingFaq(null);
   };
 
-  return (
-    <div className="p-6">
-      <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-        {/* Header */}
-        <div className="flex justify-between items-center bg-gray-100 px-4 py-3 border-b border-gray-200">
-          <h1 className="text-lg font-semibold text-gray-800">FAQs</h1>
-          <Button
-            onClick={() => {
-              setEditingFaq(null);
-              setOpen(true);
-            }}
-          >
-            Add New FAQ
-          </Button>
-        </div>
+  const handleFormSuccess = (data) => {
+    const { saveWithDate, ...formData } = data;
+    if (editingFaq?.id) {
+      updateMutation.mutate({ id: editingFaq.id, data: { ...formData, saveWithDate } });
+    } else {
+      addMutation.mutate({ ...formData, saveWithDate });
+    }
+    setShowForm(false);
+    setEditingFaq(null);
+    queryClient.invalidateQueries({ queryKey: ["faqs"], exact: false });
+  };
 
-        {/* Table */}
+  // Show form view
+  if (showForm) {
+    return (
+      <AddFaqForm
+        item={editingFaq}
+        categories={categories}
+        onCancel={handleFormClose}
+        onSuccess={handleFormSuccess}
+      />
+    );
+  }
+
+  // Show table view
+  return (
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">FAQs</h1>
+        <Button onClick={handleAdd}>
+          <Plus className="mr-1 h-4 w-4" /> Add FAQ
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
         <FaqTable
           data={data?.data?.data || []}
-          onEdit={(faq) => {
-            setEditingFaq(faq);
-            setOpen(true);
-          }}
+          onEdit={handleEdit}
           onDelete={handleDelete}
         />
-      </div>
+      )}
 
       {/* Pagination */}
       <div className="flex justify-center mt-4 gap-2">
@@ -114,25 +136,12 @@ export default function FaqPage() {
           Prev
         </Button>
         <span className="px-3 py-1">
-          Page {data?.data?.page} of {data?.data?.pages}
+          Page {page} of {data?.data?.pages || 1}
         </span>
-        <Button
-          size="sm"
-          disabled={page === data?.data?.pages}
-          onClick={() => setPage(page + 1)}
-        >
+        <Button size="sm" disabled={page >= (data?.data?.pages || 0)} onClick={() => setPage(page + 1)}>
           Next
         </Button>
       </div>
-
-      {/* Add/Edit Modal */}
-      <AddFaqDialog
-        item={editingFaq}
-        open={open}
-        onOpenChange={setOpen}
-        categories={categories}
-        onSubmit={handleSave}
-      />
     </div>
   );
 }

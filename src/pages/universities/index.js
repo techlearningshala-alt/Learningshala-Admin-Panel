@@ -18,10 +18,9 @@ export default function UniversitiesPage() {
   const queryClient = useQueryClient();
 
   // Fetch paginated universities
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["universities", page],
     queryFn: () => fetchUniversities({ page, limit: 10 }),
-    keepPreviousData: true,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
@@ -88,9 +87,26 @@ export default function UniversitiesPage() {
   };
 
   const handleFormSuccess = () => {
+    // Check if we're adding a new university (not editing) before resetting
+    const isAddingNew = !selectedUniversity;
     setShowForm(false);
     setSelectedUniversity(null);
-    queryClient.invalidateQueries({ queryKey: ["universities"], exact: false });
+    // If adding new university, go to page 1 to see it (new items usually appear on first page)
+    if (isAddingNew) {
+      // Set page first, then refetch after a short delay to ensure state updates
+      setPage(1);
+      setTimeout(() => {
+        // Force refetch all university queries
+        queryClient.refetchQueries({ queryKey: ["universities"], type: "active" });
+        refetch(); // Also refetch current query
+      }, 300);
+    } else {
+      // For edits, just refetch current page
+      setTimeout(() => {
+        refetch();
+        queryClient.refetchQueries({ queryKey: ["universities"], type: "active" });
+      }, 300);
+    }
   };
 
   // Show form view

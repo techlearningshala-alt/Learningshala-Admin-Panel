@@ -432,11 +432,27 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     if (Array.isArray(mergedSections)) {
       const newPreviews = {};
       mergedSections.forEach((section, sIndex) => {
+        // Helper function to join URL without double slashes
+        const joinURL = (base, path) => {
+          const baseClean = base?.replace(/\/+$/, "") || ""; // Remove trailing slashes
+          const pathClean = path?.replace(/^\/+/, "") || ""; // Remove leading slashes
+          return `${baseClean}/${pathClean}`;
+        };
+
         const setPreviewsRecursive = (obj, path) => {
           Object.entries(obj).forEach(([k, v]) => {
             const currentPath = `${path}.${k}`;
-            if ((k.toLowerCase().includes("img") || k.toLowerCase().includes("logo") || k.toLowerCase().includes("sample")) && typeof v === "string" && v.startsWith("/uploads/")) {
-              newPreviews[currentPath] = `${process.env.NEXT_PUBLIC_thumbnail_URL}${v}`;
+            if ((k.toLowerCase().includes("img") || k.toLowerCase().includes("logo") || k.toLowerCase().includes("sample") || k.toLowerCase().includes("image")) && typeof v === "string" && v.trim() !== "") {
+              // Check if it's already a full URL (starts with http)
+              if (v.startsWith("http://") || v.startsWith("https://")) {
+                newPreviews[currentPath] = v;
+              } 
+              // For relative paths, normalize and join properly
+              else {
+                // Normalize path: remove leading slash for proper joining
+                let normalizedPath = v.startsWith("/") ? v.substring(1) : v;
+                newPreviews[currentPath] = joinURL(process.env.NEXT_PUBLIC_thumbnail_URL, normalizedPath);
+              }
             }
             if (Array.isArray(v)) {
               v.forEach((item, i) => setPreviewsRecursive(item, `${currentPath}.${i}`));
@@ -462,10 +478,12 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       setExistingLogo(null);
       setPreviewBanners([]);
       setSectionPreviews({});
+      // Invalidate all university queries immediately
+      queryClient.invalidateQueries(["universities"]);
+      // Call parent callback after a short delay to allow invalidation to process
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["universities"], exact: false });
         onSuccess?.();
-      }, 200);
+      }, 100);
     },
     onError: (err) => {
       notifyError(err.response?.data?.message || "Operation failed");

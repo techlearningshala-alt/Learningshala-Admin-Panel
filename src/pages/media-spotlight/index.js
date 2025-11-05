@@ -96,9 +96,9 @@ export default function MediaSpotlightPage() {
           Prev
         </Button>
         <span className="px-3 py-1">
-          Page {page} of {data?.data.pages}
+          Page {page} of {data?.data?.pages || 1}
         </span>
-        <Button size="sm" disabled={page === data?.data.pages} onClick={() => setPage(page + 1)}>
+        <Button size="sm" disabled={page >= (data?.data?.pages || 0)} onClick={() => setPage(page + 1)}>
           Next
         </Button>
       </div>

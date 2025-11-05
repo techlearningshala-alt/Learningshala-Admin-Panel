@@ -95,9 +95,9 @@ export default function MentorsPage() {
           Prev
         </Button>
         <span className="px-3 py-1">
-          Page {page} of {Math.ceil((data?.data?.total || 0) / limit)}
+          Page {page} of {data?.data?.pages || 1}
         </span>
-        <Button size="sm" disabled={page === Math.ceil((data?.data?.total || 0) / limit)} onClick={() => setPage(page + 1)}>
+        <Button size="sm" disabled={page >= (data?.data?.pages || 0)} onClick={() => setPage(page + 1)}>
           Next
         </Button>
       </div>

@@ -20,7 +20,7 @@ export default function MentorTable({ mentors, onEdit, onDelete }) {
     { key: "assist_student", label: "Student Assist" },
     { key: "label", label: "Label" },
     { key: "verified", label: "Verified", render: (row) => (row.verified ? "Yes" : "No") },
-    { key: "updated_at", label: "Updated At", render: (row) => new Date(row.updated_at).toLocaleString() },
+    { key: "updated_at", label: "Updated At",render: (row) => new Date(row.updated_at).toLocaleDateString(),},
     {
       key: "thumbnail",
       label: "Thumbnail",

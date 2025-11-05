@@ -115,15 +115,41 @@ export const isCKEditorField = (key) => {
 
 /**
  * Build preview URL for images
+ * Properly handles URL joining to avoid double slashes
  */
+const joinURL = (base, path) => {
+  const baseClean = base?.replace(/\/+$/, "") || ""; // Remove trailing slashes
+  const pathClean = path?.replace(/^\/+/, "") || ""; // Remove leading slashes
+  return `${baseClean}/${pathClean}`;
+};
+
 export const buildPreviewURL = (value, sectionPreviews, fieldName) => {
-  return (
-    sectionPreviews[fieldName] ||
-    (typeof value === "string" && value
-      ? value.startsWith("/uploads/")
-        ? `${process.env.NEXT_PUBLIC_thumbnail_URL}${value}`
-        : value // handles full URL or CDN images
-      : null)
-  );
+  // First check if there's a preview already set (from file upload)
+  if (sectionPreviews[fieldName]) {
+    return sectionPreviews[fieldName];
+  }
+  
+  // If no preview, build from value
+  if (typeof value === "string" && value.trim() !== "") {
+    // Already a full URL
+    if (value.startsWith("http://") || value.startsWith("https://")) {
+      return value;
+    }
+    
+    // Normalize path: ensure it doesn't have leading slash for joining
+    let normalizedPath = value;
+    if (value.startsWith("uploads/")) {
+      normalizedPath = value; // Keep as is, will add leading / during join
+    } else if (!value.startsWith("/")) {
+      normalizedPath = value; // No leading slash, will add during join
+    } else {
+      normalizedPath = value.substring(1); // Remove leading slash
+    }
+    
+    // Join base URL with path (handles double slashes automatically)
+    return joinURL(process.env.NEXT_PUBLIC_thumbnail_URL, normalizedPath);
+  }
+  
+  return null;
 };
 

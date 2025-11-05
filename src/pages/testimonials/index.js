@@ -94,9 +94,9 @@ export default function TestimonialPage() {
           Prev
         </Button>
         <span className="px-3 py-1">
-          Page {page} of {data?.pages}
+          Page {page} of {data?.pages || 1}
         </span>
-        <Button size="sm" disabled={page === data?.pages} onClick={() => setPage(page + 1)}>
+        <Button size="sm" disabled={page >= (data?.pages || 0)} onClick={() => setPage(page + 1)}>
           Next
         </Button>
       </div>

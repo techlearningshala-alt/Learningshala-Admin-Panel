@@ -90,7 +90,7 @@ export default function AddMentorForm({ mentor, onCancel, onSuccess }) {
 
         {/* Assist Students */}
         <div className="space-y-2">
-          <Label>Assist Students</Label>
+          <Label>No. of Assist Students (e.g - 2145)</Label>
           <Input type="number" {...register("assist_student", { required: "Assist students required", min: 0 })} />
           {errors.assist_student && <p className="text-red-500 text-sm">{errors.assist_student.message}</p>}
         </div>
@@ -111,7 +111,7 @@ export default function AddMentorForm({ mentor, onCancel, onSuccess }) {
         {/* Connection Link */}
         <div className="space-y-2">
           <Label>Connection Link</Label>
-          <Input {...register("connection_link", { required: "Connection link is required" })} placeholder="https://linkedin.com/..." />
+          <Input {...register("connection_link")} placeholder="https://linkedin.com/..." />
           {errors.connection_link && <p className="text-red-500 text-sm">{errors.connection_link.message}</p>}
         </div>
 
