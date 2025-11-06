@@ -40,13 +40,7 @@ const navItemsData = [
       { name: "Placement/Hiring Partners", href: "/placements", roles: ["admin"] },
       { name: "EMI/Financing Partners", href: "/emi-partners", roles: ["admin"] },
       {
-        name: "FAQs",
-        roles: ["admin", "mentor"],
-        subItems: [
-          { name: "Categories", href: "/university-faq-category", roles: ["admin"] },
-          { name: "All FAQs", href: "/university-faqs", roles: ["admin", "mentor"] },
-        ],
-      },
+        name: "FAQs",href: "/university-faqs", roles: ["admin", "mentor"] }
     ],
   },
   // {

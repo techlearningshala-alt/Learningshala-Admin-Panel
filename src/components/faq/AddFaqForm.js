@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
+import CKEditor from "@/components/CKEditor";
 
 export default function AddFaqForm({
   item,
@@ -18,6 +19,7 @@ export default function AddFaqForm({
     handleSubmit,
     reset,
     setValue,
+    control,
     formState: { errors, isSubmitting },
   } = useForm({ defaultValues: item || {} });
 
@@ -86,10 +88,16 @@ export default function AddFaqForm({
         {/* Answer */}
         <div className="space-y-2">
           <Label>Answer</Label>
-          <textarea
-            {...register("description", { required: "Answer is required" })}
-            className="w-full border rounded px-3 py-2 min-h-[120px]"
-            placeholder="Enter answer"
+          <Controller
+            name="description"
+            control={control}
+            rules={{ required: "Answer is required" }}
+            render={({ field }) => (
+              <CKEditor
+                value={field.value || ""}
+                onChange={(html) => field.onChange(html)}
+              />
+            )}
           />
           {errors.description && (
             <p className="text-red-500 text-sm">{errors.description.message}</p>
