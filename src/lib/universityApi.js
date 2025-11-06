@@ -1,57 +1,50 @@
-import axios from "axios";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+import api from "./header"; // Use shared axios instance with token interceptor
 
 // ✅ Fetch all universities (paginated)
 export const fetchUniversities = async ({ page = 1, limit = 10 } = {}) => {
-  const res = await axios.get(`${BASE_URL}/universities`, { params: { page, limit } });
+  const res = await api.get(`/universities`, { params: { page, limit } });
   console.log(res.data,"data")
   return res.data; // { success, data, total, page, pages }
 };
 
 // ✅ Fetch all universities (for dropdowns - no pagination)
 export const fetchAllUniversities = async () => {
-  const res = await axios.get(`${BASE_URL}/universities/list`);
+  const res = await api.get(`/universities/list`);
   return res.data;
 };
 
 export async function fetchApprovals() {
-  const res = await axios.get(`${BASE_URL}/universities-approvals/name`, {
-  });
+  const res = await api.get(`/universities-approvals/name`);
   return res.data; // { success, data: { data } }
 }
 // ✅ Fetch single university by ID (for modal)
 export const fetchUniversityById = async (id) => {
-  const res = await axios.get(`${BASE_URL}/universities/${id}`);
+  const res = await api.get(`/universities/${id}`);
   return res.data.data; // full university object including banners & sections
 };
 
 
 // ✅ Add a new university
-export const addUniversity = (data) => {
-  const res =  axios.post(`${BASE_URL}/universities`, data);
-  return res.data
+export const addUniversity = async (data) => {
+  const res = await api.post(`/universities`, data);
+  return res.data;
 };
 
 // ✅ Update university
-
-export async function updateDomain(id, data) {
-  const res = await axios.put(`${BASE_URL}/domains/${id}`, data);
-  return res.data;
-}
-export const updateUniversity = (id, universityData) => {
-  const res = axios.put(`${BASE_URL}/universities/${id}`, universityData);
+export const updateUniversity = async (id, universityData) => {
+  const res = await api.put(`/universities/${id}`, universityData);
   return res.data;
 };
 
 // ✅ Delete university
-export const deleteUniversity = (id) => {
-  return axios.delete(`${BASE_URL}/universities/${id}`);
+export const deleteUniversity = async (id) => {
+  const res = await api.delete(`/universities/${id}`);
+  return res.data;
 };
 
 // ✅ Toggle university status
 export const toggleUniversityStatus = async (id, isActive) => {
-  const res = await axios.patch(`${BASE_URL}/universities/${id}/toggle-status`, { is_active: isActive });
+  const res = await api.patch(`/universities/${id}/toggle-status`, { is_active: isActive });
   return res.data;
 };
 
@@ -61,26 +54,26 @@ export const toggleUniversityStatus = async (id, isActive) => {
 
 // ✅ Fetch single university approvals
 export const fetchUniversityApprovals = async ({ page = 1, limit = 10 }) => {
-  const res = await axios.get(`${BASE_URL}/universities-approvals/`, { params: { page, limit } });
+  const res = await api.get(`/universities-approvals`, { params: { page, limit } });
   return res.data; // full university object including banners & sections
 };
 
 
 // ✅ Add a new university approvals
-export const addUniversityApprovals = (data) => {
-  const res =  axios.post(`${BASE_URL}/universities-approvals`, data);
-  return res.data
+export const addUniversityApprovals = async (data) => {
+  const res = await api.post(`/universities-approvals`, data);
+  return res.data;
 };
 
 export async function updateUniversityApprovals(id, data) {
-  const res = await axios.put(`${BASE_URL}/universities-approvals/${id}`, data);
+  const res = await api.put(`/universities-approvals/${id}`, data);
   return res.data;
 }
 
 
 
 export const deleteUniversityApprovals = async (id) => {
-  const res = await axios.delete(`${BASE_URL}/universities-approvals/${id}`);
+  const res = await api.delete(`/universities-approvals/${id}`);
   return res.data; // full university object including banners & sections
 };
 
@@ -90,7 +83,7 @@ export const deleteUniversityApprovals = async (id) => {
 
 // Fetch all placement partners (with pagination)
 export async function fetchPlacementPartners({ page = 1, limit = 10 } = {}) {
-  const res = await axios.get(`${BASE_URL}/placement-partners`, {
+  const res = await api.get(`/placement-partners`, {
     params: { page, limit }
   });
   return res.data;
@@ -98,27 +91,33 @@ export async function fetchPlacementPartners({ page = 1, limit = 10 } = {}) {
 
 // Fetch ALL placement partners (no pagination - for dropdowns)
 export async function fetchAllPlacementPartners() {
-  const res = await axios.get(`${BASE_URL}/placement-partners`, {
+  const res = await api.get(`/placement-partners`, {
     params: { page: 1, limit: 1000 } // Large limit to get all
   });
   return res.data;
 }
 
 // Add a new placement partner
-export const addPlacementPartner = (formData) =>
-  axios.post(`${BASE_URL}/placement-partners`, formData, {
+export const addPlacementPartner = async (formData) => {
+  const res = await api.post(`/placement-partners`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+  return res.data;
+};
 
 // Update existing placement partner
-export const updatePlacementPartner = (id, formData) =>
-  axios.put(`${BASE_URL}/placement-partners/${id}`, formData, {
+export const updatePlacementPartner = async (id, formData) => {
+  const res = await api.put(`/placement-partners/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+  return res.data;
+};
 
 // Delete a placement partner
-export const deletePlacementPartner = (id) =>
-  axios.delete(`${BASE_URL}/placement-partners/${id}`);
+export const deletePlacementPartner = async (id) => {
+  const res = await api.delete(`/placement-partners/${id}`);
+  return res.data;
+};
 
 // ========================================
 // EMI Partners API
@@ -126,7 +125,7 @@ export const deletePlacementPartner = (id) =>
 
 // Fetch all EMI partners (with pagination)
 export async function fetchEmiPartners({ page = 1, limit = 10 } = {}) {
-  const res = await axios.get(`${BASE_URL}/emi-partners`, {
+  const res = await api.get(`/emi-partners`, {
     params: { page, limit }
   });
   return res.data;
@@ -134,24 +133,30 @@ export async function fetchEmiPartners({ page = 1, limit = 10 } = {}) {
 
 // Fetch ALL EMI partners (no pagination - for dropdowns)
 export async function fetchAllEmiPartners() {
-  const res = await axios.get(`${BASE_URL}/emi-partners`, {
+  const res = await api.get(`/emi-partners`, {
     params: { page: 1, limit: 1000 } // Large limit to get all
   });
   return res.data;
 }
 
 // Add a new EMI partner
-export const addEmiPartner = (formData) =>
-  axios.post(`${BASE_URL}/emi-partners`, formData, {
+export const addEmiPartner = async (formData) => {
+  const res = await api.post(`/emi-partners`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+  return res.data;
+};
 
 // Update an EMI partner
-export const updateEmiPartner = (id, formData) =>
-  axios.put(`${BASE_URL}/emi-partners/${id}`, formData, {
+export const updateEmiPartner = async (id, formData) => {
+  const res = await api.put(`/emi-partners/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+  return res.data;
+};
 
 // Delete an EMI partner
-export const deleteEmiPartner = (id) =>
-  axios.delete(`${BASE_URL}/emi-partners/${id}`);
+export const deleteEmiPartner = async (id) => {
+  const res = await api.delete(`/emi-partners/${id}`);
+  return res.data;
+};

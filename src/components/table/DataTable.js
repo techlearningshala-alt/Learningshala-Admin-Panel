@@ -2,7 +2,7 @@
 
 export default function DataTable({ columns, data = [], actions = [] }) {
   return (
-    <table className="min-w-full border">
+    <table className="min-w-full border text-sm">
       <thead>
         <tr>
           {columns.map((col) => (

@@ -1,34 +1,32 @@
-import axios from "axios";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+import api from "./header"; // Use shared axios instance with token interceptor
 
 // Fetch paginated domains
 export async function fetchDomains({ page = 1, limit = 10 }) {
-  const res = await axios.get(`${BASE_URL}/domains?page=${page}&limit=${limit}`);
+  const res = await api.get(`/domains`, { params: { page, limit } });
   return res.data;
 }
 
 export async function fetchDomainsForCourse({ page = 1, limit = 100 }) {
-  const res = await axios.get(`${BASE_URL}/domains?page=${page}&limit=${limit}`);
+  const res = await api.get(`/domains`, { params: { page, limit } });
   console.log(res.data,"dataaaa")
   return res.data;
 }
 
 // Add a new domain
 export async function addDomain(data) {
-  const res = await axios.post(`${BASE_URL}/domains`, data);
+  const res = await api.post(`/domains`, data);
   return res.data;
 }
 
 // Update domain
 export async function updateDomain(id, data) {
-  const res = await axios.put(`${BASE_URL}/domains/${id}`, data);
+  const res = await api.put(`/domains/${id}`, data);
   return res.data;
 }
 
 // Delete domain
 export async function deleteDomain(id) {
-  const res = await axios.delete(`${BASE_URL}/domains/${id}`);
+  const res = await api.delete(`/domains/${id}`);
   return res.data;
 }
 
@@ -37,7 +35,7 @@ export async function deleteDomain(id) {
 
 // Fetch courses with pagination
 export async function fetchCourses({ page = 1, limit = 10 }) {
-  const res = await axios.get(`${BASE_URL}/courses`, {
+  const res = await api.get(`/courses`, {
     params: { page, limit },
   });
   return res.data;
@@ -45,13 +43,13 @@ export async function fetchCourses({ page = 1, limit = 10 }) {
 
 // Fetch courses with names
 export async function findAllCourseName() {
-  const res = await axios.get(`${BASE_URL}/courses/course-name`);
+  const res = await api.get(`/courses/course-name`);
   return res.data;
 }
 
 // Add a new course
 export async function addCourse(formData) {
-  const res = await axios.post(`${BASE_URL}/courses`, formData, {
+  const res = await api.post(`/courses`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
@@ -59,7 +57,7 @@ export async function addCourse(formData) {
 
 // Update an existing course
 export async function updateCourse(id, formData) {
-  const res = await axios.put(`${BASE_URL}/courses/${id}`, formData, {
+  const res = await api.put(`/courses/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
@@ -67,7 +65,7 @@ export async function updateCourse(id, formData) {
 
 // Delete a course
 export async function deleteCourse(id) {
-  const res = await axios.delete(`${BASE_URL}/courses/${id}`);
+  const res = await api.delete(`/courses/${id}`);
   return res.data;
 }
 
@@ -76,7 +74,7 @@ export async function deleteCourse(id) {
 
 // Fetch SPECIALIZATION with pagination
 export async function fetchSpecialization({ page = 1, limit = 10 }) {
-  const res = await axios.get(`${BASE_URL}/specializations`, {
+  const res = await api.get(`/specializations`, {
     params: { page, limit },
   });
   return res.data;
@@ -84,7 +82,7 @@ export async function fetchSpecialization({ page = 1, limit = 10 }) {
 
 // Add a new SPECIALIZATION
 export async function addSpecialization(formData) {
-  const res = await axios.post(`${BASE_URL}/specializations`, formData, {
+  const res = await api.post(`/specializations`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
@@ -92,7 +90,7 @@ export async function addSpecialization(formData) {
 
 // Update an existing SPECIALIZATION
 export async function updateSpecializations(id, formData) {
-  const res = await axios.put(`${BASE_URL}/specializations/${id}`, formData, {
+  const res = await api.put(`/specializations/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
@@ -100,6 +98,6 @@ export async function updateSpecializations(id, formData) {
 
 // Delete a SPECIALIZATION
 export async function deleteSpecializations(id) {
-  const res = await axios.delete(`${BASE_URL}/specializations/${id}`);
+  const res = await api.delete(`/specializations/${id}`);
   return res.data;
 }

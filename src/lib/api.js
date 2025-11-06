@@ -170,3 +170,59 @@ export async function deleteFaq(id) {
   return res.data;
 }
 
+// ===== University FAQ APIs =====
+
+export async function fetchUniversityFaqs({ page = 1, limit = 10, university_id, category_id }) {
+  const params = { page, limit };
+  if (university_id) params.university_id = university_id;
+  if (category_id) params.category_id = category_id;
+  
+  const res = await api.get(`/universities/faqs/`, {
+    params,
+  });
+  return res.data; // { success, data: { data, page, pages, total } }
+}
+
+export async function fetchUniversityFaqCategories({ page = 1, limit = 10 } = {}) {
+  const res = await api.get(`/universities/faqs/categories`, {
+    params: { page, limit },
+  });
+  return res.data; // { success, data: { data, page, pages, total } }
+}
+
+export async function addUniversityFaq(payload) {
+  const res = await api.post(`/universities/faqs/questions`, payload);
+  return res.data;
+}
+
+export async function updateUniversityFaq(id, payload) {
+  const res = await api.put(`/universities/faqs/questions/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteUniversityFaq(id) {
+  const res = await api.delete(`/universities/faqs/questions/${id}`);
+  return res.data;
+}
+
+export async function addUniversityFaqCategory(payload) {
+  const res = await api.post(`/universities/faqs/`, payload);
+  return res.data;
+}
+
+export async function updateUniversityFaqCategory(id, payload) {
+  const res = await api.put(`/universities/faqs/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteUniversityFaqCategory(id) {
+  const res = await api.delete(`/universities/faqs/${id}`);
+  return res.data;
+}
+
+// Fetch all universities for dropdown (no pagination)
+export async function fetchAllUniversities() {
+  const res = await api.get(`/universities/list`);
+  return res.data;
+}
+

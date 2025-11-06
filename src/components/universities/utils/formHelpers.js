@@ -8,7 +8,12 @@
  * Handles nested objects and arrays properly
  */
 export const deepMergeProps = (oldObj, newObj) => {
-  if (!newObj || typeof newObj !== "object" || Array.isArray(newObj)) {
+  // If newObj is an array, use it directly
+  if (Array.isArray(newObj)) {
+    return newObj;
+  }
+
+  if (!newObj || typeof newObj !== "object") {
     return newObj !== undefined ? newObj : oldObj;
   }
 
@@ -30,6 +35,9 @@ export const deepMergeProps = (oldObj, newObj) => {
       newObj[key] !== null
     ) {
       merged[key] = deepMergeProps(oldObj[key], newObj[key]);
+    } else if (Array.isArray(newObj[key]) && Array.isArray(oldObj[key])) {
+      // For arrays, use newObj
+      merged[key] = newObj[key];
     }
   });
 
@@ -42,7 +50,6 @@ export const deepMergeProps = (oldObj, newObj) => {
  */
 export const getAddButtonLabel = (fieldKey) => {
   const labelMap = {
-    faqData: "Add More Category",
     items: "Add More Question",
     faculties: "Add More Faculty",
     emiPartners: "Add More EMI Partner",
@@ -54,6 +61,25 @@ export const getAddButtonLabel = (fieldKey) => {
   };
   
   return labelMap[fieldKey] || "Add More";
+};
+
+/**
+ * Get appropriate remove button label based on field name
+ * Used for "Remove" buttons in dynamic arrays
+ */
+export const getRemoveButtonLabel = (fieldKey) => {
+  const labelMap = {
+    items: "Remove Question",
+    faculties: "Remove Faculty",
+    emiPartners: "Remove EMI Partner",
+    allReviews: "Remove Review",
+    otherUniversityList: "Remove University",
+    gridContent: "Remove Grid Item",
+    placementPartners: "Remove Partner",
+    banners: "Remove Banner",
+  };
+  
+  return labelMap[fieldKey] || "Remove";
 };
 
 /**
@@ -79,6 +105,7 @@ export const shouldSkipField = (key) => {
     "bgColor",
     "placementPartners",
     "emiPartners",
+    "faqData", // Hide faqData field (simple Yes/No toggle like Other Popular Universities)
     "slug", // Hide slug field (auto-generated)
     "id", // Hide id field (auto-generated from question)
     "cat_id", // Hide cat_id field (auto-generated)

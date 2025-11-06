@@ -26,7 +26,9 @@ export default function App({ Component, pageProps }) {
     "/universities",
     "/universities-approvals",
     "/placements",
-    "/emi-partners"
+    "/emi-partners",
+    "/university-faqs",
+    "/university-faq-category"
   ];
 
   const useCMSLayout = cmsPages.some((path) => router.pathname.startsWith(path));

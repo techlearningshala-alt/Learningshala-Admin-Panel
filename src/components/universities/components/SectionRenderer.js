@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import CkEditor from "@/components/CKEditor";
 import { DynamicArrayField } from "./DynamicArrayField";
-import { FAQRenderer } from "./FAQRenderer";
+// FAQ functionality removed - now handled separately
 import {
   shouldSkipField,
   isTextareaField,
@@ -32,6 +32,11 @@ export const renderPropsInputs = (
   sectionPreviews,
   setSectionPreviews
 ) => {
+  // Safety check: ensure props is a valid object
+  if (!props || typeof props !== "object" || Array.isArray(props)) {
+    return null;
+  }
+  
   return Object.entries(props).map(([key, value]) => {
     const fieldName = `${path}.${key}`;
 
@@ -62,11 +67,40 @@ export const renderPropsInputs = (
             }}
           />
           {previewURL && (
-            <img
-              src={previewURL}
-              alt="preview"
-              className="h-20 object-contain rounded border mt-2"
-            />
+            <div className="relative inline-block mt-2">
+              <img
+                src={previewURL}
+                alt="preview"
+                className="h-20 object-contain rounded border"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  console.log(`🗑️ [FRONTEND] Removing section image: ${fieldName}`);
+                  console.log(`🗑️ [FRONTEND] Current preview:`, sectionPreviews[fieldName]);
+                  console.log(`🗑️ [FRONTEND] Current value:`, value);
+                  setSectionPreviews((prev) => {
+                    const newPreviews = { ...prev };
+                    delete newPreviews[fieldName];
+                    console.log(`🗑️ [FRONTEND] Updated previews:`, newPreviews);
+                    return newPreviews;
+                  });
+                  // Clear the form value
+                  if (setValue) {
+                    setValue(fieldName, null);
+                    console.log(`🗑️ [FRONTEND] Form value cleared for ${fieldName}`);
+                  }
+                  // Clear the file input
+                  const fileInput = document.querySelector(`input[name="${fieldName}"]`);
+                  if (fileInput) fileInput.value = '';
+                  console.log(`🗑️ [FRONTEND] File input cleared for ${fieldName}`);
+                }}
+                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-lg leading-none"
+                title="Remove image"
+              >
+                ×
+              </button>
+            </div>
           )}
         </div>
       );
@@ -94,8 +128,8 @@ export const renderPropsInputs = (
       // 🔒 Check if this array should have fixed size (e.g., gridContent in why-choose section)
       const isFixedSize = key === "gridContent";
       
-      // 🗑️ Allow removing all items for FAQ items (both categories and questions)
-      const allowRemoveAll = key === "items" || key === "faqData";
+      // 🗑️ Allow removing all items for certain arrays
+      const allowRemoveAll = key === "items";
 
       return (
         <DynamicArrayField
@@ -126,7 +160,8 @@ export const renderPropsInputs = (
             value,
             watch,
             sectionPreviews,
-            setSectionPreviews
+            setSectionPreviews,
+            setValue
           )}
         </div>
       );
@@ -167,29 +202,14 @@ export const SectionsForm = ({
   sectionPreviews,
   setSectionPreviews,
   watch,
+  setValue,
 }) => {
   return (
     <div className="space-y-6">
       {sections.map((section, sIndex) => {
         const sectionPath = `sections.${sIndex}`;
         
-        // ✅ Special handling for FAQ section
-        if (section.id === "university-faq" && section.props?.faqData) {
-          return (
-            <div key={section.id} className="p-4 border rounded-md">
-              <h3 className="font-semibold text-lg mb-2">{section.title}</h3>
-              <FAQRenderer
-                control={control}
-                register={register}
-                name={sectionPath}
-                value={section.props}
-                watch={watch}
-              />
-            </div>
-          );
-        }
-        
-        // Default rendering for other sections
+        // Default rendering for all sections (FAQ is now simple Yes/No like Other Popular Universities)
         return (
           <div key={section.id} className="p-4 border rounded-md">
             <h3 className="font-semibold text-lg mb-2">{section.title}</h3>
@@ -201,7 +221,8 @@ export const SectionsForm = ({
                 section.props,
                 watch,
                 sectionPreviews,
-                setSectionPreviews
+                setSectionPreviews,
+                setValue
               )
             ) : (
               <p className="text-gray-500">No editable fields for this section</p>

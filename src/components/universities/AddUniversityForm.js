@@ -17,7 +17,7 @@ import { SectionsForm } from "./components/SectionRenderer";
 import { deepMergeProps } from "./utils/formHelpers";
 
 // Banner Section Component (separate component to avoid hooks in IIFE)
-function BannerSection({ control, register, previewBanners, setPreviewBanners }) {
+function BannerSection({ control, register, previewBanners, setPreviewBanners, setValue, watch }) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: "banners",
@@ -40,11 +40,41 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners })
               <div className="space-y-2">
                 <Label>Banner Image</Label>
                 {previewBanners[index] && (
-                  <img
-                    src={previewBanners[index]}
-                    alt="Banner Preview"
-                    className="h-20 object-contain rounded border mb-2"
-                  />
+                  <div className="relative inline-block mb-2">
+                    <img
+                      src={previewBanners[index]}
+                      alt="Banner Preview"
+                      className="h-20 object-contain rounded border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        console.log(`🗑️ [FRONTEND] Removing banner image at index ${index}`);
+                        console.log(`🗑️ [FRONTEND] Before removal - previewBanners[${index}]:`, previewBanners[index]);
+                        const bannerData = watch(`banners.${index}`);
+                        console.log(`🗑️ [FRONTEND] Before removal - banner data:`, bannerData);
+                        // Don't clear existing_banner_image - we need it to detect removal on submit
+                        // Only clear the preview and form value
+                        setPreviewBanners((prev) => {
+                          const copy = [...prev];
+                          copy[index] = null;
+                          return copy;
+                        });
+                        // Clear the form value explicitly to null
+                        setValue(`banners.${index}.banner_image`, null);
+                        console.log(`🗑️ [FRONTEND] After setValue - banner_image set to null`);
+                        console.log(`🗑️ [FRONTEND] existing_banner_image preserved:`, bannerData?.existing_banner_image);
+                        // Clear the file input
+                        const fileInput = document.querySelector(`input[name="banners.${index}.banner_image"]`);
+                        if (fileInput) fileInput.value = '';
+                        console.log(`🗑️ [FRONTEND] File input cleared for banner ${index}`);
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-lg leading-none"
+                      title="Remove image"
+                    >
+                      ×
+                    </button>
+                  </div>
                 )}
                 <Input
                   type="file"
@@ -131,7 +161,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     },
     {
       id: "about",
-      title: "About",
+      title: "About University",
       component: "UniversityDesc",
       props: {
         content:
@@ -151,17 +181,17 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         gridContent: [
           {
             title: "",
-            desc: "",
+            content: "",
             bgColor: "#f0f8ff",
           },
           {
             title: "",
-            desc: "",
+            content: "",
             bgColor: "#fff8dc",
           },
           {
             title: "",
-            desc: "",
+            content: "",
             bgColor: "#f0fff0",
           },
         ],
@@ -223,7 +253,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
-      id: "university-reviews", title: "What Student Say", component: "UniversityReviews",
+      id: "university-reviews", title: "Student Ratings", component: "UniversityReviews",
       props: {
         allReviews: [
           {
@@ -241,19 +271,19 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     }, 
     {
-      id: "approval-logo", title: "University Approval Logo", component: "UniversityApprovalLogos",
+      id: "approval-logo", title: "Approval Logo", component: "UniversityApprovalLogos",
       props: {
         univsersityApprovals: "Yes"
       }
     }, 
     {
-      id: "university-lms", title: "University LMS", component: "UniversityLMS",
+      id: "university-lms", title: "Learning Management System(LMS)", component: "UniversityLMS",
       props: {
         content: ""
       }
     },  
     {
-      id: "university-examination", title: "University Examination", component: "UniversityExamination",
+      id: "university-examination", title: "Examination Pattern", component: "UniversityExamination",
       props: {
         content: "" 
       }
@@ -261,20 +291,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     {
       id: "university-faq", title: "Faqs", component: "UniversityFaq",
       props: {
-        faqData: [
-          {
-            category: "",
-            cat_id: "",
-            items: [
-              {
-                id: "",
-                question: "",
-                answer:
-                  "",
-              }
-            ]
-          }
-        ],
+        faqData: "Yes"
       }
     },
   ]
@@ -376,9 +393,10 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
     // Merge database sections with defaultSections template
     // Match by component name since DB uses numeric IDs
-    const mergedSections = defaultSections.map(defaultSection => {
+    const mergedSections = defaultSections.map((defaultSection, sectionIndex) => {
       const dbSection = item.sections?.find(s => s.component === defaultSection.component);
       if (dbSection && dbSection.props) {
+        // FAQ is now simple Yes/No toggle - no special handling needed
         const merged = {
           id: dbSection.id, // Use database ID
           title: defaultSection.title,
@@ -508,20 +526,65 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     
     formData.append("saveWithDate", saveWithDate);
 
-    if (data.university_logo && data.university_logo[0]) formData.append("university_logo", data.university_logo[0]);
+    // Handle university logo - append if new file, or empty string if removed
+    console.log("📤 [FRONTEND] Preparing university_logo for submission");
+    console.log("📤 [FRONTEND] data.university_logo:", data.university_logo);
+    console.log("📤 [FRONTEND] existingLogo:", existingLogo);
+    console.log("📤 [FRONTEND] previewLogo:", previewLogo);
+    console.log("📤 [FRONTEND] item (edit mode):", item);
+    
+    if (data.university_logo && data.university_logo[0]) {
+      console.log("📤 [FRONTEND] New logo file uploaded");
+      formData.append("university_logo", data.university_logo[0]);
+    } else if (item && item.university_logo && !previewLogo && (data.university_logo === null || !data.university_logo)) {
+      // In edit mode: if there was a logo before, but now previewLogo is null and form value is null, it was removed
+      console.log("📤 [FRONTEND] Logo was removed - sending empty string");
+      console.log("📤 [FRONTEND] Original logo from item:", item.university_logo);
+      formData.append("university_logo", "");
+    } else if (existingLogo && !previewLogo) {
+      // Fallback: if existingLogo exists but no preview, it was removed
+      console.log("📤 [FRONTEND] Logo was removed (fallback) - sending empty string");
+      formData.append("university_logo", "");
+    } else {
+      console.log("📤 [FRONTEND] No logo change - not appending to formData");
+    }
     if (data.university_brochure && data.university_brochure[0]) formData.append("university_brochure", data.university_brochure[0]);
     // 🔹 Banners (supports multiple)
+    console.log("📤 [FRONTEND] Preparing banners for submission");
+    console.log("📤 [FRONTEND] data.banners:", data.banners);
+    console.log("📤 [FRONTEND] previewBanners:", previewBanners);
     const banners = data.banners.map((banner, index) => {
       const bannerData = { ...banner };
+      console.log(`📤 [FRONTEND] Processing banner ${index}:`, banner);
+      console.log(`📤 [FRONTEND] banner.banner_image:`, banner.banner_image);
+      console.log(`📤 [FRONTEND] banner.existing_banner_image:`, banner.existing_banner_image);
+      console.log(`📤 [FRONTEND] previewBanners[${index}]:`, previewBanners[index]);
 
       if (banner.banner_image instanceof FileList && banner.banner_image[0]) {
         const file = banner.banner_image[0];
+        console.log(`📤 [FRONTEND] New banner file uploaded for index ${index}`);
         formData.append(`banner_image_${index}`, file);
         bannerData.banner_image = file.name; // reference name to replace in backend
+      } else if (banner.existing_banner_image && banner.banner_image === null && previewBanners[index] === null) {
+        // Banner image was explicitly removed:
+        // - existing_banner_image exists (had an image before)
+        // - banner_image is explicitly null (was set to null via setValue)
+        // - previewBanners[index] is null (preview was cleared)
+        console.log(`📤 [FRONTEND] Banner ${index} image was removed - setting to empty string`);
+        console.log(`📤 [FRONTEND] Evidence: existing_banner_image="${banner.existing_banner_image}", banner_image=${banner.banner_image}, preview=${previewBanners[index]}`);
+        bannerData.banner_image = "";
+      } else if (banner.existing_banner_image && banner.existing_banner_image.trim() !== "") {
+        // Keep existing banner image - don't modify it
+        console.log(`📤 [FRONTEND] Banner ${index} - keeping existing image:`, banner.existing_banner_image);
+        bannerData.banner_image = banner.existing_banner_image;
+      } else {
+        console.log(`📤 [FRONTEND] Banner ${index} - no change or no existing image`);
       }
 
+      console.log(`📤 [FRONTEND] Final bannerData for ${index}:`, bannerData);
       return bannerData;
     });
+    console.log("📤 [FRONTEND] Final banners array:", banners);
 
     formData.append("banners", JSON.stringify(banners));
 
@@ -543,39 +606,10 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     if (section.id === "university-Emi" && section.props) {
       section.props.emiPartners = "Yes";
     }
-    
-    // ✅ Auto-generate slug and id for FAQ section
-    if (section.id === "university-faq" && section.props?.faqData) {
-      const universitySlug = data.university_slug || data.university_name?.toLowerCase().replace(/\s+/g, "-") || "university";
-      
-      section.props.faqData.forEach((category, catIndex) => {
-        // Generate slug from university name + category index (only if not already set)
-        if (!category.slug) {
-          const categorySlug = `${universitySlug}-faq-category-${catIndex + 1}`;
-          category.slug = categorySlug;
-        }
-        
-        // Generate cat_id from category name (slugified) or use index as fallback
-        if (!category.cat_id && category.category) {
-          category.cat_id = category.category.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-        } else if (!category.cat_id) {
-          category.cat_id = `category-${catIndex + 1}`;
-        }
-        
-        // For each item, set id = question (trimmed, unique identifier) - only if not already set
-        if (category.items && Array.isArray(category.items)) {
-          category.items.forEach((item) => {
-            if (item.question && !item.id) {
-              // Use question as unique id (trimmed)
-              item.id = item.question.trim();
-            } else if (item.question && item.id !== item.question.trim()) {
-              // Update id if question changed
-              item.id = item.question.trim();
-            }
-          });
-        }
-      });
+    if (section.id === "university-faq" && section.props) {
+      section.props.faqData = "Yes";
     }
+  
     });
     let sectionImageCounter = 0;
     sectionsCopy.forEach((section, sIndex) => {
@@ -583,12 +617,27 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         const handleNestedFiles = (obj, path = "") => {
           Object.entries(obj).forEach(([k, v]) => {
             const currentPath = path ? `${path}.${k}` : k;
+            const fieldName = `sections.${sIndex}.props.${currentPath}`;
+            
             if (v instanceof FileList && v.length > 0) {
               const uniqueKey = `section_image_${sectionImageCounter}`;
+              console.log(`📤 [FRONTEND] New section image file: ${fieldName} -> ${uniqueKey}`);
               formData.append(uniqueKey, v[0]);
               obj[k] = v[0].name;
               sectionImageCounter++;
+            } else if (
+              // Check if this is an image field that was removed
+              (k.toLowerCase().includes("img") || k.toLowerCase().includes("logo") || k.toLowerCase().includes("image") || k.toLowerCase().includes("sample")) &&
+              typeof v === "string" &&
+              v.trim() !== "" &&
+              !sectionPreviews[fieldName]
+            ) {
+              // Image was removed - set to empty string to delete it
+              console.log(`📤 [FRONTEND] Section image removed: ${fieldName} (was: "${v}")`);
+              console.log(`📤 [FRONTEND] sectionPreviews[${fieldName}]:`, sectionPreviews[fieldName]);
+              obj[k] = "";
             }
+            
             if (Array.isArray(v)) {
               v.forEach((item, index) => handleNestedFiles(item, `${currentPath}[${index}]`));
             } else if (v && typeof v === "object") {
@@ -727,7 +776,33 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
           <div className="space-y-2">
             <Label>University Logo</Label>
-            {previewLogo && <img src={previewLogo} alt="Preview" className="h-20 object-contain rounded border mb-2" />}
+            {previewLogo && (
+              <div className="relative inline-block mb-2">
+                <img src={previewLogo} alt="Preview" className="h-20 object-contain rounded border" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    console.log("🗑️ [FRONTEND] Removing university logo");
+                    console.log("🗑️ [FRONTEND] Before removal - existingLogo:", existingLogo);
+                    console.log("🗑️ [FRONTEND] Before removal - previewLogo:", previewLogo);
+                    // Don't clear existingLogo - we need it to detect removal on submit
+                    // Only clear the preview and form value
+                    setPreviewLogo(null);
+                    setValue("university_logo", null);
+                    console.log("🗑️ [FRONTEND] After setValue - form value should be null");
+                    console.log("🗑️ [FRONTEND] existingLogo preserved for removal detection:", existingLogo);
+                    // Clear the file input
+                    const fileInput = document.querySelector('input[name="university_logo"]');
+                    if (fileInput) fileInput.value = '';
+                    console.log("🗑️ [FRONTEND] File input cleared");
+                  }}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                  title="Remove image"
+                >
+                  ×
+                </button>
+              </div>
+            )}
             <Input type="file" accept="image/*" {...register("university_logo")} onChange={(e) => { const file = e.target.files?.[0]; if (file) setPreviewLogo(URL.createObjectURL(file)); }} />
           </div>
           <div className="space-y-2">
@@ -745,6 +820,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             register={register}
             previewBanners={previewBanners}
             setPreviewBanners={setPreviewBanners}
+            setValue={setValue}
+            watch={watch}
           />
         </div>
 
@@ -756,6 +833,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             sections={watch("sections") || []}
             control={control}
             register={register}
+            setValue={setValue}
             sectionPreviews={sectionPreviews}
             setSectionPreviews={setSectionPreviews}
             watch={watch}
