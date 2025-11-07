@@ -9,6 +9,7 @@ import {
   Bold,
   Italic,
   Underline,
+  Alignment,
   Base64UploadAdapter,
   CloudServices, // <-- REMOVED if you don't have a license. Put back only if licensed.
   Essentials,
@@ -118,6 +119,7 @@ const CKEditorClient = ({ editorData = "", onChange, onFocus, onBlur }) => {
             TableToolbar,
             TextTransformation,
             Underline,
+            Alignment,
             SourceEditing,
           ],
           toolbar: [
@@ -129,6 +131,7 @@ const CKEditorClient = ({ editorData = "", onChange, onFocus, onBlur }) => {
             "bold",
             "italic",
             "underline",
+            "alignment",
             "|",
             "link",
             "uploadImage",
@@ -145,7 +148,11 @@ const CKEditorClient = ({ editorData = "", onChange, onFocus, onBlur }) => {
             "indent",
             "sourceEditing",
           ],
-  
+
+          alignment: {
+            options: ["left", "center", "right", "justify"],
+          },
+ 
           heading: {
             options: [
               {

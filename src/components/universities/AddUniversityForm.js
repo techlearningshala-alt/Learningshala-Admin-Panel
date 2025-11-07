@@ -240,7 +240,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             designation:
               "",
             desc: "",
-            place: "",
+            "faculty Qualification": "",
           }
         ]
       }
@@ -258,7 +258,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         allReviews: [
           {
             name: "",
-            value: "",
+            "rating (1-5)" : "", // (1-5 rating)
             reviewContent: "",
           }
         ]

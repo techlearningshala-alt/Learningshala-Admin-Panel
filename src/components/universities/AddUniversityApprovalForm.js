@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addUniversityApprovals, updateUniversityApprovals } from "@/lib/universityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
@@ -9,13 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
+import CKEditor from "@/components/CKEditor";
 
 export default function AddUniversityApprovalForm({ item, onCancel, onSuccess }) {
   const [previewLogo, setPreviewLogo] = useState(null);
   const [existingLogo, setExistingLogo] = useState(null);
   const queryClient = useQueryClient();
 
-  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, setValue,control, formState: { errors, isSubmitting } } = useForm({
     defaultValues: item || {},
   });
 
@@ -100,7 +101,17 @@ export default function AddUniversityApprovalForm({ item, onCancel, onSuccess })
         {/* Description */}
         <div className="space-y-2">
           <Label>Description</Label>
-          <Input {...register("description", { required: "Description is required" })} placeholder="Enter description" />
+          <Controller
+            name="description"
+            control={control}
+            rules={{ required: "Description is required" }}
+            render={({ field }) => (
+              <CKEditor
+                value={field.value || ""}
+                onChange={(html) => field.onChange(html)}
+              />
+            )}
+          />
           {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
         </div>
 
