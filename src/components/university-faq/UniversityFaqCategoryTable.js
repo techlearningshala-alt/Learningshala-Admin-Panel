@@ -6,13 +6,12 @@ import DataTable from "../table/DataTable";
 
 export default function UniversityFaqCategoryTable({ categories, onEdit, onDelete }) {
   const columns = [
-    { key: "id", label: "ID" },
-    { key: "heading", label: "Heading" },
     {
-      key: "updated_at",
-      label: "Updated Date",
-      render: (row) =>
-        row.updated_at ? new Date(row.updated_at).toLocaleString() : "-",
+      key: "heading",
+      label: "Heading",
+      style: { width: "100%" },
+      cellClassName: "border px-3 py-2 font-medium",
+      headerClassName: "border px-3 py-2 text-left",
     },
   ];
 
@@ -21,10 +20,12 @@ export default function UniversityFaqCategoryTable({ categories, onEdit, onDelet
       key: (props) => (
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
+          type="button"
+          className="h-8 w-8 p-0"
           onClick={() => onEdit(props.row)}
         >
-          <Pencil className="mr-1" /> Edit
+          <Pencil className="h-4 w-4" />
         </Button>
       ),
     },
@@ -32,10 +33,12 @@ export default function UniversityFaqCategoryTable({ categories, onEdit, onDelet
       key: (props) => (
         <Button
           size="sm"
-          variant="destructive"
+          variant="ghost"
+          type="button"
+          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
           onClick={() => onDelete(props.row.id)}
         >
-          <Trash className="mr-1" /> Delete
+          <Trash className="h-4 w-4" />
         </Button>
       ),
     },

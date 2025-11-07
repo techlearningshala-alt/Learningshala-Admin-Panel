@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addUniversity, updateUniversity } from "@/lib/universityApi";
@@ -15,6 +15,8 @@ import { MultiSelect } from "primereact/multiselect";
 // ✅ Import reusable components and utilities
 import { SectionsForm } from "./components/SectionRenderer";
 import { deepMergeProps } from "./utils/formHelpers";
+import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
+import { addUniversityFaq } from "@/lib/api";
 
 // Banner Section Component (separate component to avoid hooks in IIFE)
 function BannerSection({ control, register, previewBanners, setPreviewBanners, setValue, watch }) {
@@ -149,6 +151,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
   const [existingLogo, setExistingLogo] = useState(null);
   const [existingBrochure, setExistingBrochure] = useState(null);
   const [sectionPreviews, setSectionPreviews] = useState({});
+  const [stagedFaqs, setStagedFaqs] = useState([]);
 
   const defaultSections = [
     {
@@ -288,12 +291,6 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         content: "" 
       }
     },  
-    {
-      id: "university-faq", title: "Faqs", component: "UniversityFaq",
-      props: {
-        faqData: "Yes"
-      }
-    },
   ]
   const {
     register,
@@ -317,7 +314,53 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     },
   });
 
+  const watchApprovalIds = watch("approval_ids") || [];
+  const watchPlacementIds = watch("placement_partner_ids") || [];
+  const watchEmiIds = watch("emi_partner_ids") || [];
+
+  const normalizeIds = (ids) => {
+    if (!Array.isArray(ids)) return [];
+    return ids.map((id) => Number(id));
+  };
+
+  const selectedApprovalsDisplay = useMemo(() => {
+    const normalized = normalizeIds(watchApprovalIds);
+    if (!normalized.length) return [];
+    return approvals
+      .filter((approval) => normalized.includes(Number(approval.id)))
+      .map((approval) => ({
+        id: approval.id,
+        title: approval.title,
+      }));
+  }, [approvals, watchApprovalIds]);
+
+  const selectedPlacementPartnersDisplay = useMemo(() => {
+    const normalized = normalizeIds(watchPlacementIds);
+    if (!normalized.length) return [];
+    return placementPartners
+      .filter((partner) => normalized.includes(Number(partner.id)))
+      .map((partner) => ({
+        id: partner.id,
+        name: partner.name,
+      }));
+  }, [placementPartners, watchPlacementIds]);
+
+  const selectedEmiPartnersDisplay = useMemo(() => {
+    const normalized = normalizeIds(watchEmiIds);
+    if (!normalized.length) return [];
+    return emiPartners
+      .filter((partner) => normalized.includes(Number(partner.id)))
+      .map((partner) => ({
+        id: partner.id,
+        name: partner.name,
+      }));
+  }, [emiPartners, watchEmiIds]);
+
   useEffect(() => {
+    if (item?.id) {
+      setStagedFaqs([]);
+    }
+
     if (!item) {
       // 🧹 Reset everything when adding new
       reset({
@@ -486,10 +529,53 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
   }, [item, reset]);
 
+  const persistStagedFaqs = async (newUniversityId) => {
+    if (!stagedFaqs.length || !newUniversityId) return;
+
+    for (const faq of stagedFaqs) {
+      try {
+        await addUniversityFaq({
+          university_id: newUniversityId,
+          category_id: faq.category_id,
+          title: faq.title,
+          description: faq.description,
+          saveWithDate: faq.saveWithDate ?? true,
+        });
+      } catch (error) {
+        console.error("Failed to persist staged FAQ", error);
+        notifyError("Failed to save staged FAQs. Please try again after saving the university.");
+        throw error;
+      }
+    }
+
+    setStagedFaqs([]);
+    queryClient.invalidateQueries(["university-faq-inline", newUniversityId]);
+    notifySuccess("Staged FAQs saved successfully.");
+  };
+
   const mutation = useMutation({
     mutationFn: async (formData) =>
       item?.id ? updateUniversity(item.id, formData) : addUniversity(formData),
-    onSuccess: () => {
+    onSuccess: async (response) => {
+      if (!item && stagedFaqs.length) {
+        const createdUniversityId =
+          response?.data?.id ??
+          response?.data?.data?.id ??
+          response?.data?.data?.insertId ??
+          response?.data?.insertId ??
+          response?.id;
+
+        if (createdUniversityId) {
+          try {
+            await persistStagedFaqs(createdUniversityId);
+          } catch (error) {
+            console.error("Error while persisting staged FAQs", error);
+          }
+        } else {
+          notifyError("Could not detect the new university ID to save staged FAQs. Please add FAQs after saving.");
+        }
+      }
+
       notifySuccess(item ? "University updated successfully" : "University added successfully");
       reset();
       setPreviewLogo(null);
@@ -606,9 +692,6 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     if (section.id === "university-Emi" && section.props) {
       section.props.emiPartners = "Yes";
     }
-    if (section.id === "university-faq" && section.props) {
-      section.props.faqData = "Yes";
-    }
   
     });
     let sectionImageCounter = 0;
@@ -716,6 +799,28 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             {errors.approval_ids && (
               <p className="text-red-500 text-sm">{errors.approval_ids.message}</p>
             )}
+            {selectedApprovalsDisplay.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {selectedApprovalsDisplay.map((approval) => (
+                  <div
+                    key={approval.id}
+                    className="group flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm shadow-sm"
+                  >
+                    <span className="font-medium">{approval.title}</span>
+                    <button
+                      type="button"
+                      className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={() => {
+                        const next = (watchApprovalIds || []).filter((id) => Number(id) !== Number(approval.id));
+                        setValue("approval_ids", next, { shouldValidate: true, shouldDirty: true });
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Placement Partners Multiselect */}
@@ -744,6 +849,28 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 );
               }}
             />
+            {selectedPlacementPartnersDisplay.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {selectedPlacementPartnersDisplay.map((partner) => (
+                  <div
+                    key={partner.id}
+                    className="group flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm shadow-sm"
+                  >
+                    <span className="font-medium">{partner.name}</span>
+                    <button
+                      type="button"
+                      className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={() => {
+                        const next = (watchPlacementIds || []).filter((id) => Number(id) !== Number(partner.id));
+                        setValue("placement_partner_ids", next, { shouldValidate: true, shouldDirty: true });
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* EMI Partners Multiselect */}
@@ -772,6 +899,28 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 );
               }}
             />
+            {selectedEmiPartnersDisplay.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {selectedEmiPartnersDisplay.map((partner) => (
+                  <div
+                    key={partner.id}
+                    className="group flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm shadow-sm"
+                  >
+                    <span className="font-medium">{partner.name}</span>
+                    <button
+                      type="button"
+                      className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={() => {
+                        const next = (watchEmiIds || []).filter((id) => Number(id) !== Number(partner.id));
+                        setValue("emi_partner_ids", next, { shouldValidate: true, shouldDirty: true });
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -837,6 +986,23 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             sectionPreviews={sectionPreviews}
             setSectionPreviews={setSectionPreviews}
             watch={watch}
+          />
+        </div>
+
+        <div className="border-t pt-4 mt-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">FAQ Management</h3>
+            {!item?.id && (
+              <span className="text-xs text-muted-foreground">
+                FAQs will be saved once the university is created.
+              </span>
+            )}
+          </div>
+          <UniversityFaqInlinePanel
+            universityId={item?.id}
+            universityName={watch("university_name")}
+            stagedFaqs={stagedFaqs}
+            setStagedFaqs={setStagedFaqs}
           />
         </div>
 
