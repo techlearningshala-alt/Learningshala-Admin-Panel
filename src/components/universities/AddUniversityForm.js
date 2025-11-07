@@ -708,17 +708,6 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
               formData.append(uniqueKey, v[0]);
               obj[k] = v[0].name;
               sectionImageCounter++;
-            } else if (
-              // Check if this is an image field that was removed
-              (k.toLowerCase().includes("img") || k.toLowerCase().includes("logo") || k.toLowerCase().includes("image") || k.toLowerCase().includes("sample")) &&
-              typeof v === "string" &&
-              v.trim() !== "" &&
-              !sectionPreviews[fieldName]
-            ) {
-              // Image was removed - set to empty string to delete it
-              console.log(`📤 [FRONTEND] Section image removed: ${fieldName} (was: "${v}")`);
-              console.log(`📤 [FRONTEND] sectionPreviews[${fieldName}]:`, sectionPreviews[fieldName]);
-              obj[k] = "";
             }
             
             if (Array.isArray(v)) {
