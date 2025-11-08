@@ -290,7 +290,13 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       props: {
         content: "" 
       }
-    },  
+    },
+    {
+      id: "university-faq",  component: "UniversityFaq",
+      props: {
+        faqData: "Yes"
+      }
+    }, 
   ]
   const {
     register,
@@ -691,6 +697,9 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     }
     if (section.id === "university-Emi" && section.props) {
       section.props.emiPartners = "Yes";
+    }
+    if (section.id === "university-faq" && section.props) {
+      section.props.faqData = "Yes";
     }
   
     });
