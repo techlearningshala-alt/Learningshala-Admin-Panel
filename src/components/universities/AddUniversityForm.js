@@ -292,7 +292,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
-      id: "university-faq",  component: "UniversityFaq",
+      id: "university-faq", title: "Faqs", component: "UniversityFaq",
       props: {
         faqData: "Yes"
       }
@@ -989,12 +989,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
         <div className="border-t pt-4 mt-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">FAQ Management</h3>
-            {!item?.id && (
-              <span className="text-xs text-muted-foreground">
-                FAQs will be saved once the university is created.
-              </span>
-            )}
+            {!item?.id}
           </div>
           <UniversityFaqInlinePanel
             universityId={item?.id}

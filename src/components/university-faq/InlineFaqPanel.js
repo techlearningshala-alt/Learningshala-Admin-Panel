@@ -404,11 +404,7 @@ export default function UniversityFaqInlinePanel({
     <div className="space-y-6 mt-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          {!isExistingUniversity && (
-            <p className="text-xs text-muted-foreground mt-1">
-              FAQs will be saved once &ldquo;{universityName || "the university"}&rdquo; is created.
-            </p>
-          )}
+          {!isExistingUniversity}
           {categories.length === 0 && (
             <p className="mt-2 text-xs text-destructive">No categories found. Please create categories first in the University FAQs page.</p>
           )}
@@ -421,9 +417,9 @@ export default function UniversityFaqInlinePanel({
       </div>
 
       <div className="border rounded-lg bg-white">
-        <div className="p-4 border-b">
+        {/* <div className="p-4 border-b">
           <h4 className="font-semibold text-sm uppercase tracking-wide">FAQs</h4>
-        </div>
+        </div> */}
         <div className="p-4">
           {isExistingUniversity ? (
             isLoadingFaqs ? (
@@ -436,9 +432,7 @@ export default function UniversityFaqInlinePanel({
           ) : stagedFaqs?.length ? (
             <DataTable columns={faqColumns} data={faqsToDisplay} actions={faqActions} />
           ) : (
-            <p className="text-sm text-muted-foreground">
-              Staged FAQs will appear here. Save the university to persist them.
-            </p>
+            <p className="text-sm text-muted-foreground">No FAQs yet. Use &ldquo;Add FAQ&rdquo; to create one.</p>
           )}
         </div>
       </div>

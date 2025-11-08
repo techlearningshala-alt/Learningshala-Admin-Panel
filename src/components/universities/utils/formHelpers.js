@@ -105,8 +105,7 @@ export const shouldSkipField = (key) => {
     "bgColor",
     "placementPartners",
     "emiPartners",
-    "faqData",
-    "university-faq", // Hide faqData field (simple Yes/No toggle like Other Popular Universities)
+    "faqData", // Hide faqData field (simple Yes/No toggle like Other Popular Universities)
     "slug", // Hide slug field (auto-generated)
     "id", // Hide id field (auto-generated from question)
     "cat_id", // Hide cat_id field (auto-generated)
