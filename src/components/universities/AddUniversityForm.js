@@ -229,7 +229,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     {
       id: "sample-certificate", title: "Sample Certificate", component: "UniversitySampleCertificate",
       props: {
-        content: "",
+        content: "",  
         sampleImg: "",
       }
     },
@@ -984,6 +984,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             sectionPreviews={sectionPreviews}
             setSectionPreviews={setSectionPreviews}
             watch={watch}
+            templates={defaultSections}
           />
         </div>
 

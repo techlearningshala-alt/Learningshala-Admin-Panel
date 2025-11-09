@@ -30,7 +30,9 @@ export const renderPropsInputs = (
   props,
   watch,
   sectionPreviews,
-  setSectionPreviews
+  setSectionPreviews,
+  setValue,
+  templateProps = undefined
 ) => {
   // Safety check: ensure props is a valid object
   if (!props || typeof props !== "object" || Array.isArray(props)) {
@@ -86,7 +88,7 @@ export const renderPropsInputs = (
                     return newPreviews;
                   });
                   // Clear the form value
-                  if (setValue) {
+                  if (typeof setValue === "function") {
                     setValue(fieldName, null);
                     console.log(`🗑️ [FRONTEND] Form value cleared for ${fieldName}`);
                   }
@@ -131,6 +133,8 @@ export const renderPropsInputs = (
       // 🗑️ Allow removing all items for certain arrays
       const allowRemoveAll = key === "items";
 
+      const templateForArray = Array.isArray(templateProps) ? templateProps : templateProps?.[key];
+
       return (
         <DynamicArrayField
           key={fieldName}
@@ -144,6 +148,8 @@ export const renderPropsInputs = (
           fixedSize={isFixedSize}
           addButtonLabel={getAddButtonLabel(key)}
           allowRemoveAll={allowRemoveAll}
+          setValue={setValue}
+          template={templateForArray}
         />
       );
     }
@@ -161,7 +167,8 @@ export const renderPropsInputs = (
             watch,
             sectionPreviews,
             setSectionPreviews,
-            setValue
+            setValue,
+            templateProps ? templateProps[key] : undefined
           )}
         </div>
       );
@@ -203,11 +210,13 @@ export const SectionsForm = ({
   setSectionPreviews,
   watch,
   setValue,
+  templates,
 }) => {
   return (
     <div className="space-y-6">
       {sections.map((section, sIndex) => {
         const sectionPath = `sections.${sIndex}`;
+        const templateSection = Array.isArray(templates) ? templates[sIndex] : undefined;
         
         // Default rendering for all sections (FAQ is now simple Yes/No like Other Popular Universities)
         return (
@@ -222,7 +231,8 @@ export const SectionsForm = ({
                 watch,
                 sectionPreviews,
                 setSectionPreviews,
-                setValue
+                setValue,
+                templateSection?.props
               )
             ) : (
               <p className="text-gray-500">No editable fields for this section</p>

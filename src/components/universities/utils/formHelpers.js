@@ -83,6 +83,21 @@ export const getRemoveButtonLabel = (fieldKey) => {
 };
 
 /**
+ * Determine whether an array should allow removing preloaded items
+ */
+export const canRemoveExistingEntries = (fieldKey) => {
+  const removable = new Set([
+    "faculties",
+    "allReviews",
+    "emiPartners",
+    "placementPartners",
+    "banners",
+  ]);
+
+  return removable.has(fieldKey);
+};
+
+/**
  * Helper for generating empty structure from template
  * Used when adding new items to dynamic arrays
  */
