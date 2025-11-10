@@ -29,7 +29,7 @@ const HtmlContent = ({ content }) => {
   const hasHtml = /<[^>]+>/.test(htmlContent);
   
   return (
-    <div className="max-w-md min-w-[200px]">
+    <div className="w-full">
       {hasHtml ? (
         <div 
           className="text-sm"

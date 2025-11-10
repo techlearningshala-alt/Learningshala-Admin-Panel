@@ -7,6 +7,13 @@ import { Label } from "@/components/ui/label";
 import DataTable from "@/components/table/DataTable";
 import CKEditor from "@/components/CKEditor";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
   fetchUniversityFaqCategories,
   fetchUniversityFaqs,
   addUniversityFaq,
@@ -21,6 +28,34 @@ const FAQ_FETCH_LIMIT = 100;
 
 const stripHtml = (input = "") => input.replace(/<[^>]*>?/gm, "");
 
+const HtmlContent = ({ content }) => {
+  if (!content || typeof content !== "string") {
+    return <span className="text-muted-foreground">-</span>;
+  }
+
+  const trimmed = content.trim();
+  if (!trimmed) {
+    return <span className="text-muted-foreground">-</span>;
+  }
+
+  const hasHtml = /<[^>]+>/.test(trimmed);
+
+  if (!hasHtml) {
+    return (
+      <div className="text-sm whitespace-pre-wrap break-words leading-5">
+        {trimmed}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="prose prose-sm max-w-none text-sm leading-5 break-words [&_*]:text-foreground"
+      dangerouslySetInnerHTML={{ __html: trimmed }}
+    />
+  );
+};
+
 function FaqForm({
   categories,
   defaultValues,
@@ -29,6 +64,7 @@ function FaqForm({
   submitLabel = "Save FAQ",
   disableSubmit,
   isEditing,
+  containerClassName = "border rounded-lg p-4 bg-white shadow-sm mt-4",
 }) {
   const {
     register,
@@ -97,7 +133,7 @@ function FaqForm({
   );
 
   return (
-    <div className="border rounded-lg p-4 bg-white shadow-sm mt-4">
+    <div className={containerClassName}>
       <div className="space-y-4">
         <div className="space-y-2">
           <Label>Category</Label>
@@ -361,13 +397,13 @@ export default function UniversityFaqInlinePanel({
       headerClassName: "border px-2 py-1 text-left",
     },
     {
-      key: "description_preview",
+      key: "description",
       label: "Answer",
       style: { width: "60%" },
       cellClassName: "border px-2 py-1 align-top",
       contentClassName: "break-words whitespace-pre-line",
       headerClassName: "border px-2 py-1 text-left",
-      render: (row) => row.description_preview || "-",
+      render: (row) => <HtmlContent content={row.description} />,
     },
   ];
 
@@ -437,17 +473,39 @@ export default function UniversityFaqInlinePanel({
         </div>
       </div>
 
-      {isFaqFormOpen && (
-        <FaqForm
-          categories={categories}
-          defaultValues={editingFaq?.id ? editingFaq : editingFaq?.tempId ? editingFaq : undefined}
-          onSubmit={handleSaveFaq}
-          onCancel={handleCloseFaqForm}
-          submitLabel={editingFaq ? "Update FAQ" : "Save FAQ"}
-          disableSubmit={isLoadingCategories}
-          isEditing={Boolean(editingFaq)}
-        />
-      )}
+      <Dialog
+        open={isFaqFormOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseFaqForm();
+          } else {
+            setIsFaqFormOpen(true);
+          }
+        }}
+      >
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:w-[90vw] sm:max-w-[90vw] lg:w-[85vw] lg:max-w-[85vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingFaq ? "Edit FAQ" : "Add FAQ"}</DialogTitle>
+            <DialogDescription>
+              {editingFaq
+                ? "Update the FAQ details below."
+                : "Fill in the question and answer to add a new FAQ."}
+            </DialogDescription>
+          </DialogHeader>
+          {isFaqFormOpen && (
+            <FaqForm
+              categories={categories}
+              defaultValues={editingFaq?.id ? editingFaq : editingFaq?.tempId ? editingFaq : undefined}
+              onSubmit={handleSaveFaq}
+              onCancel={handleCloseFaqForm}
+              submitLabel={editingFaq ? "Update FAQ" : "Save FAQ"}
+              disableSubmit={isLoadingCategories}
+              isEditing={Boolean(editingFaq)}
+              containerClassName="space-y-4"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
