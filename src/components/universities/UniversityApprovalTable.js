@@ -53,7 +53,7 @@ const HtmlContent = ({ content }) => {
 
 export default function UniversityApprovalTable({ items, onEdit, onDelete }) {
   const columns = [
-    { key: "id", label: "ID" },
+    { key: "id", label: "ID",cellClassName: "w-10 text-center" },
     {
       key: "title",
       label: "Title",
@@ -82,14 +82,14 @@ export default function UniversityApprovalTable({ items, onEdit, onDelete }) {
     {
       key: (props) => (
         <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
-          <Pencil className="mr-1 h-4 w-4" /> Edit
+          <Pencil className="h-4 w-4" /> 
         </Button>
       ),
     },
     {
       key: (props) => (
         <Button size="sm" variant="destructive" onClick={() => onDelete(props.row.id)}>
-          <Trash className="mr-1 h-4 w-4" /> Delete
+          <Trash className=" h-4 w-4" /> 
         </Button>
       ),
     },
