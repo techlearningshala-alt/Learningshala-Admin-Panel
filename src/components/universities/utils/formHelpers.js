@@ -4,6 +4,18 @@
  */
 
 /**
+ * Map display keys shown in the admin to underlying data keys used by the website
+ */
+const linkedFieldMappings = {
+  "rating (1-5)": "value",
+  "faculty Qualification": "faculty_qualification",
+};
+
+const isStringEmpty = (val) => typeof val === "string" && val.trim() === "";
+
+const isEmpty = (val) => val === undefined || val === null || isStringEmpty(val);
+
+/**
  * Deep merge two objects, prioritizing new values over old ones
  * Handles nested objects and arrays properly
  */
@@ -124,6 +136,7 @@ export const shouldSkipField = (key) => {
     "slug", // Hide slug field (auto-generated)
     "id", // Hide id field (auto-generated from question)
     "cat_id", // Hide cat_id field (auto-generated)
+    ...Object.values(linkedFieldMappings),
   ];
   return skipFields.includes(key);
 };
@@ -193,5 +206,36 @@ export const buildPreviewURL = (value, sectionPreviews, fieldName) => {
   }
   
   return null;
+};
+
+/**
+ * Get the linked target key for a display key
+ */
+export const getLinkedFieldTarget = (fieldKey) => linkedFieldMappings[fieldKey];
+
+/**
+ * Recursively apply linked field mappings so display keys inherit values from their targets
+ */
+export const applyLinkedFieldMappings = (obj) => {
+  if (!obj || typeof obj !== "object") return;
+
+  Object.entries(linkedFieldMappings).forEach(([displayKey, targetKey]) => {
+    if (Object.prototype.hasOwnProperty.call(obj, targetKey)) {
+      const targetVal = obj[targetKey];
+      const currentDisplayVal = obj[displayKey];
+
+      if (!Object.prototype.hasOwnProperty.call(obj, displayKey) || isEmpty(currentDisplayVal)) {
+        obj[displayKey] = targetVal ?? "";
+      }
+    }
+  });
+
+  Object.values(obj).forEach((value) => {
+    if (Array.isArray(value)) {
+      value.forEach((item) => applyLinkedFieldMappings(item));
+    } else if (value && typeof value === "object") {
+      applyLinkedFieldMappings(value);
+    }
+  });
 };
 

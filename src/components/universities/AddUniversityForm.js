@@ -14,7 +14,7 @@ import { MultiSelect } from "primereact/multiselect";
 
 // ✅ Import reusable components and utilities
 import { SectionsForm } from "./components/SectionRenderer";
-import { deepMergeProps } from "./utils/formHelpers";
+import { deepMergeProps, applyLinkedFieldMappings } from "./utils/formHelpers";
 import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
 import { addUniversityFaq } from "@/lib/api";
 
@@ -261,7 +261,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         allReviews: [
           {
             name: "",
-            "rating (1-5)" : "", // (1-5 rating)
+            "rating (1-5)" : "",
+            value: "",
             reviewContent: "",
           }
         ]
@@ -452,9 +453,16 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
           component: defaultSection.component,
           props: deepMergeProps(defaultSection.props, dbSection.props),
         };
+        if (merged.props) {
+          applyLinkedFieldMappings(merged.props);
+        }
         return merged;
       }
-      return defaultSection;
+      const clonedDefault = structuredClone(defaultSection);
+      if (clonedDefault?.props) {
+        applyLinkedFieldMappings(clonedDefault.props);
+      }
+      return clonedDefault;
     });
 
     const formValues = {
@@ -692,16 +700,20 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       if (section.id === "approval-logo" && section.props) {
         section.props.univsersityApprovals = "Yes";
       }
-    if (section.id === "placement-detail" && section.props) {
-      section.props.placementPartners = "Yes";
-    }
-    if (section.id === "university-Emi" && section.props) {
-      section.props.emiPartners = "Yes";
-    }
-    if (section.id === "university-faq" && section.props) {
-      section.props.faqData = "Yes";
-    }
-  
+      if (section.id === "placement-detail" && section.props) {
+        section.props.placementPartners = "Yes";
+      }
+      if (section.id === "university-Emi" && section.props) {
+        section.props.emiPartners = "Yes";
+      }
+      if (section.id === "university-faq" && section.props) {
+        section.props.faqData = "Yes";
+      }
+
+      if (section.props) {
+        applyLinkedFieldMappings(section.props);
+      }
+ 
     });
     let sectionImageCounter = 0;
     sectionsCopy.forEach((section, sIndex) => {

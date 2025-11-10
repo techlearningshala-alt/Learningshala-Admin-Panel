@@ -17,6 +17,7 @@ import {
   isCKEditorField,
   buildPreviewURL,
   getAddButtonLabel,
+  getLinkedFieldTarget,
 } from "../utils/formHelpers";
 
 /**
@@ -190,10 +191,30 @@ export const renderPropsInputs = (
     }
 
     // Handle plain input fields
+    const registerOptions = {};
+    const linkedTargetKey = getLinkedFieldTarget(key);
+    if (linkedTargetKey && typeof setValue === "function") {
+      registerOptions.onChange = (event) => {
+        const newValue = event?.target?.value ?? "";
+        const basePath = path;
+        const targetFieldName = `${basePath}.${linkedTargetKey}`;
+        setValue(targetFieldName, newValue, { shouldDirty: true, shouldValidate: true });
+      };
+    }
+    const registerProps = register(fieldName, registerOptions);
+
+    let inputDefaultValue = value;
+    if ((inputDefaultValue === undefined || inputDefaultValue === null || inputDefaultValue === "") && linkedTargetKey) {
+      const linkedValue = props?.[linkedTargetKey];
+      if (linkedValue !== undefined && linkedValue !== null && linkedValue !== "") {
+        inputDefaultValue = linkedValue;
+      }
+    }
+
     return (
       <div key={fieldName} className="mb-4">
         <Label className="capitalize">{key}</Label>
-        <Input {...register(fieldName)} defaultValue={value || ""} />
+        <Input {...registerProps} defaultValue={inputDefaultValue ?? ""} />
       </div>
     );
   });
