@@ -53,6 +53,7 @@ const HtmlContent = ({ content }) => {
 
 export default function UniversityApprovalTable({ items, onEdit, onDelete }) {
   const columns = [
+    
     { key: "id", label: "ID",cellClassName: "w-10 text-center" },
     {
       key: "title",

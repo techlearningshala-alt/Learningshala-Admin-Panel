@@ -6,10 +6,13 @@ import DataTable from "../table/DataTable";
 
 export default function MediaSpotlightTable({ items, onEdit, onDelete }) {
   const columns = [
-    { key: "id", label: "ID" },
+    { key: "id", label: "ID", width: "6%", style: { width: "6%" } },
     {
       key: "title",
       label: "Title",
+      width: "50%",
+      style: { width: "50%" },
+      cellClassName: "border px-2 py-1 align-middle",
       render: (row) => (
         <Button variant="link" onClick={() => onEdit(row)}>
           {row.title}
@@ -19,6 +22,8 @@ export default function MediaSpotlightTable({ items, onEdit, onDelete }) {
     {
       key: "logo",
       label: "Logo",
+      width: "12%",
+      style: { width: "12%" },
       render: (row) =>
         row.logo ? (
           <img
@@ -31,6 +36,9 @@ export default function MediaSpotlightTable({ items, onEdit, onDelete }) {
     {
       key: "link",
       label: "Link",
+      width: "15%",
+      style: { width: "15%" },
+      cellClassName: "border px-2 py-1 align-middle",
       render: (row) => (
         <a
           href={row.link}
@@ -45,15 +53,25 @@ export default function MediaSpotlightTable({ items, onEdit, onDelete }) {
     {
       key: "updated_at",
       label: "Updated At",
-      render: (row) => new Date(row.updated_at).toLocaleString(),
+      width: "10%",
+      style: { width: "10%" },
+      cellClassName: "border px-2 py-1 align-middle whitespace-nowrap",
+      contentClassName: "whitespace-nowrap",
+      render: (row) => new Date(row.updated_at).toLocaleDateString(),
     },
   ];
 
   const actions = [
     {
       key: (props) => (
-        <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
-          <Pencil className="mr-1 h-4 w-4" /> Edit
+        <Button
+          size="sm"
+          variant="ghost"
+          type="button"
+          className="h-8 w-8 p-0"
+          onClick={() => onEdit(props.row)}
+        >
+          <Pencil className="h-4 w-4" />
         </Button>
       ),
     },
@@ -61,10 +79,12 @@ export default function MediaSpotlightTable({ items, onEdit, onDelete }) {
       key: (props) => (
         <Button
           size="sm"
-          variant="destructive"
+          variant="ghost"
+          type="button"
+          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
           onClick={() => onDelete(props.row.id)}
         >
-          <Trash className="mr-1 h-4 w-4" /> Delete
+          <Trash className="h-4 w-4" />
         </Button>
       ),
     },

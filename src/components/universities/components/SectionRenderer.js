@@ -232,6 +232,7 @@ export const SectionsForm = ({
   watch,
   setValue,
   templates,
+  renderAfterSection,
 }) => {
   return (
     <div className="space-y-6">
@@ -241,23 +242,26 @@ export const SectionsForm = ({
         
         // Default rendering for all sections (FAQ is now simple Yes/No like Other Popular Universities)
         return (
-          <div key={section.id} className="p-4 border rounded-md">
-            <h3 className="font-semibold text-lg mb-2">{section.title}</h3>
-            {section.props ? (
-              renderPropsInputs(
-                control,
-                register,
-                `${sectionPath}.props`,
-                section.props,
-                watch,
-                sectionPreviews,
-                setSectionPreviews,
-                setValue,
-                templateSection?.props
-              )
-            ) : (
-              <p className="text-gray-500">No editable fields for this section</p>
-            )}
+          <div key={section.id} className="space-y-4">
+            <div className="p-4 border rounded-md">
+              <h3 className="font-semibold text-lg mb-2">{section.title}</h3>
+              {section.props ? (
+                renderPropsInputs(
+                  control,
+                  register,
+                  `${sectionPath}.props`,
+                  section.props,
+                  watch,
+                  sectionPreviews,
+                  setSectionPreviews,
+                  setValue,
+                  templateSection?.props
+                )
+              ) : (
+                <p className="text-gray-500">No editable fields for this section</p>
+              )}
+            </div>
+            {renderAfterSection?.(section, sIndex)}
           </div>
         );
       })}

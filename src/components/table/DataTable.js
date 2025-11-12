@@ -14,7 +14,11 @@ export default function DataTable({ columns, data = [], actions = [] }) {
               </th>
             );
           })}
-          {actions.length > 0 && <th className="border px-2 py-1">Actions</th>}
+          {actions.length > 0 && (
+            <th className="border px-2 py-1 text-center" style={{ width: "60px" }}>
+              Actions
+            </th>
+          )}
         </tr>
       </thead>
       <tbody>
@@ -35,7 +39,7 @@ export default function DataTable({ columns, data = [], actions = [] }) {
                 const cellClassName = col.cellClassName || "border px-2 py-1";
                 const wrapperClassName = col.contentClassName || "break-words whitespace-pre-line";
                 return (
-                  <td key={col.key} className={`${cellClassName} align-top`} style={columnStyle}>
+                  <td key={col.key} className={`${cellClassName} align-middle`} style={columnStyle}>
                     <div className={`${wrapperClassName} w-full`}>
                       {col.render ? col.render(row) : row[col.key]}
                     </div>
@@ -43,10 +47,12 @@ export default function DataTable({ columns, data = [], actions = [] }) {
                 );
               })}
               {actions.length > 0 && (
-                <td className="border px-2 py-1 flex gap-2 align-top">
-                  {actions.map((action, idx) => (
-                    <span key={idx}>{action.key({ row })}</span>
-                  ))}
+                <td className="border px-1 py-1 align-middle text-center" style={{ width: "60px" }}>
+                  <div className="flex items-center justify-center gap-1">
+                    {actions.map((action, idx) => (
+                      <span key={idx}>{action.key({ row })}</span>
+                    ))}
+                  </div>
                 </td>
               )}
             </tr>

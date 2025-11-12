@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import DataTable from "@/components/table/DataTable";
+import { Pencil, Trash } from "lucide-react";
 
 // Component to render HTML content in table cell
 const HtmlContent = ({ content }) => {
@@ -67,10 +68,10 @@ export default function FaqTable({ data, onEdit, onDelete }) {
       render: (item) => (
         <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={() => onEdit(item)}>
-            Edit
+            <Pencil className="h-4 w-4" />
           </Button>
           <Button size="sm" variant="destructive" onClick={() => onDelete(item.id)}>
-            Delete
+            <Trash className="h-4 w-4" />
           </Button>
         </div>
       ),

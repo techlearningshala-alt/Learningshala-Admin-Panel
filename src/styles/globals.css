@@ -139,7 +139,7 @@ body {
   font-weight: revert;
 }
 
-.ck-content a {
+.ck-content a,.ck-content a span {
   color: #2563eb !important; /* blue-600 */
   text-decoration: underline;
 }

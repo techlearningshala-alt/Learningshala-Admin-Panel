@@ -51,7 +51,7 @@ export default function CourseTable({ items, onEdit, onDelete }) {
     {
       key: (props) => (
         <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
-          <Pencil className="mr-1 h-4 w-4" /> Edit
+          <Pencil className=" h-4 w-4" />
         </Button>
       ),
     },
@@ -62,7 +62,7 @@ export default function CourseTable({ items, onEdit, onDelete }) {
           variant="destructive"
           onClick={() => onDelete(props.row.id)}
         >
-          <Trash className="mr-1 h-4 w-4" /> Delete
+          <Trash className="h-4 w-4" />
         </Button>
       ),
     },

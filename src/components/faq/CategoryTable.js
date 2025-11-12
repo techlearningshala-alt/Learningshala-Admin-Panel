@@ -24,7 +24,7 @@ export default function FaqCategoryTable({ categories, onEdit, onDelete }) {
           variant="outline"
           onClick={() => onEdit(props.row)}
         >
-          <Pencil className="mr-1" /> Edit
+          <Pencil/>
         </Button>
       ),
     },
@@ -35,7 +35,7 @@ export default function FaqCategoryTable({ categories, onEdit, onDelete }) {
           variant="destructive"
           onClick={() => onDelete(props.row.id)}
         >
-          <Trash className="mr-1" /> Delete
+          <Trash />
         </Button>
       ),
     },

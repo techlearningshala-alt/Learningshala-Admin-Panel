@@ -38,14 +38,14 @@ export default function MentorTable({ mentors, onEdit, onDelete }) {
     {
       key: (props) => (
         <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
-          <Pencil className="mr-1 h-4 w-4" /> Edit
+          <Pencil  />
         </Button>
       ),
     },
     {
       key: (props) => (
         <Button size="sm" variant="destructive" onClick={() => onDelete(props.row.id)}>
-          <Trash className="mr-1 h-4 w-4" /> Delete
+          <Trash /> 
         </Button>
       ),
     },

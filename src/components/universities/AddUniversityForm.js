@@ -41,6 +41,8 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
               {/* Banner Image */}
               <div className="space-y-2">
                 <Label>Banner Image</Label>
+                <input type="hidden" {...register(`${bannerField}.existing_banner_image`)} />
+                <input type="hidden" {...register(`${bannerField}.remove_image`)} />
                 {previewBanners[index] && (
                   <div className="relative inline-block mb-2">
                     <img
@@ -51,25 +53,23 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
                     <button
                       type="button"
                       onClick={() => {
-                        console.log(`🗑️ [FRONTEND] Removing banner image at index ${index}`);
-                        console.log(`🗑️ [FRONTEND] Before removal - previewBanners[${index}]:`, previewBanners[index]);
                         const bannerData = watch(`banners.${index}`);
-                        console.log(`🗑️ [FRONTEND] Before removal - banner data:`, bannerData);
-                        // Don't clear existing_banner_image - we need it to detect removal on submit
-                        // Only clear the preview and form value
                         setPreviewBanners((prev) => {
                           const copy = [...prev];
                           copy[index] = null;
                           return copy;
                         });
                         // Clear the form value explicitly to null
-                        setValue(`banners.${index}.banner_image`, null);
-                        console.log(`🗑️ [FRONTEND] After setValue - banner_image set to null`);
-                        console.log(`🗑️ [FRONTEND] existing_banner_image preserved:`, bannerData?.existing_banner_image);
+                        setValue(`banners.${index}.banner_image`, null, { shouldDirty: true });
+                        setValue(`banners.${index}.existing_banner_image`, "", { shouldDirty: true });
+                        setValue(`banners.${index}.remove_image`, true, { shouldDirty: true });
+                        console.log(`🧪 [BANNERS] Marked for removal`, {
+                          index,
+                          before: bannerData,
+                        });
                         // Clear the file input
                         const fileInput = document.querySelector(`input[name="banners.${index}.banner_image"]`);
                         if (fileInput) fileInput.value = '';
-                        console.log(`🗑️ [FRONTEND] File input cleared for banner ${index}`);
                       }}
                       className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-lg leading-none"
                       title="Remove image"
@@ -90,6 +90,9 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
                         copy[index] = URL.createObjectURL(file);
                         return copy;
                       });
+                      setValue(`banners.${index}.remove_image`, false, { shouldDirty: true });
+                      setValue(`banners.${index}.existing_banner_image`, banner?.existing_banner_image || "", { shouldDirty: true });
+                      console.log(`🧪 [BANNERS] New file selected`, { index, name: file.name });
                     }
                   }}
                 />
@@ -132,7 +135,7 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
           size="sm"
           variant="outline"
           onClick={() =>
-            append({ banner_image: null, video_id: "", video_title: "" })
+            append({ banner_image: null, video_id: "", video_title: "", existing_banner_image: "", remove_image: false })
           }
         >
           + Add More Banner
@@ -316,7 +319,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       university_brochure: null,
       author_name: "",
       is_active: null,
-      banners: [{ banner_image: null, video_id: "", video_title: "" }],
+      banners: [{ banner_image: null, video_id: "", video_title: "", existing_banner_image: "", remove_image: false }],
       sections: defaultSections,
     },
   });
@@ -377,7 +380,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         university_location: "",
         university_brochure: null,
         author_name: "",
-        banners: [{ banner_image: null, video_id: "", video_title: "" }],
+        banners: [{ banner_image: null, video_id: "", video_title: "", existing_banner_image: "", remove_image: false }],
         sections: defaultSections,
         approval_ids: [],
         placement_partner_ids: [],
@@ -477,9 +480,10 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
           banner_image: null,
           video_id: b.video_id || "",
           video_title: b.video_title || "",
-          existing_banner_image: b.banner_image || null,
+          existing_banner_image: b.banner_image || "",
+          remove_image: false,
         }))
-        : [{ banner_image: null, video_id: "", video_title: "" }],
+        : [{ banner_image: null, video_id: "", video_title: "", existing_banner_image: "", remove_image: false }],
       sections: mergedSections,
       approval_ids: selectedApprovals.map((a) => a.id), // <- extract IDs only
       placement_partner_ids: selectedPlacementPartners.map((p) => p.id), // <- extract IDs only
@@ -650,41 +654,42 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     }
     if (data.university_brochure && data.university_brochure[0]) formData.append("university_brochure", data.university_brochure[0]);
     // 🔹 Banners (supports multiple)
-    console.log("📤 [FRONTEND] Preparing banners for submission");
-    console.log("📤 [FRONTEND] data.banners:", data.banners);
-    console.log("📤 [FRONTEND] previewBanners:", previewBanners);
     const banners = data.banners.map((banner, index) => {
       const bannerData = { ...banner };
-      console.log(`📤 [FRONTEND] Processing banner ${index}:`, banner);
-      console.log(`📤 [FRONTEND] banner.banner_image:`, banner.banner_image);
-      console.log(`📤 [FRONTEND] banner.existing_banner_image:`, banner.existing_banner_image);
-      console.log(`📤 [FRONTEND] previewBanners[${index}]:`, previewBanners[index]);
-
-      if (banner.banner_image instanceof FileList && banner.banner_image[0]) {
+ 
+      if (banner.remove_image) {
+        bannerData.banner_image = "";
+        bannerData.existing_banner_image = "";
+      } else if (banner.banner_image instanceof FileList && banner.banner_image[0]) {
         const file = banner.banner_image[0];
-        console.log(`📤 [FRONTEND] New banner file uploaded for index ${index}`);
         formData.append(`banner_image_${index}`, file);
         bannerData.banner_image = file.name; // reference name to replace in backend
-      } else if (banner.existing_banner_image && banner.banner_image === null && previewBanners[index] === null) {
+        bannerData.existing_banner_image = banner.existing_banner_image || "";
+      } else if (
+        banner.existing_banner_image &&
+        banner.banner_image === null &&
+        previewBanners[index] === null
+      ) {
         // Banner image was explicitly removed:
         // - existing_banner_image exists (had an image before)
         // - banner_image is explicitly null (was set to null via setValue)
         // - previewBanners[index] is null (preview was cleared)
-        console.log(`📤 [FRONTEND] Banner ${index} image was removed - setting to empty string`);
-        console.log(`📤 [FRONTEND] Evidence: existing_banner_image="${banner.existing_banner_image}", banner_image=${banner.banner_image}, preview=${previewBanners[index]}`);
         bannerData.banner_image = "";
+        bannerData.existing_banner_image = "";
       } else if (banner.existing_banner_image && banner.existing_banner_image.trim() !== "") {
         // Keep existing banner image - don't modify it
-        console.log(`📤 [FRONTEND] Banner ${index} - keeping existing image:`, banner.existing_banner_image);
         bannerData.banner_image = banner.existing_banner_image;
+        bannerData.existing_banner_image = banner.existing_banner_image;
       } else {
-        console.log(`📤 [FRONTEND] Banner ${index} - no change or no existing image`);
+        bannerData.banner_image = banner.banner_image || "";
+        bannerData.existing_banner_image = banner.existing_banner_image || "";
       }
 
-      console.log(`📤 [FRONTEND] Final bannerData for ${index}:`, bannerData);
+      delete bannerData.remove_image;
+
       return bannerData;
     });
-    console.log("📤 [FRONTEND] Final banners array:", banners);
+    console.log("🧪 [BANNERS] Submitting payload", banners);
 
     formData.append("banners", JSON.stringify(banners));
 
@@ -833,126 +838,31 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             )}
           </div>
 
-          {/* Placement Partners Multiselect */}
-          <div className="space-y-2">
-            <Label>Placement/Hiring Partners</Label>
+        </div>
 
-            <Controller
-              name="placement_partner_ids"
-              control={control}
-              defaultValue={[]}
-              render={({ field }) => {
-                return (
-                  <MultiSelect
-                    value={field.value || []}
-                    onChange={(e) => field.onChange(e.value)}
-                    options={placementPartners}
-                    optionLabel="name"
-                    optionValue="id"
-                    placeholder="Select placement partners"
-                    filter
-                    display="chip"
-                    maxSelectedLabels={-1}
-                    className="w-full"
-                    panelClassName="max-h-60"
-                  />
-                );
-              }}
-            />
-            {selectedPlacementPartnersDisplay.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {selectedPlacementPartnersDisplay.map((partner) => (
-                  <div
-                    key={partner.id}
-                    className="group flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm shadow-sm"
-                  >
-                    <span className="font-medium">{partner.name}</span>
-                    <button
-                      type="button"
-                      className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
-                      onClick={() => {
-                        const next = (watchPlacementIds || []).filter((id) => Number(id) !== Number(partner.id));
-                        setValue("placement_partner_ids", next, { shouldValidate: true, shouldDirty: true });
-                      }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* EMI Partners Multiselect */}
-          <div className="space-y-2">
-            <Label>EMI/Financing Partners</Label>
-
-            <Controller
-              name="emi_partner_ids"
-              control={control}
-              defaultValue={[]}
-              render={({ field }) => {
-                return (
-                  <MultiSelect
-                    value={field.value || []}
-                    onChange={(e) => field.onChange(e.value)}
-                    options={emiPartners}
-                    optionLabel="name"
-                    optionValue="id"
-                    placeholder="Select EMI partners"
-                    filter
-                    display="chip"
-                    maxSelectedLabels={-1}
-                    className="w-full"
-                    panelClassName="max-h-60"
-                  />
-                );
-              }}
-            />
-            {selectedEmiPartnersDisplay.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {selectedEmiPartnersDisplay.map((partner) => (
-                  <div
-                    key={partner.id}
-                    className="group flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm shadow-sm"
-                  >
-                    <span className="font-medium">{partner.name}</span>
-                    <button
-                      type="button"
-                      className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
-                      onClick={() => {
-                        const next = (watchEmiIds || []).filter((id) => Number(id) !== Number(partner.id));
-                        setValue("emi_partner_ids", next, { shouldValidate: true, shouldDirty: true });
-                      }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
+        {/* University Logo & Brochure */}
+        <div className="grid grid-cols-2 gap-6 border-t pt-4 mt-6">
           <div className="space-y-2">
             <Label>University Logo</Label>
             {previewLogo && (
-              <div className="relative inline-block mb-2">
-                <img src={previewLogo} alt="Preview" className="h-20 object-contain rounded border" />
+              <div className="relative inline-block">
+                <img
+                  src={previewLogo}
+                  alt="University logo preview"
+                  className="h-20 object-contain rounded border"
+                />
                 <button
                   type="button"
                   onClick={() => {
                     console.log("🗑️ [FRONTEND] Removing university logo");
                     console.log("🗑️ [FRONTEND] Before removal - existingLogo:", existingLogo);
                     console.log("🗑️ [FRONTEND] Before removal - previewLogo:", previewLogo);
-                    // Don't clear existingLogo - we need it to detect removal on submit
-                    // Only clear the preview and form value
                     setPreviewLogo(null);
                     setValue("university_logo", null);
                     console.log("🗑️ [FRONTEND] After setValue - form value should be null");
                     console.log("🗑️ [FRONTEND] existingLogo preserved for removal detection:", existingLogo);
-                    // Clear the file input
                     const fileInput = document.querySelector('input[name="university_logo"]');
-                    if (fileInput) fileInput.value = '';
+                    if (fileInput) fileInput.value = "";
                     console.log("🗑️ [FRONTEND] File input cleared");
                   }}
                   className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
@@ -962,12 +872,26 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 </button>
               </div>
             )}
-            <Input type="file" accept="image/*" {...register("university_logo")} onChange={(e) => { const file = e.target.files?.[0]; if (file) setPreviewLogo(URL.createObjectURL(file)); }} />
+            <Input
+              type="file"
+              accept="image/*"
+              {...register("university_logo")}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setPreviewLogo(URL.createObjectURL(file));
+                }
+              }}
+            />
           </div>
           <div className="space-y-2">
             <Label>Brochure</Label>
-            {existingBrochure && <p className="text-sm text-gray-600 mb-2">Current: {existingBrochure}</p>}
-            <Input type="file" {...register("university_brochure")} />
+            {existingBrochure && (
+              <p className="text-sm text-muted-foreground break-all">
+                Current: {existingBrochure}
+              </p>
+            )}
+            <Input type="file" accept="application/pdf" {...register("university_brochure")} />
           </div>
         </div>
 
@@ -997,6 +921,121 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             setSectionPreviews={setSectionPreviews}
             watch={watch}
             templates={defaultSections}
+            renderAfterSection={(section) => {
+              const isPlacementSection =
+                section?.id === "placement-detail" ||
+                section?.component === "UniversityPlacement";
+
+              const isEmiSection =
+                section?.id === "university-Emi" ||
+                section?.component === "UniversityEmi";
+
+              if (isPlacementSection) {
+                return (
+                  <div className="border rounded-md p-4">
+                    <Label className="block mb-2 text-base font-semibold">Placement/Hiring Partners</Label>
+                    <div className="space-y-2">
+                      <Controller
+                        name="placement_partner_ids"
+                        control={control}
+                        defaultValue={[]}
+                        render={({ field }) => (
+                          <MultiSelect
+                            value={field.value || []}
+                            onChange={(e) => field.onChange(e.value)}
+                            options={placementPartners}
+                            optionLabel="name"
+                            optionValue="id"
+                            placeholder="Select placement partners"
+                            filter
+                            display="chip"
+                            maxSelectedLabels={-1}
+                            className="w-full"
+                            panelClassName="max-h-60"
+                          />
+                        )}
+                      />
+                      {selectedPlacementPartnersDisplay.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {selectedPlacementPartnersDisplay.map((partner) => (
+                            <div
+                              key={partner.id}
+                              className="group flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm shadow-sm"
+                            >
+                              <span className="font-medium">{partner.name}</span>
+                              <button
+                                type="button"
+                                className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
+                                onClick={() => {
+                                  const next = (watchPlacementIds || []).filter((id) => Number(id) !== Number(partner.id));
+                                  setValue("placement_partner_ids", next, { shouldValidate: true, shouldDirty: true });
+                                }}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              }
+
+              if (isEmiSection) {
+                return (
+                  <div className="border rounded-md p-4">
+                    <Label className="block mb-2 text-base font-semibold">EMI/Financing Partners</Label>
+                    <div className="space-y-2">
+                      <Controller
+                        name="emi_partner_ids"
+                        control={control}
+                        defaultValue={[]}
+                        render={({ field }) => (
+                          <MultiSelect
+                            value={field.value || []}
+                            onChange={(e) => field.onChange(e.value)}
+                            options={emiPartners}
+                            optionLabel="name"
+                            optionValue="id"
+                            placeholder="Select EMI partners"
+                            filter
+                            display="chip"
+                            maxSelectedLabels={-1}
+                            className="w-full"
+                            panelClassName="max-h-60"
+                          />
+                        )}
+                      />
+                      {selectedEmiPartnersDisplay.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {selectedEmiPartnersDisplay.map((partner) => (
+                            <div
+                              key={partner.id}
+                              className="group flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm shadow-sm"
+                            >
+                              <span className="font-medium">{partner.name}</span>
+                              <button
+                                type="button"
+                                className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
+                                onClick={() => {
+                                  const next = (watchEmiIds || []).filter((id) => Number(id) !== Number(partner.id));
+                                  setValue("emi_partner_ids", next, { shouldValidate: true, shouldDirty: true });
+                                }}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              }
+
+              return null;
+            }}
           />
         </div>
 
