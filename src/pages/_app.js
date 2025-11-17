@@ -28,7 +28,12 @@ export default function App({ Component, pageProps }) {
     "/placements",
     "/emi-partners",
     "/university-faqs",
-    "/university-faq-category"
+    "/university-faq-category",
+    "/university-courses",
+    "/university-course-faqs",
+    "/university-course-specializations",
+    "/fee-types",
+    "/leads",
   ];
 
   const useCMSLayout = cmsPages.some((path) => router.pathname.startsWith(path));

@@ -160,3 +160,171 @@ export const deleteEmiPartner = async (id) => {
   const res = await api.delete(`/emi-partners/${id}`);
   return res.data;
 };
+
+// ========================================
+// University Courses API
+// ========================================
+
+export async function fetchUniversityCourses({
+  page = 1,
+  limit = 10,
+  university_id,
+  search,
+} = {}) {
+  const params = { page, limit };
+  if (university_id) params.university_id = university_id;
+  if (search) params.search = search;
+
+  const res = await api.get(`/university-courses`, { params });
+  return res.data;
+}
+
+export async function fetchUniversityCourseById(idOrSlug) {
+  const res = await api.get(`/university-courses/${idOrSlug}`);
+  console.log("🔍 Raw API Response:", res.data);
+  
+  let courseData = res.data;
+  if (res.data?.data && typeof res.data.data === 'object') {
+    courseData = res.data.data;
+  }
+  
+  console.log("🔍 Extracted Course Data:", courseData);
+  console.log("🔍 Banners in courseData:", courseData?.banners);
+  console.log("🔍 Banners array length:", courseData?.banners?.length);
+  if (courseData?.banners && Array.isArray(courseData.banners)) {
+    console.log("🔍 First banner:", courseData.banners[0]);
+  }
+  return courseData;
+}
+
+export const createUniversityCourse = async (formData) => {
+  const res = await api.post(`/university-courses`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+export const updateUniversityCourseApi = async (id, formData) => {
+  const res = await api.put(`/university-courses/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+export const deleteUniversityCourse = async (id) => {
+  const res = await api.delete(`/university-courses/${id}`);
+  return res.data;
+};
+
+export const toggleUniversityCourseStatus = async (id, isActive) => {
+  const res = await api.patch(`/university-courses/${id}/toggle-status`, { is_active: isActive });
+  return res.data;
+};
+
+// ========================================
+// University Course Specializations API
+// ========================================
+
+export async function fetchUniversityCourseSpecializations({
+  page = 1,
+  limit = 10,
+  university_course_id,
+  search,
+} = {}) {
+  const params = { page, limit };
+  if (university_course_id) params.university_course_id = university_course_id;
+  if (search) params.search = search;
+
+  const res = await api.get(`/university-specializations`, { params });
+  return res.data;
+}
+
+export async function fetchUniversityCourseSpecializationOptions(university_course_id) {
+  const res = await api.get(`/university-specializations/options`, {
+    params: { university_course_id },
+  });
+  return res.data;
+}
+
+export const createUniversityCourseSpecialization = async (formData) => {
+  const res = await api.post(`/university-specializations`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+export const updateUniversityCourseSpecialization = async (id, formData) => {
+  const res = await api.put(`/university-specializations/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+export const deleteUniversityCourseSpecialization = async (id) => {
+  const res = await api.delete(`/university-specializations/${id}`);
+  return res.data;
+};
+
+// ========================================
+// Fee Types API
+// ========================================
+
+export async function fetchFeeTypes({ page = 1, limit = 10, search } = {}) {
+  const params = { page, limit };
+  if (search) params.search = search;
+  const res = await api.get(`/fee-types`, { params });
+  return res.data;
+}
+
+export async function fetchFeeTypeById(id) {
+  const res = await api.get(`/fee-types/${id}`);
+  return res.data?.data || res.data;
+}
+
+export async function createFeeType(payload) {
+  const res = await api.post(`/fee-types`, payload);
+  return res.data;
+}
+
+export async function updateFeeType(id, payload) {
+  const res = await api.put(`/fee-types/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteFeeType(id) {
+  const res = await api.delete(`/fee-types/${id}`);
+  return res.data;
+}
+
+// ===== University Course FAQ APIs =====
+
+export async function fetchUniversityCourseFaqs({ page = 1, limit = 10, course_id, category_id }) {
+  const params = { page, limit };
+  if (course_id) params.course_id = course_id;
+  if (category_id) params.category_id = category_id;
+  
+  const res = await api.get(`/university-courses/faqs/`, {
+    params,
+  });
+  return res.data; // { success, data: { data, page, pages, total } }
+}
+
+export async function addUniversityCourseFaq(payload) {
+  const res = await api.post(`/university-courses/faqs/questions`, payload);
+  return res.data;
+}
+
+export async function updateUniversityCourseFaq(id, payload) {
+  const res = await api.put(`/university-courses/faqs/questions/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteUniversityCourseFaq(id) {
+  const res = await api.delete(`/university-courses/faqs/questions/${id}`);
+  return res.data;
+}
+
+export async function fetchUniversityCourseFaqById(id) {
+  const res = await api.get(`/university-courses/faqs/questions/${id}`);
+  return res.data?.data || res.data;
+}

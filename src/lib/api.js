@@ -13,6 +13,15 @@ export async function fetchMentors({ page = 1, limit = 10 }) {
   return res.data; // { success, data, total, page, pages }
 }
 
+// Fetch marketing leads (paginated)
+export async function fetchLeads({ page = 1, limit = 10, search } = {}) {
+  const params = { page, limit };
+  if (search) params.search = search;
+
+  const res = await api.get("/leads", { params });
+  return res.data;
+}
+
 // Add a new mentor
 export const addMentor = (formData) =>
   api.post("/mentors", formData, {

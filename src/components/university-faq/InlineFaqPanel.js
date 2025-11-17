@@ -21,6 +21,12 @@ import {
   deleteUniversityFaq,
   addUniversityFaqCategory,
 } from "@/lib/api";
+import {
+  fetchUniversityCourseFaqs,
+  addUniversityCourseFaq,
+  updateUniversityCourseFaq,
+  deleteUniversityCourseFaq,
+} from "@/lib/universityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import { Plus, Pencil, Trash } from "lucide-react";
 
@@ -221,14 +227,43 @@ function FaqForm({
 
 export default function UniversityFaqInlinePanel({
   universityId,
+  courseId,
   universityName,
+  courseName,
   stagedFaqs,
   setStagedFaqs,
+  type = "university", // "university" or "course"
 }) {
   const queryClient = useQueryClient();
   const [isFaqFormOpen, setIsFaqFormOpen] = useState(false);
   const [editingFaq, setEditingFaq] = useState(null);
-  const isExistingUniversity = Boolean(universityId);
+  
+  // Determine entity ID and type
+  const entityId = type === "course" ? courseId : universityId;
+  const entityName = type === "course" ? courseName : universityName;
+  const isExistingEntity = Boolean(entityId);
+  
+  // Select API functions based on type
+  const apiFunctions = useMemo(() => {
+    if (type === "course") {
+      return {
+        fetchFaqs: fetchUniversityCourseFaqs,
+        addFaq: addUniversityCourseFaq,
+        updateFaq: updateUniversityCourseFaq,
+        deleteFaq: deleteUniversityCourseFaq,
+        entityIdKey: "course_id",
+        queryKey: "university-course-faq-inline",
+      };
+    }
+    return {
+      fetchFaqs: fetchUniversityFaqs,
+      addFaq: addUniversityFaq,
+      updateFaq: updateUniversityFaq,
+      deleteFaq: deleteUniversityFaq,
+      entityIdKey: "university_id",
+      queryKey: "university-faq-inline",
+    };
+  }, [type]);
 
   const { data: categoriesData, isLoading: isLoadingCategories, refetch: refetchCategories } = useQuery({
     queryKey: ["university-faq-inline-categories"],
@@ -247,13 +282,17 @@ export default function UniversityFaqInlinePanel({
     data: faqsData,
     isLoading: isLoadingFaqs,
   } = useQuery({
-    queryKey: ["university-faq-inline", universityId],
-    queryFn: () => fetchUniversityFaqs({ page: 1, limit: FAQ_FETCH_LIMIT, university_id: universityId }),
-    enabled: isExistingUniversity,
+    queryKey: [apiFunctions.queryKey, entityId],
+    queryFn: () => {
+      const params = { page: 1, limit: FAQ_FETCH_LIMIT };
+      params[apiFunctions.entityIdKey] = entityId;
+      return apiFunctions.fetchFaqs(params);
+    },
+    enabled: isExistingEntity,
   });
 
   const remoteFaqs = faqsData?.data?.data || [];
-  const faqsToDisplay = isExistingUniversity
+  const faqsToDisplay = isExistingEntity
     ? remoteFaqs.map((faq) => ({
         ...faq,
         _isRemote: true,
@@ -294,7 +333,7 @@ export default function UniversityFaqInlinePanel({
       saveWithDate: payload.saveWithDate,
     };
 
-    if (!isExistingUniversity) {
+    if (!isExistingEntity) {
       if (editingFaq?._isRemote === false || editingFaq?.tempId) {
         setStagedFaqs((prev = []) =>
           prev.map((faq) =>
@@ -318,7 +357,8 @@ export default function UniversityFaqInlinePanel({
             tempId,
           },
         ]);
-        notifySuccess("FAQ staged. It will be saved after the university is created.");
+        const entityType = type === "course" ? "course" : "university";
+        notifySuccess(`FAQ staged. It will be saved after the ${entityType} is created.`);
       }
       if (!addAnother) {
         handleCloseFaqForm();
@@ -331,19 +371,19 @@ export default function UniversityFaqInlinePanel({
 
     try {
       if (editingFaq?._isRemote && editingFaq.id) {
-        await updateUniversityFaq(editingFaq.id, {
+        await apiFunctions.updateFaq(editingFaq.id, {
           ...finalPayload,
-          university_id: universityId,
+          [apiFunctions.entityIdKey]: entityId,
         });
         notifySuccess("FAQ updated successfully");
       } else {
-        await addUniversityFaq({
+        await apiFunctions.addFaq({
           ...finalPayload,
-          university_id: universityId,
+          [apiFunctions.entityIdKey]: entityId,
         });
         notifySuccess("FAQ added successfully");
       }
-      queryClient.invalidateQueries(["university-faq-inline", universityId]);
+      queryClient.invalidateQueries([apiFunctions.queryKey, entityId]);
       if (!addAnother) {
         handleCloseFaqForm();
       } else {
@@ -359,7 +399,7 @@ export default function UniversityFaqInlinePanel({
   };
 
   const handleDeleteFaq = async (faq) => {
-    if (!isExistingUniversity) {
+    if (!isExistingEntity) {
       setStagedFaqs((prev = []) => prev.filter((item) => item.tempId !== faq.id));
       notifySuccess("FAQ removed from staged list");
       return;
@@ -368,9 +408,9 @@ export default function UniversityFaqInlinePanel({
     if (!confirm("Are you sure you want to delete this FAQ?")) return;
 
     try {
-      await deleteUniversityFaq(faq.id);
+      await apiFunctions.deleteFaq(faq.id);
       notifySuccess("FAQ deleted successfully");
-      queryClient.invalidateQueries(["university-faq-inline", universityId]);
+      queryClient.invalidateQueries([apiFunctions.queryKey, entityId]);
     } catch (error) {
       console.error("Failed to delete FAQ", error);
       notifyError(error.response?.data?.message || "Failed to delete FAQ");
@@ -440,7 +480,7 @@ export default function UniversityFaqInlinePanel({
     <div className="space-y-6 mt-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          {!isExistingUniversity}
+          {!isExistingEntity}
           {categories.length === 0 && (
             <p className="mt-2 text-xs text-destructive">No categories found. Please create categories first in the University FAQs page.</p>
           )}
@@ -457,7 +497,7 @@ export default function UniversityFaqInlinePanel({
           <h4 className="font-semibold text-sm uppercase tracking-wide">FAQs</h4>
         </div> */}
         <div className="p-4">
-          {isExistingUniversity ? (
+          {isExistingEntity ? (
             isLoadingFaqs ? (
               <p className="text-sm text-muted-foreground">Loading FAQs…</p>
             ) : faqsToDisplay.length ? (

@@ -259,6 +259,12 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
+      id: "popular-courses", title: "Popular Courses", component: "UniversityCourses",
+      props: {
+        coursesList: "Yes"
+      }
+    },
+    {
       id: "university-reviews", title: "Student Ratings", component: "UniversityReviews",
       props: {
         allReviews: [

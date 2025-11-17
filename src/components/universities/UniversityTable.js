@@ -6,7 +6,13 @@ import DataTable from "../table/DataTable";
 
 export default function UniversityTable({ items, onEdit, onDelete, onToggleStatus }) {
   const columns = [
-    { key: "id", label: "ID" },
+    {
+      key: "index",
+      label: "ID",
+      style: { width: "60px" },
+      render: (_, index) => index + 1,
+      cellClassName: "border px-2 py-1 align-middle text-center",
+    },
     {
       key: "university_name",
       label: "University Name",

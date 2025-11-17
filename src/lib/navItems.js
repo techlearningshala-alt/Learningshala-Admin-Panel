@@ -33,29 +33,36 @@ const navItemsData = [
     roles: ["admin", "mentor"],
     subItems: [
       { name: "Universities", href: "/universities", roles: ["admin"] },
-      // { name: "University Courses", href: "/university-courses", roles: ["admin"] },
-      // { name: "University Specializations", href: "/university-specializations", roles: ["admin"] },
+      { name: "University Courses", href: "/university-courses", roles: ["admin"] },
+      { name: "Course Specializations", href: "/university-course-specializations", roles: ["admin"] },
       { name: "Approvals", href: "/universities-approvals", roles: ["admin"] },
-      // { name: "Fees Types", href: "/fees-types", roles: ["admin"] },
+      { name: "Fee Types", href: "/fee-types", roles: ["admin"] },
       { name: "Placement/Hiring Partners", href: "/placements", roles: ["admin"] },
       { name: "EMI/Financing Partners", href: "/emi-partners", roles: ["admin"] },
       {
-        name: "FAQs",href: "/university-faqs", roles: ["admin", "mentor"] }
+        name: "FAQs",
+        roles: ["admin", "mentor"],
+        subItems: [
+          { name: "University FAQs", href: "/university-faqs", roles: ["admin", "mentor"] },
+          { name: "Course FAQs", href: "/university-course-faqs", roles: ["admin", "mentor"] },
+        ],
+      },
     ],
   },
   // {
   //   name: "Universities",
   //   href: "#",
   //   roles: ["admin"],
-  //   subItems: [
-  //     { name: "Universities", href: "/universities", roles: ["admin"] },
-  //     { name: "University Courses", href: "/university-courses", roles: ["admin"] },
-  //     { name: "University Specializations", href: "/university-specializations", roles: ["admin"] },
-  //     { name: "Approvals", href: "/approvals", roles: ["admin"] },
-  //     { name: "Fees Types", href: "/fees-types", roles: ["admin"] },
-  //     { name: "Placement/Hiring Partners", href: "/placements", roles: ["admin"] },
-  //   ],
-  // },
+    //   subItems: [
+    //     { name: "Universities", href: "/universities", roles: ["admin"] },
+    //     { name: "University Courses", href: "/university-courses", roles: ["admin"] },
+    //     { name: "University Specializations", href: "/university-specializations", roles: ["admin"] },
+    //     { name: "Approvals", href: "/approvals", roles: ["admin"] },
+    //     { name: "Fees Types", href: "/fees-types", roles: ["admin"] },
+    //     { name: "Placement/Hiring Partners", href: "/placements", roles: ["admin"] },
+    //   ],
+    // },
+    { name: "Leads", href: "/leads", roles: ["admin"] },
 ];
 
 export default navItemsData;
