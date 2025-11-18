@@ -18,6 +18,16 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Trash, Plus } from "lucide-react";
 import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
+import { SectionsForm } from "@/components/universities/components/SectionRenderer";
+import { processSectionFiles } from "@/utils/fileProcessing";
+
+// Helper function to convert title to section_key format with underscores
+const generateSectionKey = (title) => {
+  return String(title || "")
+    .trim()
+    .replace(/\s+/g, "_") // Replace spaces with underscores
+    .replace(/[^a-zA-Z0-9_]/g, ""); // Remove special characters except underscores
+};
 
 const sanitizeFeeKey = (key) =>
   key
@@ -43,6 +53,7 @@ const defaultValues = {
   video_id: "",
   video_title: "",
   fee_type_values: {},
+  sections: [], // Will be initialized with defaultSections in useEffect
 };
 
 const normalizeApiList = (payload) => {
@@ -77,6 +88,168 @@ const createNewBanner = () => ({
   bannerRemoved: false,
 });
 
+// Filter out unwanted sections for course sections
+const defaultSections = [
+    {
+      id: "latest-updates",
+      title: "Latest Updates",
+      component: "UniversityLatestUpdate",
+      props: {
+        content: "",
+      },
+    },
+    {
+      id: "about",
+      title: "About University",
+      component: "UniversityDesc",
+      props: {
+        content: "",
+        videoID: "",
+        videoTitle: "",
+      },
+    },
+    {
+      id: "why-choose",
+      title: "Why Choose",
+      component: "UniversityWhyChoose",
+      props: {
+        content: "",
+        gridContent: [
+          {
+            title: "",
+            content: "",
+            bgColor: "#f0f8ff",
+          },
+          {
+            title: "",
+            content: "",
+            bgColor: "#fff8dc",
+          },
+          {
+            title: "",
+            content: "",
+            bgColor: "#f0fff0",
+          },
+        ],
+      },
+    },
+    {
+      id: "key-benefits",
+      title: "Key Highlights",
+      component: "UniversityKeyBenefits",
+      props: {
+        content: "",
+      },
+    },
+    {
+      id: "admission-process",
+      title: "Admission Process",
+      component: "UniversityAdmissionProcess",
+      props: { image: "", content: "" },
+    },
+    {
+      id: "fees-detail",
+      title: "Fee Details",
+      component: "UniversityFeeDetail",
+      props: {
+        content: "",
+      },
+    },
+    {
+      id: "scholarship-program",
+      title: "Scholarships Program",
+      component: "UniversityScholarship",
+      props: {
+        content: "",
+      },
+    },
+    {
+      id: "university-faculties",
+      title: "University Faculties",
+      component: "UniversityFaculties",
+      props: {
+        faculties: [
+          {
+            name: "",
+            img: "",
+            designation: "",
+            desc: "",
+            "faculty Qualification": "",
+          },
+        ],
+      },
+    },
+    {
+      id: "university-Emi",
+      title: "University Emi",
+      component: "UniversityEmi",
+      props: {
+        content: "",
+        emiPartners: "Yes",
+      },
+    },
+    {
+      id: "popular-courses",
+      title: "Popular Courses",
+      component: "UniversityCourses",
+      props: {
+        coursesList: "Yes",
+      },
+    },
+    {
+      id: "university-reviews",
+      title: "Student Ratings",
+      component: "UniversityReviews",
+      props: {
+        allReviews: [
+          {
+            name: "",
+            "rating (1-5)": "",
+            value: "",
+            reviewContent: "",
+          },
+        ],
+      },
+    },
+    {
+      id: "Other-Popular-Universities",
+      title: "Other Popular Universities",
+      component: "UniversityOtherPopularColleges",
+      props: {
+        otherUniversityList: "Yes",
+      },
+    },
+    {
+      id: "university-lms",
+      title: "Learning Management System(LMS)",
+      component: "UniversityLMS",
+      props: {
+        content: "",
+      },
+    },
+    {
+      id: "university-examination",
+      title: "Examination Pattern",
+      component: "UniversityExamination",
+      props: {
+        content: "",
+      },
+    },
+    {
+      id: "university-faq",
+      title: "Faqs",
+      component: "UniversityFaq",
+      props: {
+        faqData: "Yes",
+      },
+    },
+].filter(
+  (section) =>
+    section.id !== "approval-logo" &&
+    section.id !== "sample-certificate" &&
+    section.id !== "placement-detail"
+);
+
 export default function AddUniversityCourseForm({ course, onCancel, onSuccess }) {
   const {
     register,
@@ -88,7 +261,16 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     watch,
     formState: { isSubmitting, errors },
   } = useForm({
-    defaultValues,
+    defaultValues: {
+      ...defaultValues,
+      sections: defaultSections.map((section) => ({
+        id: section.id,
+        section_key: generateSectionKey(section.title),
+        title: section.title,
+        component: section.component,
+        props: { ...section.props },
+      })),
+    },
   });
 
   const courseId = course?.id;
@@ -107,6 +289,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
   const [banners, setBanners] = useState([]);
   const [saveWithoutDate, setSaveWithoutDate] = useState(false);
   const [stagedFaqs, setStagedFaqs] = useState([]);
+  const [sectionPreviews, setSectionPreviews] = useState({});
 
   const {
     data: universitiesResponse,
@@ -271,15 +454,94 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       setExistingBrochure(merged.brochure_file || null);
       setBrochureFileName("");
       setBrochureRemoved(false);
+
+      // Load sections if available, otherwise use defaultSections
+      const sectionsArray = Array.isArray(merged.sections) ? merged.sections : [];
+      let loadedSections = [];
+      
+      if (sectionsArray.length > 0) {
+        loadedSections = sectionsArray.map((section) => ({
+          id: section.id,
+          section_key: section.section_key || generateSectionKey(section.title),
+          title: section.title || "",
+          component: section.component || "",
+          props: section.props || {},
+        }));
+      } else {
+        // If no sections from backend, initialize with defaultSections
+        loadedSections = defaultSections.map((section) => ({
+          id: section.id,
+          section_key: generateSectionKey(section.title),
+          title: section.title,
+          component: section.component,
+          props: { ...section.props },
+        }));
+      }
+      
+      setValue("sections", loadedSections);
+
+      // Set section previews recursively for images (similar to university form)
+      if (loadedSections.length > 0) {
+        const newPreviews = {};
+        loadedSections.forEach((section, sIndex) => {
+          // Helper function to join URL without double slashes
+          const joinURL = (base, path) => {
+            const baseClean = base?.replace(/\/+$/, "") || "";
+            const pathClean = path?.replace(/^\/+/, "") || "";
+            return `${baseClean}/${pathClean}`;
+          };
+
+          // Recursive function to set previews for all image fields in props
+          const setPreviewsRecursive = (obj, basePath) => {
+            if (!obj || typeof obj !== "object") return;
+            
+            Object.entries(obj).forEach(([key, val]) => {
+              const fieldName = `${basePath}.${key}`;
+              
+              // Check if this is an image field with a value
+              if (
+                (key.toLowerCase().includes("img") ||
+                  key.toLowerCase().includes("logo") ||
+                  key.toLowerCase().includes("image") ||
+                  key.toLowerCase().includes("sample")) &&
+                typeof val === "string" &&
+                val.trim() !== ""
+              ) {
+                // Build preview URL
+                if (val.startsWith("http://") || val.startsWith("https://")) {
+                  newPreviews[fieldName] = val;
+                } else {
+                  newPreviews[fieldName] = joinURL(process.env.NEXT_PUBLIC_thumbnail_URL, val);
+                }
+              }
+              
+              // Recursively process arrays and nested objects
+              if (Array.isArray(val)) {
+                val.forEach((item, idx) => {
+                  if (item && typeof item === "object") {
+                    setPreviewsRecursive(item, `${fieldName}.${idx}`);
+                  }
+                });
+              } else if (val && typeof val === "object") {
+                setPreviewsRecursive(val, fieldName);
+              }
+            });
+          };
+          
+          if (section.props) {
+            setPreviewsRecursive(section.props, `sections.${sIndex}.props`);
+          }
+        });
+        
+        setSectionPreviews(newPreviews);
+      }
     },
-    [reset, feeTypeDefaults, feeTypeMeta]
+    [reset, feeTypeDefaults, feeTypeMeta, setValue, setSectionPreviews]
   );
 
   useEffect(() => {
     if (course && course.id) {
-      if (course.banners && Array.isArray(course.banners) && course.banners.length > 0) {
-        applyCourseData(course);
-      }
+      applyCourseData(course);
     }
     if (courseId) {
       setStagedFaqs([]);
@@ -321,6 +583,18 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       setExistingBrochure(null);
       setBrochureFileName("");
       setBrochureRemoved(false);
+      
+      // Initialize sections with defaultSections for new courses
+      const currentSections = getValues("sections") || [];
+      if (currentSections.length === 0) {
+        setValue("sections", defaultSections.map((section) => ({
+          id: section.id,
+          section_key: generateSectionKey(section.title),
+          title: section.title,
+          component: section.component,
+          props: { ...section.props },
+        })));
+      }
     }
   }, [course, courseId, feeTypeDefaults, feeTypeMeta, getValues, setValue, banners.length]);
 
@@ -488,6 +762,24 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     } else {
       formData.append("banners", JSON.stringify([]));
     }
+
+    // Handle sections with section_key generation
+    // Use getValues() to get raw form values (preserves FileList objects)
+    const formSections = getValues("sections") || [];
+    
+    // Prepare sections with section_key generation
+    const sectionsWithKeys = formSections.map((section) => ({
+      id: section.id,
+      section_key: section.section_key || generateSectionKey(section.title || ""),
+      title: section.title || "",
+      component: section.component || "",
+      props: section.props || {},
+    }));
+    
+    // Process section files using shared utility
+    const processedSections = processSectionFiles(sectionsWithKeys, formData, generateSectionKey);
+
+    formData.append("sections", JSON.stringify(processedSections));
 
     if (thumbnailRemoved) {
       formData.append("course_thumbnail", "");
@@ -923,6 +1215,21 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                 Add More
               </Button>
             </div>
+          </div>
+
+          {/* Sections */}
+          <div className="border-t pt-4 mt-6">
+            <h3 className="text-lg font-semibold">Sections</h3>
+            <SectionsForm
+              sections={watch("sections") || []}
+              control={control}
+              register={register}
+              setValue={setValue}
+              sectionPreviews={sectionPreviews}
+              setSectionPreviews={setSectionPreviews}
+              watch={watch}
+              templates={defaultSections}
+            />
           </div>
         </form>
 

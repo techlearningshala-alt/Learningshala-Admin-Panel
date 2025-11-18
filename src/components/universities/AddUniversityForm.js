@@ -17,6 +17,7 @@ import { SectionsForm } from "./components/SectionRenderer";
 import { deepMergeProps, applyLinkedFieldMappings } from "./utils/formHelpers";
 import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
 import { addUniversityFaq } from "@/lib/api";
+import { processSectionFiles } from "@/utils/fileProcessing";
 
 // Banner Section Component (separate component to avoid hooks in IIFE)
 function BannerSection({ control, register, previewBanners, setPreviewBanners, setValue, watch }) {
@@ -726,34 +727,10 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
  
     });
-    let sectionImageCounter = 0;
-    sectionsCopy.forEach((section, sIndex) => {
-      if (section.props) {
-        const handleNestedFiles = (obj, path = "") => {
-          Object.entries(obj).forEach(([k, v]) => {
-            const currentPath = path ? `${path}.${k}` : k;
-            const fieldName = `sections.${sIndex}.props.${currentPath}`;
-            
-            if (v instanceof FileList && v.length > 0) {
-              const uniqueKey = `section_image_${sectionImageCounter}`;
-              console.log(`📤 [FRONTEND] New section image file: ${fieldName} -> ${uniqueKey}`);
-              formData.append(uniqueKey, v[0]);
-              obj[k] = v[0].name;
-              sectionImageCounter++;
-            }
-            
-            if (Array.isArray(v)) {
-              v.forEach((item, index) => handleNestedFiles(item, `${currentPath}[${index}]`));
-            } else if (v && typeof v === "object") {
-              handleNestedFiles(v, currentPath);
-            }
-          });
-        };
-        handleNestedFiles(section.props);
-      }
-    });
+    // Process section files using shared utility
+    const processedSections = processSectionFiles(sectionsCopy, formData);
     
-    formData.append("sections", JSON.stringify(sectionsCopy));
+    formData.append("sections", JSON.stringify(processedSections));
 
     mutation.mutate(formData);
   };
