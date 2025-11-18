@@ -18,6 +18,15 @@ const nextConfig = {
     };
     return config;
   },
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/login",
+        permanent: true, // use false if you may change it later
+      },
+    ];
+  },
 };
 
 export default nextConfig;

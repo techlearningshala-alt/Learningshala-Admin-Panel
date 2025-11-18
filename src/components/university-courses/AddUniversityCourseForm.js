@@ -247,8 +247,8 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         return {
           banner_key: banner.banner_key || `banner_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           banner_image: bannerImage, // Keep original banner_image field
-          video_id: banner.video_id || "",
-          video_title: banner.video_title || "",
+          video_id: (banner.video_id && banner.video_id.trim()) || "",
+          video_title: (banner.video_title && banner.video_title.trim()) || "",
           previewBanner: bannerImage ? buildAssetUrl(bannerImage) : null, // Only set preview if there's an existing image
           existingBanner: bannerImage, // Set existingBanner from banner_image
           bannerRemoved: false,
@@ -459,8 +459,8 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       .map((banner, index) => {
         const bannerData = {
           banner_key: banner.banner_key || `banner_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          video_id: banner.video_id || "",
-          video_title: banner.video_title || "",
+          video_id: (banner.video_id && banner.video_id.trim()) || null,
+          video_title: (banner.video_title && banner.video_title.trim()) || null,
         };
 
         // Handle banner image
@@ -666,7 +666,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Course Thumbnail</Label>
+              <Label>Course Thumbnail (size: 128x99px )</Label>
               <Input
                 type="file"
                 accept="image/*"
@@ -699,7 +699,8 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               )}
             </div>
             <div className="space-y-2">
-              <Label>Upload Syllabus</Label>
+              <Label>Upload Syllabus (Max 4MB)
+              </Label>
               <Input
                 type="file"
                 accept=".pdf,.doc,.docx"
@@ -742,7 +743,8 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               )}
             </div>
             <div className="space-y-2">
-              <Label>Upload Brochure</Label>
+              <Label>Upload Brochure (Max 4MB)
+              </Label>
               <Input
                 type="file"
                 accept=".pdf,.doc,.docx"
@@ -853,7 +855,8 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Course Banner</Label>
+                    <Label>Course Banner  (size: 650×480px)
+                    </Label>
                     <Input
                       type="file"
                       accept="image/*"
@@ -923,7 +926,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
           </div>
         </form>
 
-        <div className="border-t pt-4 mt-6">
+        <div className="border-t pt-4 mt-6 pb-24">
           <UniversityFaqInlinePanel
             courseId={courseId}
             courseName={watch("name")}
@@ -933,33 +936,37 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
           />
         </div>
 
-        <div className="flex justify-end gap-2 pt-2">
-          {isEdit && (
-            <div className="flex items-center gap-2 mr-2">
-              <Checkbox
-                id="save-without-date"
-                checked={saveWithoutDate}
-                onChange={(event) => setSaveWithoutDate(event.target.checked)}
-              />
-              <Label htmlFor="save-without-date" className="cursor-pointer">
-                Save without Date
-              </Label>
+        <div className="fixed bottom-0 left-0 md:left-[200px] right-0 bg-background border-t shadow-lg z-50">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex justify-end gap-2">
+              {isEdit && (
+                <div className="flex items-center gap-2 mr-2">
+                  <Checkbox
+                    id="save-without-date"
+                    checked={saveWithoutDate}
+                    onChange={(event) => setSaveWithoutDate(event.target.checked)}
+                  />
+                  <Label htmlFor="save-without-date" className="cursor-pointer">
+                    Save without Date
+                  </Label>
+                </div>
+              )}
+              <Button type="button" variant="outline" onClick={onCancel} disabled={mutation.isLoading}>
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSave}
+                disabled={mutation.isLoading || isSubmitting}
+              >
+                {mutation.isLoading
+                  ? "Saving..."
+                  : isEdit
+                  ? "Save"
+                  : "Create Course"}
+              </Button>
             </div>
-          )}
-          <Button type="button" variant="outline" onClick={onCancel} disabled={mutation.isLoading}>
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={mutation.isLoading || isSubmitting}
-          >
-            {mutation.isLoading
-              ? "Saving..."
-              : isEdit
-              ? "Save"
-              : "Create Course"}
-          </Button>
+          </div>
         </div>
       </div>
     </div>

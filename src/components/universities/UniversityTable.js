@@ -37,7 +37,8 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
       render: (row) => (
         <Button
           size="sm"
-          variant={row.is_active ? "default" : "secondary"}
+          variant={row.is_active ? "default" : "outline"}
+          className={row.is_active ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
           onClick={() => onToggleStatus(row.id, !row.is_active)}
         >
           {row.is_active ? "Active" : "Inactive"}
