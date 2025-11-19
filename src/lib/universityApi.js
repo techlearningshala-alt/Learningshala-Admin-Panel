@@ -228,40 +228,70 @@ export const toggleUniversityCourseStatus = async (id, isActive) => {
 export async function fetchUniversityCourseSpecializations({
   page = 1,
   limit = 10,
+  university_id,
   university_course_id,
   search,
 } = {}) {
   const params = { page, limit };
+  if (university_id) params.university_id = university_id;
   if (university_course_id) params.university_course_id = university_course_id;
   if (search) params.search = search;
 
-  const res = await api.get(`/university-specializations`, { params });
+  const res = await api.get(`/university-course-specializations`, { params });
   return res.data;
 }
 
+export async function fetchUniversityCourseSpecializationById(idOrSlug) {
+  const res = await api.get(`/university-course-specializations/${idOrSlug}`);
+  console.log("🔍 Raw API Response:", res.data);
+  console.log("🔍 Raw API Response type:", typeof res.data);
+  console.log("🔍 Raw API Response.data exists:", !!res.data?.data);
+  
+  let specializationData = res.data;
+  // Check if response is wrapped in a data property (standard API response format)
+  if (res.data?.data && typeof res.data.data === 'object' && res.data.data !== null) {
+    specializationData = res.data.data;
+    console.log("🔍 Using res.data.data");
+  } else if (res.data && typeof res.data === 'object' && res.data !== null && res.data.id) {
+    // Response might be directly the specialization object
+    specializationData = res.data;
+    console.log("🔍 Using res.data directly");
+  }
+  
+  console.log("🔍 Extracted Specialization Data:", specializationData);
+  console.log("🔍 Banners in extracted data:", specializationData?.banners);
+  console.log("🔍 Sections in extracted data:", specializationData?.sections);
+  return specializationData;
+}
+
 export async function fetchUniversityCourseSpecializationOptions(university_course_id) {
-  const res = await api.get(`/university-specializations/options`, {
+  const res = await api.get(`/university-course-specializations/options`, {
     params: { university_course_id },
   });
   return res.data;
 }
 
 export const createUniversityCourseSpecialization = async (formData) => {
-  const res = await api.post(`/university-specializations`, formData, {
+  const res = await api.post(`/university-course-specializations`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
 };
 
 export const updateUniversityCourseSpecialization = async (id, formData) => {
-  const res = await api.put(`/university-specializations/${id}`, formData, {
+  const res = await api.put(`/university-course-specializations/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
 };
 
 export const deleteUniversityCourseSpecialization = async (id) => {
-  const res = await api.delete(`/university-specializations/${id}`);
+  const res = await api.delete(`/university-course-specializations/${id}`);
+  return res.data;
+};
+
+export const toggleUniversityCourseSpecializationStatus = async (id, isActive) => {
+  const res = await api.patch(`/university-course-specializations/${id}/toggle-status`, { is_active: isActive });
   return res.data;
 };
 
@@ -326,5 +356,38 @@ export async function deleteUniversityCourseFaq(id) {
 
 export async function fetchUniversityCourseFaqById(id) {
   const res = await api.get(`/university-courses/faqs/questions/${id}`);
+  return res.data?.data || res.data;
+}
+
+// ===== University Course Specialization FAQ APIs =====
+
+export async function fetchUniversityCourseSpecializationFaqs({ page = 1, limit = 10, specialization_id, category_id }) {
+  const params = { page, limit };
+  if (specialization_id) params.specialization_id = specialization_id;
+  if (category_id) params.category_id = category_id;
+  
+  const res = await api.get(`/university-course-specializations/faqs/`, {
+    params,
+  });
+  return res.data; // { success, data: { data, page, pages, total } }
+}
+
+export async function addUniversityCourseSpecializationFaq(payload) {
+  const res = await api.post(`/university-course-specializations/faqs/questions`, payload);
+  return res.data;
+}
+
+export async function updateUniversityCourseSpecializationFaq(id, payload) {
+  const res = await api.put(`/university-course-specializations/faqs/questions/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteUniversityCourseSpecializationFaq(id) {
+  const res = await api.delete(`/university-course-specializations/faqs/questions/${id}`);
+  return res.data;
+}
+
+export async function fetchUniversityCourseSpecializationFaqById(id) {
+  const res = await api.get(`/university-course-specializations/faqs/questions/${id}`);
   return res.data?.data || res.data;
 }

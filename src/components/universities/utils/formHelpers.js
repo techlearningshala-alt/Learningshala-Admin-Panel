@@ -136,6 +136,7 @@ export const shouldSkipField = (key) => {
     "slug", // Hide slug field (auto-generated)
     "id", // Hide id field (auto-generated from question)
     "cat_id", // Hide cat_id field (auto-generated)
+    "popularCourses",
     ...Object.values(linkedFieldMappings),
   ];
   return skipFields.includes(key);

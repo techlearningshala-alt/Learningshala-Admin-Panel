@@ -58,8 +58,9 @@ export function processSectionFiles(sections, formData, generateSectionKey = nul
         // Ensure nested object exists in obj
         if (!obj[k]) obj[k] = {};
         processProps(obj[k], v);
-      } else if (obj[k] === null || obj[k] === undefined) {
-        // Copy primitive values that weren't handled
+      } else {
+        // Copy primitive values (strings, numbers, booleans, null, undefined)
+        // This ensures all values including empty strings, null, etc. are preserved
         obj[k] = v;
       }
     });

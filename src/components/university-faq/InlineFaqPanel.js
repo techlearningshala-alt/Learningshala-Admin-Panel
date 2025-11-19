@@ -26,6 +26,10 @@ import {
   addUniversityCourseFaq,
   updateUniversityCourseFaq,
   deleteUniversityCourseFaq,
+  fetchUniversityCourseSpecializationFaqs,
+  addUniversityCourseSpecializationFaq,
+  updateUniversityCourseSpecializationFaq,
+  deleteUniversityCourseSpecializationFaq,
 } from "@/lib/universityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import { Plus, Pencil, Trash } from "lucide-react";
@@ -228,19 +232,21 @@ function FaqForm({
 export default function UniversityFaqInlinePanel({
   universityId,
   courseId,
+  specializationId,
   universityName,
   courseName,
+  specializationName,
   stagedFaqs,
   setStagedFaqs,
-  type = "university", // "university" or "course"
+  type = "university", // "university", "course", or "specialization"
 }) {
   const queryClient = useQueryClient();
   const [isFaqFormOpen, setIsFaqFormOpen] = useState(false);
   const [editingFaq, setEditingFaq] = useState(null);
   
   // Determine entity ID and type
-  const entityId = type === "course" ? courseId : universityId;
-  const entityName = type === "course" ? courseName : universityName;
+  const entityId = type === "course" ? courseId : type === "specialization" ? specializationId : universityId;
+  const entityName = type === "course" ? courseName : type === "specialization" ? specializationName : universityName;
   const isExistingEntity = Boolean(entityId);
   
   // Select API functions based on type
@@ -253,6 +259,16 @@ export default function UniversityFaqInlinePanel({
         deleteFaq: deleteUniversityCourseFaq,
         entityIdKey: "course_id",
         queryKey: "university-course-faq-inline",
+      };
+    }
+    if (type === "specialization") {
+      return {
+        fetchFaqs: fetchUniversityCourseSpecializationFaqs,
+        addFaq: addUniversityCourseSpecializationFaq,
+        updateFaq: updateUniversityCourseSpecializationFaq,
+        deleteFaq: deleteUniversityCourseSpecializationFaq,
+        entityIdKey: "specialization_id",
+        queryKey: "university-course-specialization-faq-inline",
       };
     }
     return {
@@ -357,7 +373,7 @@ export default function UniversityFaqInlinePanel({
             tempId,
           },
         ]);
-        const entityType = type === "course" ? "course" : "university";
+        const entityType = type === "course" ? "course" : type === "specialization" ? "specialization" : "university";
         notifySuccess(`FAQ staged. It will be saved after the ${entityType} is created.`);
       }
       if (!addAnother) {

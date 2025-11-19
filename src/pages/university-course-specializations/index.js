@@ -1,16 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchUniversityCourseSpecializations,
   deleteUniversityCourseSpecialization,
   fetchAllUniversities,
   fetchUniversityCourses,
+  toggleUniversityCourseSpecializationStatus,
 } from "@/lib/universityApi";
-import { notifyError, notifySuccess } from "@/lib/notify";
-import UniversityCourseSpecializationTable from "@/components/university-specializations/UniversityCourseSpecializationTable";
-import AddUniversityCourseSpecializationForm from "@/components/university-specializations/AddUniversityCourseSpecializationForm";
+import { notifySuccess, notifyError } from "@/lib/notify";
+import UniversityCourseSpecializationTable from "@/components/university-course-specializations/UniversityCourseSpecializationTable";
+import AddUniversityCourseSpecializationForm from "@/components/university-course-specializations/AddUniversityCourseSpecializationForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,22 +30,22 @@ const normalizeApiList = (payload) => {
 export default function UniversityCourseSpecializationsPage() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
+  const [editingSpecialization, setEditingSpecialization] = useState(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedUniversity, setSelectedUniversity] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("");
 
-  const { data: universitiesData } = useQuery({
+  const { data: universitiesResponse } = useQuery({
     queryKey: ["universities", "all"],
     queryFn: fetchAllUniversities,
   });
 
   const universities = useMemo(() => {
-    return normalizeApiList(universitiesData?.data ?? universitiesData);
-  }, [universitiesData]);
+    return normalizeApiList(universitiesResponse?.data ?? universitiesResponse);
+  }, [universitiesResponse]);
 
-  const { data: coursesData } = useQuery({
+  const { data: coursesResponse } = useQuery({
     queryKey: ["university-courses", "options", selectedUniversity],
     queryFn: () =>
       fetchUniversityCourses({
@@ -56,13 +57,14 @@ export default function UniversityCourseSpecializationsPage() {
   });
 
   const courses = useMemo(() => {
-    return normalizeApiList(coursesData?.data ?? coursesData);
-  }, [coursesData]);
+    return normalizeApiList(coursesResponse?.data?.data ?? coursesResponse?.data ?? coursesResponse);
+  }, [coursesResponse]);
 
   const { data: specializationResponse, isLoading } = useQuery({
     queryKey: [
       "university-course-specializations",
       page,
+      selectedUniversity,
       selectedCourse,
       search,
     ],
@@ -70,6 +72,7 @@ export default function UniversityCourseSpecializationsPage() {
       fetchUniversityCourseSpecializations({
         page,
         limit: PAGE_SIZE,
+        university_id: selectedUniversity || undefined,
         university_course_id: selectedCourse || undefined,
         search: search || undefined,
       }),
@@ -79,39 +82,50 @@ export default function UniversityCourseSpecializationsPage() {
   const deleteMutation = useMutation({
     mutationFn: deleteUniversityCourseSpecialization,
     onSuccess: (res) => {
-      notifySuccess(res?.message || "Specialization deleted successfully");
+      notifySuccess(res?.message || "University course specialization deleted successfully");
       queryClient.invalidateQueries(["university-course-specializations"]);
     },
     onError: (err) => notifyError(err?.response?.data?.message || "Delete failed"),
+  });
+
+  const toggleStatusMutation = useMutation({
+    mutationFn: ({ id, isActive }) => toggleUniversityCourseSpecializationStatus(id, isActive),
+    onSuccess: () => {
+      notifySuccess("Specialization status updated successfully");
+      queryClient.invalidateQueries(["university-course-specializations"]);
+    },
+    onError: (err) => notifyError(err.response?.data?.message || "Status update failed"),
   });
 
   const specializations = specializationResponse?.data?.data || [];
   const total = specializationResponse?.data?.total || 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const openForm = (item = null) => {
-    setEditingItem(item);
+  const openForm = (specialization = null) => {
+    setEditingSpecialization(specialization);
     setShowForm(true);
   };
 
   const closeForm = () => {
     setShowForm(false);
-    setEditingItem(null);
+    setEditingSpecialization(null);
   };
 
-  const handleDelete = (item) => {
-    if (!item?.id) return;
-    if (confirm(`Delete specialization "${item.name}"?`)) {
-      deleteMutation.mutate(item.id);
+  const handleDelete = (specialization) => {
+    if (!specialization?.id) return;
+    if (confirm(`Delete specialization "${specialization.name}"?`)) {
+      deleteMutation.mutate(specialization.id);
     }
+  };
+
+  const handleToggleStatus = (id, isActive) => {
+    toggleStatusMutation.mutate({ id, isActive });
   };
 
   if (showForm) {
     return (
       <AddUniversityCourseSpecializationForm
-        specialization={editingItem}
-        universityId={selectedUniversity}
-        courseId={selectedCourse}
+        specialization={editingSpecialization}
         onCancel={closeForm}
         onSuccess={() => {
           closeForm();
@@ -136,7 +150,7 @@ export default function UniversityCourseSpecializationsPage() {
           <Label htmlFor="specialization-search">Search</Label>
           <Input
             id="specialization-search"
-            placeholder="Search specialization"
+            placeholder="Search by specialization name"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -145,45 +159,76 @@ export default function UniversityCourseSpecializationsPage() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="filter-university">University</Label>
-          <select
-            id="filter-university"
-            className="w-full border rounded p-2"
-            value={selectedUniversity}
-            onChange={(e) => {
-              const value = e.target.value;
-              setSelectedUniversity(value);
-              setSelectedCourse("");
-              setPage(1);
-            }}
-          >
-            <option value="">All Universities</option>
-            {universities.map((uni) => (
-              <option key={uni.id} value={uni.id}>
-                {uni.university_name || uni.name || uni.title}
-              </option>
-            ))}
-          </select>
+          <Label htmlFor="filter-university">Filter by University</Label>
+          <div className="flex items-center gap-2">
+            <select
+              id="filter-university"
+              className="w-full border rounded p-2"
+              value={selectedUniversity}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSelectedUniversity(value);
+                setSelectedCourse("");
+                setPage(1);
+              }}
+            >
+              <option value="">All Universities</option>
+              {universities.map((uni) => (
+                <option key={uni.id} value={uni.id}>
+                  {uni.university_name || uni.name || uni.title}
+                </option>
+              ))}
+            </select>
+            {selectedUniversity && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedUniversity("");
+                  setSelectedCourse("");
+                  setPage(1);
+                }}
+              >
+                Clear
+              </Button>
+            )}
+          </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="filter-course">Course</Label>
-          <select
-            id="filter-course"
-            className="w-full border rounded p-2"
-            value={selectedCourse}
-            onChange={(e) => {
-              setSelectedCourse(e.target.value);
-              setPage(1);
-            }}
-            disabled={!selectedUniversity}
-          >
-            <option value="">All Courses</option>
-            {courses.map((courseOption) => (
-              <option key={courseOption.id} value={courseOption.id}>
-                {courseOption.name}
-              </option>
-            ))}
-          </select>
+          <Label htmlFor="filter-course">Filter by Course</Label>
+          <div className="flex items-center gap-2">
+            <select
+              id="filter-course"
+              className="w-full border rounded p-2"
+              value={selectedCourse}
+              onChange={(e) => {
+                setSelectedCourse(e.target.value);
+                setPage(1);
+              }}
+              disabled={!selectedUniversity}
+            >
+              <option value="">All Courses</option>
+              {courses.map((courseOption) => (
+                <option key={courseOption.id} value={courseOption.id}>
+                  {courseOption.name}
+                </option>
+              ))}
+            </select>
+            {selectedCourse && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedCourse("");
+                  setPage(1);
+                }}
+              >
+                Clear
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -191,9 +236,10 @@ export default function UniversityCourseSpecializationsPage() {
         <p>Loading...</p>
       ) : specializations.length ? (
         <UniversityCourseSpecializationTable
-          specializations={specializations}
+          data={specializations}
           onEdit={openForm}
           onDelete={handleDelete}
+          onToggleStatus={handleToggleStatus}
         />
       ) : (
         <p className="text-sm text-muted-foreground">No specializations found.</p>
