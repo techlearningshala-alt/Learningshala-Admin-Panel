@@ -251,6 +251,7 @@ const defaultSections = [
         ],
       },
     },
+    
     // {
     //   id: "fees-detail",
     //   section_key: "fee_details",
