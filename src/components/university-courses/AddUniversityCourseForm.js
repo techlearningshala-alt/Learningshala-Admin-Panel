@@ -156,19 +156,13 @@ const defaultSections = [
       },
     },
     {
-      id: "admission-process",
-      section_key: "admission_process",
-      title: "Admission Process",
-      component: "UniversityAdmissionProcess",
-      props: { image: "", content: "" },
-    },
-    {
-      id: "fees-detail",
-      section_key: "fee_details",
-      title: "Fee Details",
-      component: "UniversityFeeDetail",
+      id: "university-Emi",
+      section_key: "university_emi",
+      title: "EMI & Financial Support",
+      component: "UniversityEmi",
       props: {
         content: "",
+        emiPartners: "Yes",
       },
     },
     {
@@ -190,9 +184,43 @@ const defaultSections = [
       },
     },
     {
+      id: "university-lms",
+      section_key: "lms_study_materials",
+      title: "LMS & Study Materials",
+      component: "UniversityLMS",
+      props: {
+        content: "",
+      },
+    },
+    {
+      id: "admission-process",
+      section_key: "admission_process",
+      title: "Admission Process",
+      component: "UniversityAdmissionProcess",
+      props: { image: "", content: "" },
+    },
+    {
+      id: "university-examination",
+      section_key: "examination",
+      title: "Examination",
+      component: "UniversityExamination",
+      props: {
+        content: "",
+      },
+    },
+    {
+      id: "job-opportunities",
+      section_key: "job_opportunities",
+      title: "Job Opportunities",
+      component: "UniversityJobOpportunities",
+      props: {
+        content: "",
+      },
+    },
+    {
       id: "university-faculties",
       section_key: "university_faculties",
-      title: "University Faculties",
+      title: "Faculty",
       component: "UniversityFaculties",
       props: {
         faculties: [
@@ -207,28 +235,9 @@ const defaultSections = [
       },
     },
     {
-      id: "university-Emi",
-      section_key: "university_emi",
-      title: "EMI & Financial Support",
-      component: "UniversityEmi",
-      props: {
-        content: "",
-        emiPartners: "Yes",
-      },
-    },
-    {
-      id: "popular-courses",
-      section_key: "popular_courses",
-      title: "Popular Courses",
-      component: "UniversityCourses",
-      props: {
-        coursesList: "Yes",
-      },
-    },
-    {
       id: "university-reviews",
       section_key: "student_ratings",
-      title: "Student Ratings",
+      title: "Student Reviews",
       component: "UniversityReviews",
       props: {
         allReviews: [
@@ -241,42 +250,42 @@ const defaultSections = [
         ],
       },
     },
-    {
-      id: "Other-Popular-Universities",
-      section_key: "other_popular_universities",  
-      title: "Other Popular Universities",
-      component: "UniversityOtherPopularColleges",
-      props: {
-        otherUniversityList: "Yes",
-      },
-    },
-    {
-      id: "university-lms",
-      section_key: "lms_study_materials",
-      title: "LMS & Study Materials",
-      component: "UniversityLMS",
-      props: {
-        content: "",
-      },
-    },
-    {
-      id: "university-examination",
-      section_key: "examination",
-      title: "Examination",
-      component: "UniversityExamination",
-      props: {
-        content: "",
-      },
-    },
-    {
-      id: "university-faq",
-      section_key: "faqs",
-      title: "Faqs",
-      component: "UniversityFaq",
-      props: {
-        faqData: "Yes",
-      },
-    },
+    // {
+    //   id: "fees-detail",
+    //   section_key: "fee_details",
+    //   title: "Fee Details",
+    //   component: "UniversityFeeDetail",
+    //   props: {
+    //     content: "",
+    //   },
+    // },   
+    // {
+    //   id: "popular-courses",
+    //   section_key: "popular_courses",
+    //   title: "Popular Courses",
+    //   component: "UniversityCourses",
+    //   props: {
+    //     coursesList: "Yes",
+    //   },
+    // }, 
+    // {
+    //   id: "Other-Popular-Universities",
+    //   section_key: "other_popular_universities",  
+    //   title: "Other Popular Universities",
+    //   component: "UniversityOtherPopularColleges",
+    //   props: {
+    //     otherUniversityList: "Yes",
+    //   },
+    // },   
+    // {
+    //   id: "university-faq",
+    //   section_key: "faqs",
+    //   title: "Faqs",
+    //   component: "UniversityFaq",
+    //   props: {
+    //     faqData: "Yes",
+    //   },
+    // },
 ].filter(
   (section) =>
     section.id !== "approval-logo" &&
