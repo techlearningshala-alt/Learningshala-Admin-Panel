@@ -160,6 +160,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
   const defaultSections = [
     {
       id: "latest-updates",
+      section_key: "latest_updates",
       title: "Latest Updates",
       component: "UniversityLatestUpdate",
       props: {
@@ -168,6 +169,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     },
     {
       id: "about",
+      section_key: "about_university",
       title: "About University",
       component: "UniversityDesc",
       props: {
@@ -180,6 +182,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     },
     {
       id: "why-choose",
+      section_key: "why_choose",
       title: "Why Choose",
       component: "UniversityWhyChoose",
       props: {
@@ -205,40 +208,40 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       },
     },
     {
-      id: "key-benefits", title: "Key Highlights", component: "UniversityKeyBenefits",
+      id: "key-benefits", section_key: "key_highlights", title: "Key Highlights", component: "UniversityKeyBenefits",
       props: {
         content: "",
       }
     },
-    { id: "admission-process", title: "Admission Process", component: "UniversityAdmissionProcess", props: {image:"", content: "" } },
+    { id: "admission-process", section_key: "admission_process", title: "Admission Process", component: "UniversityAdmissionProcess", props: {image:"", content: "" } },
     {
-      id: "fees-detail", title: "Fee Details", component: "UniversityFeeDetail",
+      id: "fees-detail", section_key: "fee_details", title: "Fee Details", component: "UniversityFeeDetail",
       props: {
         content: "",
       }
     },
     {
-      id: "placement-detail", title: "Placements Details", component: "UniversityPlacement",
+      id: "placement-detail", section_key: "placement_details", title: "Placements Details", component: "UniversityPlacement",
       props: {
         content: "",
         placementPartners: "Yes"
       },
     },
     {
-      id: "scholarship-program", title: "Scholarships Program", component: "UniversityScholarship",
+      id: "scholarship-program", section_key: "scholarships", title: "Scholarships Program", component: "UniversityScholarship",
       props: {
         content: "",
       }
     },
     {
-      id: "sample-certificate", title: "Sample Certificate", component: "UniversitySampleCertificate",
+      id: "sample-certificate", section_key: "sample_certificate", title: "Sample Certificate", component: "UniversitySampleCertificate",
       props: {
         content: "",  
         sampleImg: "",
       }
     },
     {
-      id: "university-faculties", title: "University Faculties", component: "UniversityFaculties",
+      id: "university-faculties", section_key: "university_faculties", title: "University Faculties", component: "UniversityFaculties",
       props: {
         faculties: [
           {
@@ -253,20 +256,20 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
-      id: "university-Emi", title: "University Emi", component: "UniversityEmi",
+      id: "university-Emi", section_key: "university_emi", title: "University Emi", component: "UniversityEmi",
       props: {
         content: "",
         emiPartners: "Yes"
       }
     },
     {
-      id: "popular-courses", title: "Popular Courses", component: "UniversityCourses",
+      id: "popular-courses", section_key: "popular_courses", title: "Popular Courses", component: "UniversityCourses",
       props: {
         coursesList: "Yes"
       }
     },
     {
-      id: "university-reviews", title: "Student Ratings", component: "UniversityReviews",
+      id: "university-reviews", section_key: "student_ratings", title: "Student Ratings", component: "UniversityReviews",
       props: {
         allReviews: [
           {
@@ -279,31 +282,31 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
-      id: "Other-Popular-Universities", title: "Other Popular Universities", component: "UniversityOtherPopularColleges",
+      id: "Other-Popular-Universities", section_key: "other_popular_universities", title: "Other Popular Universities", component: "UniversityOtherPopularColleges",
       props: {
         otherUniversityList: "Yes"
       }
     }, 
     {
-      id: "approval-logo", title: "Approval Logo", component: "UniversityApprovalLogos",
+      id: "approval-logo", section_key: "approval_logo", title: "Approval Logo", component: "UniversityApprovalLogos",
       props: {
         univsersityApprovals: "Yes"
       }
     }, 
     {
-      id: "university-lms", title: "Learning Management System(LMS)", component: "UniversityLMS",
+      id: "university-lms", section_key: "lms_study_materials", title: "Learning Management System(LMS)", component: "UniversityLMS",
       props: {
         content: ""
       }
     },  
     {
-      id: "university-examination", title: "Examination Pattern", component: "UniversityExamination",
+      id: "university-examination", section_key: "examination", title: "Examination Pattern", component: "UniversityExamination",
       props: {
         content: "" 
       }
     },
     {
-      id: "university-faq", title: "Faqs", component: "UniversityFaq",
+      id: "university-faq", section_key: "faqs", title: "Faqs", component: "UniversityFaq",
       props: {
         faqData: "Yes"
       }

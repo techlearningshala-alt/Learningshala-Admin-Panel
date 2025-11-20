@@ -93,6 +93,7 @@ const createNewBanner = () => ({
 const defaultSections = [
     {
       id: "latest-updates",
+      section_key: "latest_updates",
       title: "Latest Updates",
       component: "UniversityLatestUpdate",
       props: {
@@ -101,7 +102,8 @@ const defaultSections = [
     },
     {
       id: "about",
-      title: "About University",
+      section_key: "about_university",
+      title: "About University Course",
       component: "UniversityDesc",
       props: {
         content: "",
@@ -111,6 +113,7 @@ const defaultSections = [
     },
     {
       id: "why-choose",
+      section_key: "why_choose",
       title: "Why Choose",
       component: "UniversityWhyChoose",
       props: {
@@ -136,20 +139,32 @@ const defaultSections = [
     },
     {
       id: "key-benefits",
-      title: "Key Highlights",
+      section_key: "key_highlights",
+      title: "Key Highlights of Course",
       component: "UniversityKeyBenefits",
       props: {
         content: "",
       },
     },
     {
+      id: "eligibility-criteria",
+      section_key: "eligibility_criteria",
+      title: "Eligibility Criteria / Who can Enroll",
+      component: "UniversityEligibilityCriteria",
+      props: {
+        content: "",
+      },
+    },
+    {
       id: "admission-process",
+      section_key: "admission_process",
       title: "Admission Process",
       component: "UniversityAdmissionProcess",
       props: { image: "", content: "" },
     },
     {
       id: "fees-detail",
+      section_key: "fee_details",
       title: "Fee Details",
       component: "UniversityFeeDetail",
       props: {
@@ -158,14 +173,25 @@ const defaultSections = [
     },
     {
       id: "scholarship-program",
-      title: "Scholarships Program",
+      section_key: "scholarships",
+      title: "Scholarships",
       component: "UniversityScholarship",
       props: {
         content: "",
       },
     },
     {
+      id: "syllabus-curriculum",
+      section_key: "syllabus_curriculum",
+      title: "Syllabus / Curriculum",
+      component: "UniversitySyllabus",
+      props: {
+        content: "",
+      },
+    },
+    {
       id: "university-faculties",
+      section_key: "university_faculties",
       title: "University Faculties",
       component: "UniversityFaculties",
       props: {
@@ -182,7 +208,8 @@ const defaultSections = [
     },
     {
       id: "university-Emi",
-      title: "University Emi",
+      section_key: "university_emi",
+      title: "EMI & Financial Support",
       component: "UniversityEmi",
       props: {
         content: "",
@@ -191,6 +218,7 @@ const defaultSections = [
     },
     {
       id: "popular-courses",
+      section_key: "popular_courses",
       title: "Popular Courses",
       component: "UniversityCourses",
       props: {
@@ -199,6 +227,7 @@ const defaultSections = [
     },
     {
       id: "university-reviews",
+      section_key: "student_ratings",
       title: "Student Ratings",
       component: "UniversityReviews",
       props: {
@@ -214,6 +243,7 @@ const defaultSections = [
     },
     {
       id: "Other-Popular-Universities",
+      section_key: "other_popular_universities",  
       title: "Other Popular Universities",
       component: "UniversityOtherPopularColleges",
       props: {
@@ -222,7 +252,8 @@ const defaultSections = [
     },
     {
       id: "university-lms",
-      title: "Learning Management System(LMS)",
+      section_key: "lms_study_materials",
+      title: "LMS & Study Materials",
       component: "UniversityLMS",
       props: {
         content: "",
@@ -230,7 +261,8 @@ const defaultSections = [
     },
     {
       id: "university-examination",
-      title: "Examination Pattern",
+      section_key: "examination",
+      title: "Examination",
       component: "UniversityExamination",
       props: {
         content: "",
@@ -238,6 +270,7 @@ const defaultSections = [
     },
     {
       id: "university-faq",
+      section_key: "faqs",
       title: "Faqs",
       component: "UniversityFaq",
       props: {
@@ -268,7 +301,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       ...defaultValues,
       sections: defaultSections.map((section) => ({
         id: section.id,
-        section_key: generateSectionKey(section.title),
+        section_key: section.section_key || generateSectionKey(section.title),
         title: section.title,
         component: section.component,
         props: { ...section.props },
@@ -479,7 +512,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         // If no sections from backend, initialize with defaultSections
         loadedSections = defaultSections.map((section) => ({
           id: section.id,
-          section_key: generateSectionKey(section.title),
+          section_key: section.section_key || generateSectionKey(section.title),
           title: section.title,
           component: section.component,
           props: { ...section.props },
@@ -597,7 +630,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       if (currentSections.length === 0) {
         setValue("sections", defaultSections.map((section) => ({
           id: section.id,
-          section_key: generateSectionKey(section.title),
+          section_key: section.section_key || generateSectionKey(section.title),
           title: section.title,
           component: section.component,
           props: { ...section.props },
