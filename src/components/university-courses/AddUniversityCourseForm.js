@@ -251,7 +251,7 @@ const defaultSections = [
         ],
       },
     },
-    
+
     // {
     //   id: "fees-detail",
     //   section_key: "fee_details",
@@ -312,7 +312,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       ...defaultValues,
       sections: defaultSections.map((section) => ({
         id: section.id,
-        section_key: section.section_key || generateSectionKey(section.title),
+        section_key: section.section_key,
         title: section.title,
         component: section.component,
         props: { ...section.props },
