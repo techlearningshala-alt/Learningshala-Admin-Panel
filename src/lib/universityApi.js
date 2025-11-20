@@ -179,8 +179,9 @@ export async function fetchUniversityCourses({
   return res.data;
 }
 
-export async function fetchUniversityCourseById(idOrSlug) {
-  const res = await api.get(`/university-courses/${idOrSlug}`);
+export async function fetchUniversityCourseById(id) {
+  if (!id) throw new Error("Course ID is required");
+  const res = await api.get(`/university-courses/id/${id}`);
   console.log("🔍 Raw API Response:", res.data);
   
   let courseData = res.data;
@@ -193,6 +194,18 @@ export async function fetchUniversityCourseById(idOrSlug) {
   console.log("🔍 Banners array length:", courseData?.banners?.length);
   if (courseData?.banners && Array.isArray(courseData.banners)) {
     console.log("🔍 First banner:", courseData.banners[0]);
+  }
+  return courseData;
+}
+
+export async function fetchUniversityCourseBySlugs(universitySlug, courseSlug) {
+  if (!universitySlug || !courseSlug) {
+    throw new Error("University slug and course slug are required");
+  }
+  const res = await api.get(`/university-courses/${universitySlug}/${courseSlug}`);
+  let courseData = res.data;
+  if (res.data?.data && typeof res.data.data === 'object') {
+    courseData = res.data.data;
   }
   return courseData;
 }

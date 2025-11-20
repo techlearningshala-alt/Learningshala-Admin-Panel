@@ -8,6 +8,7 @@ import {
   updateUniversityCourseApi,
   fetchAllUniversities,
   fetchUniversityCourseById,
+  fetchUniversityCourseBySlugs,
   fetchFeeTypes,
   addUniversityCourseFaq,
 } from "@/lib/universityApi";
@@ -649,10 +650,18 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
   }, [course, courseId, feeTypeDefaults, feeTypeMeta, getValues, setValue, banners.length]);
 
   const { data: fetchedCourse, isLoading: isLoadingCourse, error: fetchError } = useQuery({
-    queryKey: ["university-course", courseId],
-    queryFn: () => {
-      const slug = course?.slug || course?.id?.toString() || courseId?.toString();
-      return fetchUniversityCourseById(slug);
+    queryKey: ["university-course", courseId, course?.slug, course?.university_slug],
+    queryFn: async () => {
+      if (!courseId) return null;
+      const courseSlug = course?.slug;
+      const universitySlug = course?.university_slug;
+
+      if (courseSlug && universitySlug) {
+        return fetchUniversityCourseBySlugs(universitySlug, courseSlug);
+      }
+
+      // Fallback to ID-based fetch if slug information is missing
+      return fetchUniversityCourseById(courseId);
     },
     enabled: Boolean(courseId),
   });
