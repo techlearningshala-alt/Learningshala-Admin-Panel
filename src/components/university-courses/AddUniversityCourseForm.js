@@ -19,6 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Trash, Plus } from "lucide-react";
 import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
 import { SectionsForm } from "@/components/universities/components/SectionRenderer";
+import { deepMergeProps, applyLinkedFieldMappings } from "@/components/universities/utils/formHelpers";
 import { processSectionFiles } from "@/utils/fileProcessing";
 
 // Helper function to convert title to section_key format with underscores
@@ -505,28 +506,38 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       setBrochureFileName("");
       setBrochureRemoved(false);
 
-      // Load sections if available, otherwise use defaultSections
+      // Merge database sections with defaultSections template
+      // Match by section_key first, then by component if section_key doesn't match
       const sectionsArray = Array.isArray(merged.sections) ? merged.sections : [];
-      let loadedSections = [];
+      const mergedSections = defaultSections.map((defaultSection) => {
+        // Try to find matching database section by section_key or component
+        const dbSection = sectionsArray.find(s => 
+          (defaultSection.section_key && s.section_key === defaultSection.section_key) ||
+          s.component === defaultSection.component
+        );
+        
+        if (dbSection && dbSection.props) {
+          const merged = {
+            id: dbSection.id, // Use database ID
+            section_key: dbSection.section_key || defaultSection.section_key || generateSectionKey(defaultSection.title),
+            title: defaultSection.title, // Use title from defaultSections
+            component: defaultSection.component,
+            props: deepMergeProps(defaultSection.props, dbSection.props),
+          };
+          if (merged.props) {
+            applyLinkedFieldMappings(merged.props);
+          }
+          return merged;
+        }
+        // No matching database section, use default
+        const clonedDefault = structuredClone(defaultSection);
+        if (clonedDefault?.props) {
+          applyLinkedFieldMappings(clonedDefault.props);
+        }
+        return clonedDefault;
+      });
       
-      if (sectionsArray.length > 0) {
-        loadedSections = sectionsArray.map((section) => ({
-          id: section.id,
-          section_key: section.section_key || generateSectionKey(section.title),
-          title: section.title || "",
-          component: section.component || "",
-          props: section.props || {},
-        }));
-      } else {
-        // If no sections from backend, initialize with defaultSections
-        loadedSections = defaultSections.map((section) => ({
-          id: section.id,
-          section_key: section.section_key || generateSectionKey(section.title),
-          title: section.title,
-          component: section.component,
-          props: { ...section.props },
-        }));
-      }
+      const loadedSections = mergedSections;
       
       setValue("sections", loadedSections);
 
