@@ -94,7 +94,7 @@ const createNewBanner = () => ({
 const defaultSections = [
     {
       id: "latest-updates",
-      section_key: "latest_updates",
+      section_key: "Latest_Updates",
       title: "Latest Updates",
       component: "UniversityLatestUpdate",
       props: {
@@ -103,7 +103,7 @@ const defaultSections = [
     },
     {
       id: "about",
-      section_key: "about_university",
+      section_key: "About_University",
       title: "About University Course",
       component: "UniversityDesc",
       props: {
@@ -114,7 +114,7 @@ const defaultSections = [
     },
     {
       id: "why-choose",
-      section_key: "why_choose",
+      section_key: "Why_Choose",
       title: "Why Choose",
       component: "UniversityWhyChoose",
       props: {
@@ -140,7 +140,7 @@ const defaultSections = [
     },
     {
       id: "key-benefits",
-      section_key: "key_highlights",
+      section_key: "Key_Highlights",
       title: "Key Highlights of Course",
       component: "UniversityKeyBenefits",
       props: {
@@ -158,7 +158,7 @@ const defaultSections = [
     },
     {
       id: "university-Emi",
-      section_key: "university_emi",
+      section_key: "University_Emi",
       title: "EMI & Financial Support",
       component: "UniversityEmi",
       props: {
@@ -168,7 +168,7 @@ const defaultSections = [
     },
     {
       id: "scholarship-program",
-      section_key: "scholarships",
+      section_key: "Scholarships_Program",
       title: "Scholarships",
       component: "UniversityScholarship",
       props: {
@@ -186,7 +186,7 @@ const defaultSections = [
     },
     {
       id: "university-lms",
-      section_key: "lms_study_materials",
+      section_key: "Learning_Management_SystemLMS",
       title: "LMS & Study Materials",
       component: "UniversityLMS",
       props: {
@@ -195,14 +195,14 @@ const defaultSections = [
     },
     {
       id: "admission-process",
-      section_key: "admission_process",
+      section_key: "Admission_Process",
       title: "Admission Process",
       component: "UniversityAdmissionProcess",
       props: { image: "", content: "" },
     },
     {
       id: "university-examination",
-      section_key: "examination",
+      section_key: "Examination_Pattern",
       title: "Examination",
       component: "UniversityExamination",
       props: {
@@ -220,7 +220,7 @@ const defaultSections = [
     },
     {
       id: "university-faculties",
-      section_key: "university_faculties",
+      section_key: "University_Faculties",
       title: "Faculty",
       component: "UniversityFaculties",
       props: {
@@ -237,7 +237,7 @@ const defaultSections = [
     },
     {
       id: "university-reviews",
-      section_key: "student_ratings",
+      section_key: "Student_Ratings",
       title: "Student Reviews",
       component: "UniversityReviews",
       props: {
