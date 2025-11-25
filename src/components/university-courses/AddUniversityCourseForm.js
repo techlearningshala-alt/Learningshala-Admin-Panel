@@ -335,6 +335,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
   const [brochureRemoved, setBrochureRemoved] = useState(false);
   const [existingBrochure, setExistingBrochure] = useState(null);
   const [brochureFileName, setBrochureFileName] = useState("");
+  const [brochureFile, setBrochureFile] = useState(null);
   const [feeKeyLookup, setFeeKeyLookup] = useState({});
   const [feeLabelLookup, setFeeLabelLookup] = useState({});
   const [banners, setBanners] = useState([]);
@@ -505,6 +506,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
 
       setExistingBrochure(merged.brochure_file || null);
       setBrochureFileName("");
+      setBrochureFile(null);
       setBrochureRemoved(false);
 
       // Load sections if available, otherwise use defaultSections
@@ -852,12 +854,11 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     // Handle brochure file at course level
     if (brochureRemoved && existingBrochure) {
       formData.append("brochure_file", "__REMOVE__");
-    } else if (brochureFileName && !existingBrochure) {
-      const fileInput = document.querySelector('input[name="brochure_file"]');
-      if (fileInput?.files?.[0]) {
-        formData.append("brochure_file", fileInput.files[0]);
-      }
+    } else if (brochureFile) {
+      // New file selected - append it
+      formData.append("brochure_file", brochureFile);
     } else if (existingBrochure && !brochureRemoved) {
+      // Keep existing file
       formData.append("brochure_file", existingBrochure);
     }
 
@@ -1089,10 +1090,11 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                   const file = e.target.files?.[0];
                   if (file) {
                     setBrochureFileName(file.name);
-                    setExistingBrochure(null);
+                    setBrochureFile(file);
                     setBrochureRemoved(false);
                   } else {
                     setBrochureFileName("");
+                    setBrochureFile(null);
                   }
                 }}
               />
@@ -1121,6 +1123,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                         setBrochureFileName("");
                       } else {
                         setBrochureFileName("");
+                        setBrochureFile(null);
                         const input = document.querySelector('input[name="brochure_file"]');
                         if (input) input.value = "";
                       }
