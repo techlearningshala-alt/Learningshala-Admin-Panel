@@ -75,6 +75,7 @@ export default function UniversityCourseSpecializationTable({
   onEdit,
   onDelete,
   onToggleStatus,
+  onTogglePageCreated,
 }) {
   const columns = [
     {
@@ -136,21 +137,36 @@ export default function UniversityCourseSpecializationTable({
       render: (row) =>
         row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",
     },
-    {
-      key: "is_active",
-      label: "Active / Deactivate",
-      style: { width: "10%" },
-      render: (row) => (
-        <Button
-          size="sm"
-          variant={row.is_active ? "default" : "outline"}
-          className={row.is_active ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
-          onClick={() => onToggleStatus?.(row.id, !row.is_active)}
-        >
-          {row.is_active ? "Active" : "Inactive"}
-        </Button>
-      ),
-    },
+  {
+    key: "is_active",
+    label: "Active / Deactivate",
+    style: { width: "10%" },
+    render: (row) => (
+      <Button
+        size="sm"
+        variant={row.is_active ? "default" : "outline"}
+        className={row.is_active ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
+        onClick={() => onToggleStatus?.(row.id, !row.is_active)}
+      >
+        {row.is_active ? "Active" : "Inactive"}
+      </Button>
+    ),
+  },
+  {
+    key: "is_page_created",
+    label: "Page Created",
+    style: { width: "10%" },
+    render: (row) => (
+      <Button
+        size="sm"
+        variant={row.is_page_created ? "default" : "outline"}
+        className={row.is_page_created ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
+        onClick={() => onTogglePageCreated?.(row.id, !row.is_page_created)}
+      >
+        {row.is_page_created ? "Yes" : "No"}
+      </Button>
+    ),
+  },
   ];
   const actions = [
     {

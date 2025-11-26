@@ -51,6 +51,7 @@ const defaultValues = {
   label: "",
   author_name: "",
   is_active: true,
+  is_page_created: true,
   course_banner: null,
   brochure_file: null,
   course_thumbnail: null,
@@ -284,6 +285,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
 
   useEffect(() => {
     register("is_active");
+    register("is_page_created");
   }, [register]);
 
   const specializationId = specialization?.id;
@@ -461,6 +463,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         label: merged.label ?? "",
         author_name: merged.author_name ?? "",
         is_active: merged.is_active !== undefined ? Boolean(merged.is_active) : true,
+        is_page_created: merged.is_page_created !== undefined ? Boolean(merged.is_page_created) : true,
         course_thumbnail: null,
         syllabus_file: null,
         fee_type_values: feeMap,
@@ -743,7 +746,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         return;
       }
 
-      if (key === "is_active") {
+      if (key === "is_active" || key === "is_page_created") {
         formData.append(key, value ? "true" : "false");
         return;
       }
@@ -1004,10 +1007,16 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>H1 Tag</Label>
-            <Input {...register("h1Tag")} placeholder="SEO H1 tag" />
-          </div>
+        <div className="space-y-2">
+          <Label>H1 Tag</Label>
+          <Input
+            {...register("h1Tag", { required: "H1 Tag is required" })}
+            placeholder="SEO H1 tag"
+          />
+          {errors.h1Tag && (
+            <p className="text-sm text-red-500">{errors.h1Tag.message}</p>
+          )}
+        </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -1062,6 +1071,8 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                 </div>
               )}
             </div>
+          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Upload Syllabus (Max 4MB)
               </Label>
@@ -1161,7 +1172,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                 </div>
               )}
             </div>
-          </div>
+            </div>
 
           <div className="border rounded-md p-4 space-y-4">
             <div className="flex items-center justify-between">
@@ -1179,6 +1190,15 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                 {feeFieldEntries.map((entry) => {
                   const { sanitizedKey, label } = entry;
                   const fieldId = `fee-type-${sanitizedKey}`;
+                  const isFullFeeField =
+                    sanitizedKey === "full_fees" || sanitizedKey === "full_fee";
+                  const validationRules = {
+                    valueAsNumber: true,
+                  };
+                  if (isFullFeeField) {
+                    validationRules.validate = (value) =>
+                      !Number.isNaN(value) || "Full fee is required";
+                  }
                   return (
                     <div key={sanitizedKey} className="space-y-2">
                       <Label htmlFor={fieldId}>{label}</Label>
@@ -1188,11 +1208,14 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                         step="0.01"
                         min="0"
                         placeholder={`Enter ${label} amount`}
-                        {...register(`fee_type_values.${sanitizedKey}`, {
-                          valueAsNumber: true,
-                        })}
+                        {...register(`fee_type_values.${sanitizedKey}`, validationRules)}
                         className="spin-none"
                       />
+                      {errors?.fee_type_values?.[sanitizedKey] && (
+                        <p className="text-xs text-red-500">
+                          {errors.fee_type_values[sanitizedKey]?.message}
+                        </p>
+                      )}
                     </div>
                   );
                 })}

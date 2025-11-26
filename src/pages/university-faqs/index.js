@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import AddUniversityFaqCategoryForm from "@/components/university-faq/AddUniversityFaqCategoryForm";
 import UniversityFaqCategoryTable from "@/components/university-faq/UniversityFaqCategoryTable";
@@ -16,14 +17,14 @@ import { notifySuccess, notifyError } from "@/lib/notify";
 
 export default function UniversityFaqPage() {
   const queryClient = useQueryClient();
-  const [categoryPage, setCategoryPage] = useState(1);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [search, setSearch] = useState("");
 
   // Fetch Categories
   const { data: categoriesData } = useQuery({
-    queryKey: ["universityFaqCategories", categoryPage],
-    queryFn: () => fetchUniversityFaqCategories({ page: categoryPage, limit: 10 }),
+    queryKey: ["universityFaqCategories"],
+    queryFn: () => fetchUniversityFaqCategories({ page: 1, limit: 1000 }),
     keepPreviousData: true,
   });
   const categories = categoriesData?.data?.data || [];
@@ -119,11 +120,20 @@ export default function UniversityFaqPage() {
       {/* Category Table */}
       <div className="bg-white border rounded-lg">
         <div className="p-4">
+          <div className="max-w-sm mb-4">
+            <Input
+              placeholder="Search categories"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
           {categoriesData?.isLoading ? (
             <p className="text-sm text-muted-foreground">Loading categories...</p>
           ) : categories.length > 0 ? (
             <UniversityFaqCategoryTable
-              categories={categories}
+              categories={categories.filter((cat) =>
+                (cat.heading || "").toLowerCase().includes(search.toLowerCase())
+              )}
               onEdit={handleEditCategory}
               onDelete={handleDeleteCategory}
             />
@@ -131,23 +141,6 @@ export default function UniversityFaqPage() {
             <p className="text-sm text-muted-foreground">No categories found. Add your first category.</p>
           )}
         </div>
-        {categoriesData?.data?.pages > 1 && (
-          <div className="flex justify-center gap-2 p-4 border-t">
-            <Button size="sm" disabled={categoryPage === 1} onClick={() => setCategoryPage(categoryPage - 1)}>
-              Prev
-            </Button>
-            <span className="px-3 py-1 text-sm">
-              Page {categoryPage} of {categoriesData?.data?.pages || 1}
-            </span>
-            <Button
-              size="sm"
-              disabled={categoryPage >= (categoriesData?.data?.pages || 0)}
-              onClick={() => setCategoryPage(categoryPage + 1)}
-            >
-              Next
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );

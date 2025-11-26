@@ -8,6 +8,7 @@ import {
   fetchAllUniversities,
   fetchUniversityCourses,
   toggleUniversityCourseSpecializationStatus,
+  toggleUniversityCourseSpecializationPageCreated,
 } from "@/lib/universityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import UniversityCourseSpecializationTable from "@/components/university-course-specializations/UniversityCourseSpecializationTable";
@@ -17,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 25;
 
 const normalizeApiList = (payload) => {
   if (!payload) return [];
@@ -97,6 +98,15 @@ export default function UniversityCourseSpecializationsPage() {
     onError: (err) => notifyError(err.response?.data?.message || "Status update failed"),
   });
 
+  const togglePageCreatedMutation = useMutation({
+    mutationFn: ({ id, isPageCreated }) => toggleUniversityCourseSpecializationPageCreated(id, isPageCreated),
+    onSuccess: () => {
+      notifySuccess("Page created status updated successfully");
+      queryClient.invalidateQueries(["university-course-specializations"]);
+    },
+    onError: (err) => notifyError(err.response?.data?.message || "Page created status update failed"),
+  });
+
   const specializations = specializationResponse?.data?.data || [];
   const total = specializationResponse?.data?.total || 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -120,6 +130,10 @@ export default function UniversityCourseSpecializationsPage() {
 
   const handleToggleStatus = (id, isActive) => {
     toggleStatusMutation.mutate({ id, isActive });
+  };
+
+  const handleTogglePageCreated = (id, isPageCreated) => {
+    togglePageCreatedMutation.mutate({ id, isPageCreated });
   };
 
   if (showForm) {
@@ -240,6 +254,7 @@ export default function UniversityCourseSpecializationsPage() {
           onEdit={openForm}
           onDelete={handleDelete}
           onToggleStatus={handleToggleStatus}
+          onTogglePageCreated={handleTogglePageCreated}
         />
       ) : (
         <p className="text-sm text-muted-foreground">No specializations found.</p>

@@ -20,7 +20,7 @@ export default function UniversitiesPage() {
   // Fetch paginated universities
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["universities", page],
-    queryFn: () => fetchUniversities({ page, limit: 10 }),
+    queryFn: () => fetchUniversities({ page, limit: 20 }),
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });

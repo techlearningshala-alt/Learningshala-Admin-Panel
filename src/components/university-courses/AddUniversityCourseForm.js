@@ -48,6 +48,7 @@ const defaultValues = {
   label: "",
   author_name: "",
   is_active: true,
+  is_page_created: true,
   course_banner: null,
   brochure_file: null,
   course_thumbnail: null,
@@ -322,6 +323,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
 
   useEffect(() => {
     register("is_active");
+    register("is_page_created");
   }, [register]);
 
   const courseId = course?.id;
@@ -468,6 +470,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         label: merged.label ?? "",
         author_name: merged.author_name ?? "",
         is_active: merged.is_active !== undefined ? Boolean(merged.is_active) : true,
+        is_page_created: merged.is_page_created !== undefined ? Boolean(merged.is_page_created) : true,
         course_thumbnail: null,
         syllabus_file: null,
         fee_type_values: feeMap,
@@ -747,7 +750,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         return;
       }
 
-      if (key === "is_active") {
+      if (key === "is_active" || key === "is_page_created") {
         formData.append(key, value ? "true" : "false");
         return;
       }
@@ -979,7 +982,13 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
 
           <div className="space-y-2">
             <Label>H1 Tag</Label>
-            <Input {...register("h1Tag")} placeholder="SEO H1 tag" />
+            <Input
+              {...register("h1Tag", { required: "H1 Tag is required" })}
+              placeholder="SEO H1 tag"
+            />
+            {errors.h1Tag && (
+              <p className="text-sm text-red-500">{errors.h1Tag.message}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1152,6 +1161,15 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                 {feeFieldEntries.map((entry) => {
                   const { sanitizedKey, label } = entry;
                   const fieldId = `fee-type-${sanitizedKey}`;
+                  const isFullFeeField =
+                    sanitizedKey === "full_fees" || sanitizedKey === "full_fee";
+                  const validationRules = {
+                    valueAsNumber: true,
+                  };
+                  if (isFullFeeField) {
+                    validationRules.validate = (value) =>
+                      !Number.isNaN(value) || "Full fee is required";
+                  }
                   return (
                     <div key={sanitizedKey} className="space-y-2">
                       <Label htmlFor={fieldId}>{label}</Label>
@@ -1161,11 +1179,14 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                         step="0.01"
                         min="0"
                         placeholder={`Enter ${label} amount`}
-                        {...register(`fee_type_values.${sanitizedKey}`, {
-                          valueAsNumber: true,
-                        })}
+                        {...register(`fee_type_values.${sanitizedKey}`, validationRules)}
                         className="spin-none"
                       />
+                      {errors?.fee_type_values?.[sanitizedKey] && (
+                        <p className="text-xs text-red-500">
+                          {errors.fee_type_values[sanitizedKey]?.message}
+                        </p>
+                      )}
                     </div>
                   );
                 })}

@@ -75,6 +75,7 @@ export default function UniversityCourseTable({
   onEdit,
   onDelete,
   onToggleStatus,
+  onTogglePageCreated,
 }) {
   const columns = [
   { key: "name", label: "Course Name", style: { width: "20%" } },
@@ -139,6 +140,21 @@ export default function UniversityCourseTable({
         onClick={() => onToggleStatus?.(row.id, !row.is_active)}
       >
         {row.is_active ? "Active" : "Inactive"}
+      </Button>
+    ),
+  },
+  {
+    key: "is_page_created",
+    label: "Page Created",
+    style: { width: "12%" },
+    render: (row) => (
+      <Button
+        size="sm"
+        variant={row.is_page_created ? "default" : "outline"}
+        className={row.is_page_created ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
+        onClick={() => onTogglePageCreated?.(row.id, !row.is_page_created)}
+      >
+        {row.is_page_created ? "Yes" : "No"}
       </Button>
     ),
   },

@@ -13,21 +13,18 @@ import { Plus } from "lucide-react";
 import FeeTypeTable from "@/components/fee-types/FeeTypeTable";
 import AddFeeTypeForm from "@/components/fee-types/AddFeeTypeForm";
 
-const PAGE_SIZE = 10;
-
 export default function FeeTypesPage() {
   const queryClient = useQueryClient();
-  const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingFeeType, setEditingFeeType] = useState(null);
 
   const { data: feeTypeResponse, isLoading } = useQuery({
-    queryKey: ["fee-types", page, search],
+    queryKey: ["fee-types", search],
     queryFn: () =>
       fetchFeeTypes({
-        page,
-        limit: PAGE_SIZE,
+        page: 1,
+        limit: 1000,
         search: search || undefined,
       }),
     keepPreviousData: true,
@@ -46,8 +43,6 @@ export default function FeeTypesPage() {
 
   const result = feeTypeResponse?.data || feeTypeResponse;
   const feeTypes = result?.data || [];
-  const total = result?.total || 0;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const openForm = (feeType = null) => {
     setEditingFeeType(feeType);
@@ -94,7 +89,6 @@ export default function FeeTypesPage() {
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
-              setPage(1);
             }}
           />
         </div>
@@ -113,29 +107,6 @@ export default function FeeTypesPage() {
         <p className="text-sm text-muted-foreground">No fee types found.</p>
       )}
 
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 pt-4">
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={page === 1}
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-          >
-            Prev
-          </Button>
-          <span className="text-sm">
-            Page {page} of {totalPages}
-          </span>
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={page >= totalPages}
-            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-          >
-            Next
-          </Button>
-        </div>
-      )}
     </div>
   );
 }

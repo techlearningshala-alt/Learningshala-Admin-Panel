@@ -7,18 +7,18 @@ import { notifySuccess, notifyError } from "@/lib/notify";
 import AddEmiPartnerForm from "@/components/emi-partners/AddEmiPartnerForm";
 import EmiPartnerTable from "@/components/emi-partners/EmiPartnerTable";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 
 export default function EmiPartnersPage() {
   const [showForm, setShowForm] = useState(false);
   const [editPartner, setEditPartner] = useState(null);
-  const [page, setPage] = useState(1);
-  const limit = 10;
+  const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["emi-partners", page],
-    queryFn: () => fetchEmiPartners({ page, limit }),
+    queryKey: ["emi-partners"],
+    queryFn: () => fetchEmiPartners({ page: 1, limit: 1000 }),
     keepPreviousData: true,
   });
 
@@ -79,34 +79,26 @@ export default function EmiPartnersPage() {
         </Button>
       </div>
 
+      <div className="mb-4 max-w-sm">
+        <Input
+          placeholder="Search partners"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
       {isLoading ? (
         <p>Loading...</p>
       ) : (
         <EmiPartnerTable
-          partners={data?.data?.data || []}
+          partners={(data?.data?.data || []).filter((partner) =>
+            (partner.name || "").toLowerCase().includes(search.toLowerCase())
+          )}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
       )}
 
-      {/* Pagination */}
-      {data?.data?.total > 0 && (
-        <div className="flex justify-center mt-4 gap-2">
-          <Button size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
-            Prev
-          </Button>
-          <span className="px-3 py-1">
-            Page {page} of {Math.ceil((data?.data?.total || 0) / limit)}
-          </span>
-          <Button 
-            size="sm" 
-            disabled={page >= Math.ceil((data?.data?.total || 0) / limit)} 
-            onClick={() => setPage(page + 1)}
-          >
-            Next
-          </Button>
-        </div>
-      )}
     </div>
   );
 }

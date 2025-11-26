@@ -7,13 +7,15 @@ import { notifySuccess, notifyError } from "@/lib/notify";
 import AddPlacementPartnerForm from "@/components/placements/AddPlacementPartnerForm";
 import PlacementPartnerTable from "@/components/placements/PlacementPartnerTable";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 
 export default function PlacementsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editPartner, setEditPartner] = useState(null);
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const [search, setSearch] = useState("");
+  const limit = 25;
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -79,11 +81,24 @@ export default function PlacementsPage() {
         </Button>
       </div>
 
+      <div className="mb-4 max-w-sm">
+        <Input
+          placeholder="Search partners"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+        />
+      </div>
+
       {isLoading ? (
         <p>Loading...</p>
       ) : (
         <PlacementPartnerTable
-          partners={data?.data?.data || []}
+          partners={(data?.data?.data || []).filter((partner) =>
+            (partner.name || "").toLowerCase().includes(search.toLowerCase())
+          )}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />

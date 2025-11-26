@@ -7,6 +7,7 @@ import {
   deleteUniversityCourse,
   fetchAllUniversities,
   toggleUniversityCourseStatus,
+  toggleUniversityCoursePageCreated,
 } from "@/lib/universityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import UniversityCourseTable from "@/components/university-courses/UniversityCourseTable";
@@ -16,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 20;
 
 const normalizeApiList = (payload) => {
   if (!payload) return [];
@@ -78,6 +79,15 @@ export default function UniversityCoursesPage() {
     onError: (err) => notifyError(err.response?.data?.message || "Status update failed"),
   });
 
+  const togglePageCreatedMutation = useMutation({
+    mutationFn: ({ id, isPageCreated }) => toggleUniversityCoursePageCreated(id, isPageCreated),
+    onSuccess: () => {
+      notifySuccess("Page created status updated successfully");
+      queryClient.invalidateQueries(["university-courses"]);
+    },
+    onError: (err) => notifyError(err.response?.data?.message || "Page created status update failed"),
+  });
+
   const courses = courseResponse?.data?.data || [];
   const total = courseResponse?.data?.total || 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -101,6 +111,10 @@ export default function UniversityCoursesPage() {
 
   const handleToggleStatus = (id, isActive) => {
     toggleStatusMutation.mutate({ id, isActive });
+  };
+
+  const handleTogglePageCreated = (id, isPageCreated) => {
+    togglePageCreatedMutation.mutate({ id, isPageCreated });
   };
 
   if (showForm) {
@@ -183,6 +197,7 @@ export default function UniversityCoursesPage() {
           onEdit={openForm}
           onDelete={handleDelete}
           onToggleStatus={handleToggleStatus}
+          onTogglePageCreated={handleTogglePageCreated}
         />
       ) : (
         <p className="text-sm text-muted-foreground">No courses found.</p>

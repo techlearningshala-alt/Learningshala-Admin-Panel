@@ -234,6 +234,11 @@ export const toggleUniversityCourseStatus = async (id, isActive) => {
   return res.data;
 };
 
+export const toggleUniversityCoursePageCreated = async (id, isPageCreated) => {
+  const res = await api.patch(`/university-courses/${id}/toggle-page-created`, { is_page_created: isPageCreated });
+  return res.data;
+};
+
 // ========================================
 // University Course Specializations API
 // ========================================
@@ -300,6 +305,11 @@ export const updateUniversityCourseSpecialization = async (id, formData) => {
 
 export const deleteUniversityCourseSpecialization = async (id) => {
   const res = await api.delete(`/university-course-specializations/${id}`);
+  return res.data;
+};
+
+export const toggleUniversityCourseSpecializationPageCreated = async (id, isPageCreated) => {
+  const res = await api.patch(`/university-course-specializations/${id}/toggle-page-created`, { is_page_created: isPageCreated });
   return res.data;
 };
 

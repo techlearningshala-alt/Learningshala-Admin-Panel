@@ -7,18 +7,20 @@ import { notifyError, notifySuccess } from "@/lib/notify";
 import AddUniversityApprovalForm from "@/components/universities/AddUniversityApprovalForm";
 import UniversityApprovalTable from "@/components/universities/UniversityApprovalTable";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 
 export default function UniversityApprovalsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
+  const [search, setSearch] = useState("");
 
   // Fetch list
   const { data, isLoading } = useQuery({
-    queryKey: ["university-approvals", page],
-    queryFn: () => fetchUniversityApprovals({ page, limit: 10 }),
+    queryKey: ["university-approvals"],
+    queryFn: () => fetchUniversityApprovals({ page: 1, limit: 1000 }),
     keepPreviousData: true,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
@@ -82,24 +84,33 @@ export default function UniversityApprovalsPage() {
         </Button>
       </div>
 
+      <div className="max-w-md mb-4">
+        <Label htmlFor="approval-search">Search Approvals</Label>
+        <Input
+          id="approval-search"
+          placeholder="Search by title or description"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
       {isLoading ? (
         <p>Loading...</p>
       ) : (
         <UniversityApprovalTable
-          items={data?.data?.data || []}
+          items={(data?.data?.data || []).filter((item) => {
+            const query = search.toLowerCase();
+            return (
+              !query ||
+              (item.title || "").toLowerCase().includes(query) ||
+              (item.description || "").toLowerCase().includes(query)
+            );
+          })}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
       )}
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-4 gap-2">
-        <Button size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>Prev</Button>
-        <span className="px-3 py-1">
-          Page {page} of {data?.data?.pages || 1}
-        </span>
-        <Button size="sm" disabled={page === data?.data?.pages} onClick={() => setPage((p) => p + 1)}>Next</Button>
-      </div>
     </div>
   );
 }

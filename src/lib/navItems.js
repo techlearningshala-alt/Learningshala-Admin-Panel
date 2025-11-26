@@ -39,14 +39,15 @@ const navItemsData = [
       { name: "Fee Types", href: "/fee-types", roles: ["admin"] },
       { name: "Placement/Hiring Partners", href: "/placements", roles: ["admin"] },
       { name: "EMI/Financing Partners", href: "/emi-partners", roles: ["admin"] },
-      {
-        name: "FAQs",
-        roles: ["admin", "mentor"],
-        subItems: [
-          { name: "University FAQs", href: "/university-faqs", roles: ["admin", "mentor"] },
-          { name: "Course FAQs", href: "/university-course-faqs", roles: ["admin", "mentor"] },
-        ],
-      },
+      { name: "FAQs", href: "/university-faqs", roles: ["admin", "mentor"] },
+
+      // {
+      //   name: "FAQs",
+      //   roles: ["admin", "mentor"],
+      //   subItems: [
+      //     { name: "Course FAQs", href: "/university-course-faqs", roles: ["admin", "mentor"] },
+      //   ],
+      // },
     ],
   },
   // {
