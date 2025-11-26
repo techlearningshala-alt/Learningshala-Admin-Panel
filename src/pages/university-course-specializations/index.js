@@ -35,7 +35,7 @@ export default function UniversityCourseSpecializationsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedUniversity, setSelectedUniversity] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState(""); 
 
   const { data: universitiesResponse } = useQuery({
     queryKey: ["universities", "all"],
@@ -152,7 +152,7 @@ export default function UniversityCourseSpecializationsPage() {
   return (
     <div className="p-4 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <h1 className="text-2xl font-bold">University Course Specializations</h1>
+        <h3 className="text-xl font-bold">University Course Specializations</h3>
         <Button onClick={() => openForm()}>
           <Plus className="mr-2 h-4 w-4" />
           Add Specialization

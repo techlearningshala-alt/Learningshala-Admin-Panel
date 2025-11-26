@@ -133,7 +133,7 @@ export default function UniversityCoursesPage() {
   return (
     <div className="p-4 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <h1 className="text-2xl font-bold">University Courses</h1>
+        <h3 className="text-xl font-bold">University Courses</h3>
         <Button onClick={() => openForm()}>
           <Plus className="mr-2 h-4 w-4" />
           Add Course
