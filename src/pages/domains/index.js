@@ -72,7 +72,7 @@ export default function DomainsPage() {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Domains</h2>
+        <h3 className="text-xl font-bold">Domains</h3>
         <Button onClick={handleAdd}>
           <Plus className="mr-1 h-4 w-4" /> Add Domain
         </Button>

@@ -74,8 +74,8 @@ export default function PlacementsPage() {
   // Show table view
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Placement/Hiring Partners</h2>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+        <h3 className="text-xl font-bold">Placement/Hiring Partners</h3>
         <Button onClick={handleAdd}>
           <Plus className="mr-1 h-4 w-4" /> Add Partner
         </Button>

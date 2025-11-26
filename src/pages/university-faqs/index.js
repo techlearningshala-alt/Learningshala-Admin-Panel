@@ -109,8 +109,8 @@ export default function UniversityFaqPage() {
   return (
     <div className="p-4">
       {/* Header Section */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">University FAQ Categories</h1>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+        <h3 className="text-xl font-bold">University FAQ Categories</h3>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleAddCategory}>
             <Plus className="mr-1 h-4 w-4" /> Add Category

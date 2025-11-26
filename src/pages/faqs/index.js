@@ -114,7 +114,7 @@ export default function FaqPage() {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">FAQs</h1>
+        <h3 className="text-xl font-bold">FAQs</h3>
         <Button onClick={handleAdd}>
           <Plus className="mr-1 h-4 w-4" /> Add FAQ
         </Button>

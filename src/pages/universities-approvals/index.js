@@ -77,8 +77,8 @@ export default function UniversityApprovalsPage() {
   // Show table view
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">University Approvals</h1>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+        <h3 className="text-xl font-bold">University Approvals</h3>
         <Button onClick={handleAdd}>
           <Plus className="mr-1 h-4 w-4" /> Add Approval
         </Button>
