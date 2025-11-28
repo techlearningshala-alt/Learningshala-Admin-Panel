@@ -168,7 +168,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
     };
 
     const usedKeys = new Set();
-    const useSection = (section) => {
+    const claimSection = (section) => {
       if (!section) return null;
       const identifier =
         section.id ?? sanitizeSectionKey(section.section_key || section.title);
@@ -183,9 +183,9 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
 
     const hydrated = base.map((section) => {
       const normalizedKey = sanitizeSectionKey(section.section_key);
-      let remote = useSection(mapKey.get(normalizedKey));
+      let remote = claimSection(mapKey.get(normalizedKey));
       if (!remote) {
-        remote = useSection(mapTitle.get(normalizedKey));
+        remote = claimSection(mapTitle.get(normalizedKey));
       }
 
     if (!remote) {
