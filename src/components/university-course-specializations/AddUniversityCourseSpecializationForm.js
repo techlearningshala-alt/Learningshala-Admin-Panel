@@ -32,6 +32,17 @@ const generateSectionKey = (title) => {
     .replace(/[^a-zA-Z0-9_]/g, ""); // Remove special characters except underscores
 };
 
+// Helper function to sanitize section keys for comparison (normalizes to lowercase with underscores)
+const sanitizeSectionKey = (key) => {
+  if (!key) return "";
+  return String(key)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+};
+
 const sanitizeFeeKey = (key) =>
   key
     ? String(key)
@@ -417,14 +428,16 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         return;
       }
 
-      console.log("🔍 [SPECIALIZATION FORM] Applying data:", source);
-      console.log("🔍 [SPECIALIZATION FORM] Banners:", source.banners);
-      console.log("🔍 [SPECIALIZATION FORM] Sections:", source.sections);
 
       const merged = {
         ...defaultValues,
         ...source,
       };
+      
+      // Ensure sections is always an array
+      if (!Array.isArray(merged.sections)) {
+        merged.sections = [];
+      }
 
       const keyMap = {};
       const labelMap = {};
@@ -453,6 +466,93 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         labelMap[sanitizedKey] = matchingMeta?.title || feeKey;
       });
 
+      // Merge API sections with default sections to ensure all defaults are present
+      // Extract sections from the source data
+      let sectionsArray = [];
+      if (Array.isArray(merged.sections)) {
+        sectionsArray = merged.sections;
+      } else if (Array.isArray(source.sections)) {
+        sectionsArray = source.sections;
+      }
+      
+      // Start with default sections as the base
+      const baseSections = defaultSections.map((section) => ({
+        id: section.id,
+        section_key: generateSectionKey(section.title),
+        title: section.title,
+        component: section.component,
+        props: { ...section.props },
+      }));
+
+      // Track which API sections we've matched
+      const matchedApiSectionKeys = new Set();
+
+      // Merge API sections into base sections by matching section_key or id
+      const loadedSections = baseSections.map((baseSection) => {
+        // Try to find matching API section by section_key first, then by id
+        const apiSection = sectionsArray.find(
+          (apiSec) =>
+            (apiSec.section_key && 
+             (sanitizeSectionKey(apiSec.section_key) === sanitizeSectionKey(baseSection.section_key) ||
+              apiSec.section_key === baseSection.section_key)) ||
+            (apiSec.id && apiSec.id === baseSection.id) ||
+            (apiSec.title && generateSectionKey(apiSec.title) === baseSection.section_key)
+        );
+
+        if (apiSection) {
+          matchedApiSectionKeys.add(apiSection.section_key || apiSection.id);
+          
+          // Parse props if it's a JSON string
+          let parsedProps = apiSection.props || {};
+          if (typeof apiSection.props === "string") {
+            try {
+              parsedProps = JSON.parse(apiSection.props);
+            } catch (e) {
+              console.error("Error parsing section props:", e);
+              parsedProps = {};
+            }
+          }
+
+          // Merge API props with default props (API props take precedence)
+          return {
+            id: apiSection.id || baseSection.id,
+            section_key: apiSection.section_key || baseSection.section_key,
+            title: apiSection.title || baseSection.title,
+            component: apiSection.component || baseSection.component,
+            props: {
+              ...baseSection.props, // Start with defaults
+              ...parsedProps, // Override with API data
+            },
+          };
+        }
+
+        // No match found, use default section
+        return baseSection;
+      });
+
+      // Add any extra API sections that don't match defaults
+      sectionsArray.forEach((apiSection) => {
+        const apiKey = apiSection.section_key || apiSection.id;
+        if (!matchedApiSectionKeys.has(apiKey)) {
+          let parsedProps = apiSection.props || {};
+          if (typeof apiSection.props === "string") {
+            try {
+              parsedProps = JSON.parse(apiSection.props);
+            } catch (e) {
+              parsedProps = {};
+            }
+          }
+
+          loadedSections.push({
+            id: apiSection.id,
+            section_key: apiSection.section_key || generateSectionKey(apiSection.title),
+            title: apiSection.title || "",
+            component: apiSection.component || "",
+            props: parsedProps,
+          });
+        }
+      });
+
       reset({
         university_id: merged.university_id ? String(merged.university_id) : "",
         university_course_id: merged.university_course_id ? String(merged.university_course_id) : "",
@@ -467,6 +567,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         course_thumbnail: null,
         syllabus_file: null,
         fee_type_values: feeMap,
+        sections: loadedSections, // Include sections in reset
       });
 
       setFeeKeyLookup(keyMap);
@@ -509,41 +610,8 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
       setBrochureFile(null);
       setBrochureRemoved(false);
 
-      // Load sections if available, otherwise use defaultSections
-      const sectionsArray = Array.isArray(merged.sections) ? merged.sections : [];
-      let loadedSections = [];
-
-      if (sectionsArray.length > 0) {
-        loadedSections = sectionsArray.map((section) => {
-          // Parse props if it's a JSON string
-          let parsedProps = section.props || {};
-          if (typeof section.props === "string") {
-            try {
-              parsedProps = JSON.parse(section.props);
-            } catch (e) {
-              console.error("Error parsing section props:", e);
-              parsedProps = {};
-            }
-          }
-          
-          return {
-            id: section.id,
-            section_key: section.section_key || generateSectionKey(section.title),
-            title: section.title || "",
-            component: section.component || "",
-            props: parsedProps,
-          };
-        });
-      } else {
-        loadedSections = defaultSections.map((section) => ({
-          id: section.id,
-          section_key: generateSectionKey(section.title),
-          title: section.title,
-          component: section.component,
-          props: { ...section.props },
-        }));
-      }
-
+      // Sections are already merged and included in reset above
+      // Just ensure setValue is called to update form state
       setValue("sections", loadedSections);
 
       // Set section previews recursively for images
@@ -601,9 +669,13 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
   );
 
   useEffect(() => {
-    if (specialization && specialization.id) {
+    // Only apply prop data initially if we're not going to fetch (no specializationId means create mode)
+    // If we have specializationId, we'll fetch full data including sections, so don't apply incomplete prop data
+    if (specialization && specialization.id && !specializationId) {
+      // Create mode or edit mode without ID - use prop data
       applySpecializationData(specialization);
     }
+    // Note: If specializationId exists, we'll fetch full data which will be applied in the fetch useEffect
     if (specializationId) {
       setStagedFaqs([]);
     }
@@ -659,16 +731,23 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
   }, [specialization, specializationId, feeTypeDefaults, feeTypeMeta, getValues, setValue, banners.length]);
 
   const { data: fetchedSpecialization, isLoading: isLoadingSpecialization, error: fetchError } = useQuery({
-    queryKey: ["university-course-specialization", specializationId],
+    queryKey: ["university-course-specialization", specializationId, specialization?.id],
     queryFn: () => {
-      const slug = specialization?.slug || specialization?.id?.toString() || specializationId?.toString();
-      return fetchUniversityCourseSpecializationById(slug);
+      // Prioritize ID over slug for more reliable fetching
+      const idOrSlug = specialization?.id?.toString() || specializationId?.toString() || specialization?.slug;
+      if (!idOrSlug) {
+        throw new Error("No ID or slug available for fetching");
+      }
+      return fetchUniversityCourseSpecializationById(idOrSlug);
     },
-    enabled: Boolean(specializationId),
+    enabled: Boolean(specializationId || specialization?.id),
+    retry: false, // Don't retry on 404
   });
 
   useEffect(() => {
-    if (fetchedSpecialization && fetchedSpecialization.id) {
+    // Always apply fetched data when available (it has complete data including sections)
+    // The prop data is just for initial display, fetched data is the source of truth
+    if (fetchedSpecialization && fetchedSpecialization.id && !fetchError && !isLoadingSpecialization) {
       applySpecializationData(fetchedSpecialization);
     }
   }, [fetchedSpecialization, isLoadingSpecialization, fetchError, specializationId, applySpecializationData]);

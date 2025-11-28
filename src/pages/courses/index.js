@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchCourses, deleteCourse } from "@/lib/menuApi";
+import {
+  fetchCourses,
+  deleteCourse,
+  toggleCourseStatus,
+  toggleCourseMenuVisibility,
+} from "@/lib/menuApi";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import AddCourseForm from "@/components/courses/AddCourseForm";
@@ -50,6 +55,28 @@ export default function CoursesPage() {
     }
   };
 
+  const toggleActiveMutation = useMutation({
+    mutationFn: ({ id, value }) => toggleCourseStatus(id, value),
+    onSuccess: () => {
+      notifySuccess("Course status updated");
+      queryClient.invalidateQueries(["courses"]);
+    },
+    onError: (err) => {
+      notifyError(err.response?.data?.message || "Failed to update status");
+    },
+  });
+
+  const toggleMenuVisibilityMutation = useMutation({
+    mutationFn: ({ id, value }) => toggleCourseMenuVisibility(id, value),
+    onSuccess: () => {
+      notifySuccess("Menu visibility updated");
+      queryClient.invalidateQueries(["courses"]);
+    },
+    onError: (err) => {
+      notifyError(err.response?.data?.message || "Failed to update menu visibility");
+    },
+  });
+
   const handleFormClose = () => {
     setShowForm(false);
     setEditItem(null);
@@ -89,6 +116,10 @@ export default function CoursesPage() {
           items={data?.data?.data || []}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onToggleActive={(id, value) => toggleActiveMutation.mutate({ id, value })}
+          onToggleMenuVisibility={(id, value) =>
+            toggleMenuVisibilityMutation.mutate({ id, value })
+          }
         />
       )}
 

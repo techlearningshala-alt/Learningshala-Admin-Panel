@@ -182,19 +182,12 @@ export async function fetchUniversityCourses({
 export async function fetchUniversityCourseById(id) {
   if (!id) throw new Error("Course ID is required");
   const res = await api.get(`/university-courses/id/${id}`);
-  console.log("🔍 Raw API Response:", res.data);
   
   let courseData = res.data;
   if (res.data?.data && typeof res.data.data === 'object') {
     courseData = res.data.data;
   }
   
-  console.log("🔍 Extracted Course Data:", courseData);
-  console.log("🔍 Banners in courseData:", courseData?.banners);
-  console.log("🔍 Banners array length:", courseData?.banners?.length);
-  if (courseData?.banners && Array.isArray(courseData.banners)) {
-    console.log("🔍 First banner:", courseData.banners[0]);
-  }
   return courseData;
 }
 
@@ -261,24 +254,16 @@ export async function fetchUniversityCourseSpecializations({
 
 export async function fetchUniversityCourseSpecializationById(idOrSlug) {
   const res = await api.get(`/university-course-specializations/${idOrSlug}`);
-  console.log("🔍 Raw API Response:", res.data);
-  console.log("🔍 Raw API Response type:", typeof res.data);
-  console.log("🔍 Raw API Response.data exists:", !!res.data?.data);
   
   let specializationData = res.data;
   // Check if response is wrapped in a data property (standard API response format)
   if (res.data?.data && typeof res.data.data === 'object' && res.data.data !== null) {
     specializationData = res.data.data;
-    console.log("🔍 Using res.data.data");
   } else if (res.data && typeof res.data === 'object' && res.data !== null && res.data.id) {
     // Response might be directly the specialization object
     specializationData = res.data;
-    console.log("🔍 Using res.data directly");
   }
   
-  console.log("🔍 Extracted Specialization Data:", specializationData);
-  console.log("🔍 Banners in extracted data:", specializationData?.banners);
-  console.log("🔍 Sections in extracted data:", specializationData?.sections);
   return specializationData;
 }
 

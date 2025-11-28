@@ -25,6 +25,7 @@ const navItemsData = [
       { name: "Domains", href: "/domains", roles: ["admin"] },
       { name: "Courses", href: "/courses", roles: ["admin"] },
       { name: "Specializations", href: "/specializations", roles: ["admin"] },
+      { name: "FAQs", href: "/course-faqs", roles: ["admin"] },
       // { name: "Questions", href: "/questions", roles: ["admin"] }
     ],
   },

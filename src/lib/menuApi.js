@@ -47,6 +47,12 @@ export async function findAllCourseName() {
   return res.data;
 }
 
+// Fetch single course by id
+export async function fetchCourseById(id) {
+  const res = await api.get(`/courses/${id}`);
+  return res.data;
+}
+
 // Add a new course
 export async function addCourse(formData) {
   const res = await api.post(`/courses`, formData, {
@@ -66,6 +72,73 @@ export async function updateCourse(id, formData) {
 // Delete a course
 export async function deleteCourse(id) {
   const res = await api.delete(`/courses/${id}`);
+  return res.data;
+}
+
+export async function toggleCourseStatus(id, is_active) {
+  const res = await api.patch(`/courses/${id}/toggle-status`, { is_active });
+  return res.data;
+}
+
+export async function toggleCourseMenuVisibility(id, menu_visibility) {
+  const res = await api.patch(`/courses/${id}/toggle-menu-visibility`, {
+    menu_visibility,
+  });
+  return res.data;
+}
+
+///////////////////////    COURSE FAQ APIS    ///////////////////////////
+
+export async function fetchCourseFaqs({ page = 1, limit = 10, course_id, category_id }) {
+  const params = { page, limit };
+  if (course_id) params.course_id = course_id;
+  if (category_id) params.category_id = category_id;
+  
+  const res = await api.get(`/courses/faqs/`, {
+    params,
+  });
+  return res.data;
+}
+
+export async function fetchCourseFaqCategories({ page = 1, limit = 10 } = {}) {
+  const res = await api.get(`/courses/faqs/categories`, {
+    params: { page, limit },
+  });
+  return res.data;
+}
+
+export async function addCourseFaq(payload) {
+  const res = await api.post(`/courses/faqs/questions`, payload);
+  return res.data;
+}
+
+export async function updateCourseFaq(id, payload) {
+  const res = await api.put(`/courses/faqs/questions/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteCourseFaq(id) {
+  const res = await api.delete(`/courses/faqs/questions/${id}`);
+  return res.data;
+}
+
+export async function fetchCourseFaqsByCourseId(courseId) {
+  const res = await api.get(`/courses/faqs/courses/${courseId}/questions`);
+  return res.data;
+}
+
+export async function addCourseFaqCategory(payload) {
+  const res = await api.post(`/courses/faqs/`, payload);
+  return res.data;
+}
+
+export async function updateCourseFaqCategory(id, payload) {
+  const res = await api.put(`/courses/faqs/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteCourseFaqCategory(id) {
+  const res = await api.delete(`/courses/faqs/${id}`);
   return res.data;
 }
 

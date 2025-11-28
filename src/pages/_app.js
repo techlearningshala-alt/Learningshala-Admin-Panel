@@ -22,6 +22,7 @@ export default function App({ Component, pageProps }) {
     "/testimonials",
     "/domains",
     "/courses",
+    "/course-faqs",
     "/specializations",
     "/universities",
     "/universities-approvals",

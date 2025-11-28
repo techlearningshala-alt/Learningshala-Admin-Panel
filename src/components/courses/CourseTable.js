@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
 
-export default function CourseTable({ items, onEdit, onDelete }) {
+export default function CourseTable({
+  items,
+  onEdit,
+  onDelete,
+  onToggleActive,
+  onToggleMenuVisibility,
+}) {
   const columns = [
     { key: "id", label: "ID" },
     { key: "domain_name", label: "Domain" },
@@ -32,18 +38,45 @@ export default function CourseTable({ items, onEdit, onDelete }) {
     { key: "priority", label: "Priority" },
     {
       key: "is_active",
-      label: "Active",
-      render: (row) => (row.is_active ? "Yes" : "No"),
+      label: "Active / Inactive",
+      render: (row) => (
+        <Button
+          size="sm"
+          variant={row.is_active ? "default" : "outline"}
+          className={
+            row.is_active
+              ? ""
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
+          }
+          onClick={() => onToggleActive?.(row.id, !row.is_active)}
+        >
+          {row.is_active ? "Active" : "Inactive"}
+        </Button>
+      ),
     },
     {
       key: "menu_visibility",
       label: "Menu Visibility",
-      render: (row) => (row.menu_visibility ? "Yes" : "No"),
+      render: (row) => (
+        <Button
+          size="sm"
+          variant={row.menu_visibility ? "default" : "outline"}
+          className={
+            row.menu_visibility
+              ? ""
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
+          }
+          onClick={() => onToggleMenuVisibility?.(row.id, !row.menu_visibility)}
+        >
+          {row.menu_visibility ? "Visible" : "Hidden"}
+        </Button>
+      ),
     },
     {
       key: "updated_at",
       label: "Updated At",
-      render: (row) => row.updated_at ? new Date(row.updated_at).toLocaleString() : "-",
+      render: (row) =>
+        row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",
     },
   ];
 
