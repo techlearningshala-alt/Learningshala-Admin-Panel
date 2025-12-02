@@ -132,7 +132,7 @@ const defaultSections = [
   },
   {
     id: "eligibility-criteria",
-    section_key: "eligibility_criteria",
+    section_key: "Eligibility_Criteria",
     title: "Eligibility Criteria / Who can Enroll",
     component: "UniversityEligibilityCriteria",
     props: {
@@ -194,7 +194,7 @@ const defaultSections = [
   },
   {
     id: "job-opportunities",
-    section_key: "job_opportunities",
+      section_key: "Job_Opportunities",
     title: "Job Opportunities",
     component: "UniversityJobOpportunities",
     props: {
