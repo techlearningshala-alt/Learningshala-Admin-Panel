@@ -78,34 +78,47 @@ export default function UniversityCourseTable({
   onTogglePageCreated,
 }) {
   const columns = [
-  { key: "name", label: "Course Name", style: { width: "20%" } },
+  { key: "name", label: "Course Name", style: { width: "18%" } },
   {
     key: "university_name",
     label: "University Name",
-    style: { width: "20%" },
+    style: { width: "18%" },
   },
   {
     key: "duration",
     label: "Duration",
-    style: { width: "12%" },
+    style: { width: "10%" },
     render: (row) => row.duration || "-",
   },
   {
     key: "full_fee",
     label: "Full Fee",
-    style: { width: "12%" },
+    style: { width: "10%" },
     render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "full_fees")),
   },
   {
     key: "sem_fee",
     label: "Sem Fee",
-    style: { width: "12%" },
+    style: { width: "10%" },
     render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "Semester Fee")),
+  },
+  {
+    key: "emi",
+    label: "EMI (Monthly)",
+    style: { width: "12%" },
+    render: (row) => {
+      const emiValue = findFeeValue(row.fee_type_values, "EMI Monthly") || 
+                       findFeeValue(row.fee_type_values, "Monthly EMI") ||
+                       findFeeValue(row.fee_type_values, "EMI") ||
+                       findFeeValue(row.fee_type_values, "emi_monthly") ||
+                       findFeeValue(row.fee_type_values, "emi");
+      return formatCurrency(emiValue);
+    },
   },
       {
         key: "brochure",
         label: "Brochure",
-        style: { width: "12%" },
+        style: { width: "10%" },
         render: (row) =>
           row.brochure_file ? (
             <a
@@ -123,7 +136,7 @@ export default function UniversityCourseTable({
   {
     key: "updated_at",
     label: "Updated Date",
-    style: { width: "12%" },
+    style: { width: "10%" },
     cellClassName: "border px-2 py-1 align-middle whitespace-nowrap",
     render: (row) =>
       row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",
@@ -131,7 +144,7 @@ export default function UniversityCourseTable({
   {
     key: "is_active",
     label: "Active / Deactivate",
-    style: { width: "12%" },
+    style: { width: "10%" },
     render: (row) => (
       <Button
         size="sm"
@@ -146,7 +159,7 @@ export default function UniversityCourseTable({
   {
     key: "is_page_created",
     label: "Page Created",
-    style: { width: "12%" },
+    style: { width: "10%" },
     render: (row) => (
       <Button
         size="sm"

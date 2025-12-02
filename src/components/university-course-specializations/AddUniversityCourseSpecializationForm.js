@@ -77,6 +77,7 @@ const defaultValues = {
 const defaultSections = [
   {
     id: "latest-updates",
+    section_key: "Latest_Updates",
     title: "Latest Updates",
     component: "UniversityLatestUpdate",
     props: {
@@ -85,7 +86,8 @@ const defaultSections = [
   },
   {
     id: "about",
-    title: "About University",
+    section_key: "About_University",
+    title: "About University Course",
     component: "UniversityDesc",
     props: {
       content: "",
@@ -95,6 +97,7 @@ const defaultSections = [
   },
   {
     id: "why-choose",
+    section_key: "Why_Choose",
     title: "Why Choose",
     component: "UniversityWhyChoose",
     props: {
@@ -120,37 +123,88 @@ const defaultSections = [
   },
   {
     id: "key-benefits",
-    title: "Key Highlights",
+    section_key: "Key_Highlights",
+    title: "Key Highlights of Course",
     component: "UniversityKeyBenefits",
     props: {
       content: "",
     },
   },
   {
-    id: "admission-process",
-    title: "Admission Process",
-    component: "UniversityAdmissionProcess",
-    props: { image: "", content: "" },
-  },
-  {
-    id: "fees-detail",
-    title: "Fee Details",
-    component: "UniversityFeeDetail",
+    id: "eligibility-criteria",
+    section_key: "eligibility_criteria",
+    title: "Eligibility Criteria / Who can Enroll",
+    component: "UniversityEligibilityCriteria",
     props: {
       content: "",
     },
   },
   {
+    id: "university-Emi",
+    section_key: "University_Emi",
+    title: "EMI & Financial Support",
+    component: "UniversityEmi",
+    props: {
+      content: "",
+      emiPartners: "Yes",
+    },
+  },
+  {
     id: "scholarship-program",
-    title: "Scholarships Program",
+    section_key: "Scholarships_Program",
+    title: "Scholarships",
     component: "UniversityScholarship",
     props: {
       content: "",
     },
   },
   {
+    id: "syllabus-curriculum",
+    section_key: "syllabus_curriculum",
+    title: "Syllabus / Curriculum",
+    component: "UniversitySyllabus",
+    props: {
+      content: "",
+    },
+  },
+  {
+    id: "university-lms",
+    section_key: "Learning_Management_SystemLMS",
+    title: "LMS & Study Materials",
+    component: "UniversityLMS",
+    props: {
+      content: "",
+    },
+  },
+  {
+    id: "admission-process",
+    section_key: "Admission_Process",
+    title: "Admission Process",
+    component: "UniversityAdmissionProcess",
+    props: { image: "", content: "" },
+  },
+  {
+    id: "university-examination",
+    section_key: "Examination_Pattern",
+    title: "Examination",
+    component: "UniversityExamination",
+    props: {
+      content: "",
+    },
+  },
+  {
+    id: "job-opportunities",
+    section_key: "job_opportunities",
+    title: "Job Opportunities",
+    component: "UniversityJobOpportunities",
+    props: {
+      content: "",
+    },
+  },
+  {
     id: "university-faculties",
-    title: "University Faculties",
+    section_key: "University_Faculties",
+    title: "Faculty",
     component: "UniversityFaculties",
     props: {
       faculties: [
@@ -165,25 +219,9 @@ const defaultSections = [
     },
   },
   {
-    id: "university-Emi",
-    title: "University Emi",
-    component: "UniversityEmi",
-    props: {
-      content: "",
-      emiPartners: "Yes",
-    },
-  },
-  {
-    id: "popular-courses",
-    title: "Popular Courses",
-    component: "UniversityCourses",
-    props: {
-      coursesList: "Yes",
-    },
-  },
-  {
     id: "university-reviews",
-    title: "Student Ratings",
+    section_key: "Student_Ratings",
+    title: "Student Reviews",
     component: "UniversityReviews",
     props: {
       allReviews: [
@@ -196,38 +234,43 @@ const defaultSections = [
       ],
     },
   },
-  {
-    id: "Other-Popular-Universities",
-    title: "Other Popular Universities",
-    component: "UniversityOtherPopularColleges",
-    props: {
-      otherUniversityList: "Yes",
-    },
-  },
-  {
-    id: "university-lms",
-    title: "Learning Management System(LMS)",
-    component: "UniversityLMS",
-    props: {
-      content: "",
-    },
-  },
-  {
-    id: "university-examination",
-    title: "Examination Pattern",
-    component: "UniversityExamination",
-    props: {
-      content: "",
-    },
-  },
-  {
-    id: "university-faq",
-    title: "Faqs",
-    component: "UniversityFaq",
-    props: {
-      faqData: "Yes",
-    },
-  },
+
+  // {
+  //   id: "fees-detail",
+  //   section_key: "fee_details",
+  //   title: "Fee Details",
+  //   component: "UniversityFeeDetail",
+  //   props: {
+  //     content: "",
+  //   },
+  // },   
+  // {
+  //   id: "popular-courses",
+  //   section_key: "popular_courses",
+  //   title: "Popular Courses",
+  //   component: "UniversityCourses",
+  //   props: {
+  //     coursesList: "Yes",
+  //   },
+  // }, 
+  // {
+  //   id: "Other-Popular-Universities",
+  //   section_key: "other_popular_universities",  
+  //   title: "Other Popular Universities",
+  //   component: "UniversityOtherPopularColleges",
+  //   props: {
+  //     otherUniversityList: "Yes",
+  //   },
+  // },   
+  // {
+  //   id: "university-faq",
+  //   section_key: "faqs",
+  //   title: "Faqs",
+  //   component: "UniversityFaq",
+  //   props: {
+  //     faqData: "Yes",
+  //   },
+  // },
 ].filter(
   (section) =>
     section.id !== "approval-logo" &&
@@ -1113,10 +1156,6 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
               <Label>Duration</Label>
               <Input {...register("duration")} placeholder="e.g. 2 Years" />
             </div>
-            <div />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Course Thumbnail (size: 128x99px )</Label>
               <Input
@@ -1150,7 +1189,9 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                 </div>
               )}
             </div>
+            <div />
           </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Upload Syllabus (Max 4MB)
