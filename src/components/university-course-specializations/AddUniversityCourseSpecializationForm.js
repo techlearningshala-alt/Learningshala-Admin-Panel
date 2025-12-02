@@ -329,7 +329,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
       ...defaultValues,
       sections: defaultSections.map((section) => ({
         id: section.id,
-        section_key: generateSectionKey(section.title),
+        section_key: section.section_key ? section.section_key : generateSectionKey(section.title),
         title: section.title,
         component: section.component,
         props: { ...section.props },
@@ -521,7 +521,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
       // Start with default sections as the base
       const baseSections = defaultSections.map((section) => ({
         id: section.id,
-        section_key: generateSectionKey(section.title),
+        section_key: section.section_key ? section.section_key : generateSectionKey(section.title),
         title: section.title,
         component: section.component,
         props: { ...section.props },
@@ -764,7 +764,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
       if (currentSections.length === 0) {
         setValue("sections", defaultSections.map((section) => ({
           id: section.id,
-          section_key: generateSectionKey(section.title),
+          section_key: section.section_key ? section.section_key : generateSectionKey(section.title),
           title: section.title,
           component: section.component,
           props: { ...section.props },
