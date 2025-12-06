@@ -1156,17 +1156,18 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Specialization Duration (Years/Months)</Label>
-              <Input {...register("duration")} placeholder="e.g. 2 Years/12 Months" />
+              <Input {...register("duration")} placeholder="e.g. 2 Years" />
             </div>
             <div className="space-y-2">
               <Label>EMI Duration (In Months)</Label>
               <Input 
                 type="number" 
                 {...register("emi_duration", {
-                  valueAsNumber: true,
                   validate: (value) => {
                     if (value === "" || value === null || value === undefined) return true;
-                    return Number.isInteger(Number(value)) || "Must be an integer";
+                    const numValue = Number(value);
+                    if (isNaN(numValue)) return true;
+                    return Number.isInteger(numValue) || "Must be an integer";
                   }
                 })} 
                 placeholder="e.g. 24" 
