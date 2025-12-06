@@ -59,6 +59,7 @@ const defaultValues = {
   slug: "",
   h1Tag: "",
   duration: "",
+  emi_duration: "",
   label: "",
   author_name: "",
   is_active: true,
@@ -603,6 +604,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         slug: merged.slug || "",
         h1Tag: merged.h1Tag || "",
         duration: merged.duration ?? "",
+        emi_duration: merged.emi_duration ?? "",
         label: merged.label ?? "",
         author_name: merged.author_name ?? "",
         is_active: merged.is_active !== undefined ? Boolean(merged.is_active) : true,
@@ -1153,9 +1155,26 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Duration</Label>
+              <Label>Specialization Duration (Years/Months)</Label>
               <Input {...register("duration")} placeholder="e.g. 2 Years" />
             </div>
+            <div className="space-y-2">
+              <Label>EMI Duration (In Months)</Label>
+              <Input 
+                type="number" 
+                {...register("emi_duration", {
+                  valueAsNumber: true,
+                  validate: (value) => {
+                    if (value === "" || value === null || value === undefined) return true;
+                    return Number.isInteger(Number(value)) || "Must be an integer";
+                  }
+                })} 
+                placeholder="e.g. 12" 
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Course Thumbnail (size: 128x99px )</Label>
               <Input

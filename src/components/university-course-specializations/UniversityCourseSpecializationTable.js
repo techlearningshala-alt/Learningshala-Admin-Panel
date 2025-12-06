@@ -79,6 +79,11 @@ export default function UniversityCourseSpecializationTable({
 }) {
   const columns = [
     {
+      key: "name",
+      label: "Specialization Name",
+      style: { width: "18%" },
+    },
+    {
       key: "course_name",
       label: "Course Name",
       style: { width: "18%" },
@@ -87,17 +92,6 @@ export default function UniversityCourseSpecializationTable({
       key: "university_name",
       label: "University Name",
       style: { width: "18%" },
-    },
-    {
-      key: "name",
-      label: "Specialization Name",
-      style: { width: "18%" },
-    },
-    {
-      key: "duration",
-      label: "Duration",
-      style: { width: "10%" },
-      render: (row) => row.duration || "-",
     },
     {
       key: "full_fee",
@@ -110,6 +104,12 @@ export default function UniversityCourseSpecializationTable({
       label: "Sem Fee",
       style: { width: "10%" },
       render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "Semester Fee")),
+    },
+    {
+      key: "emi_monthly",
+      label: "EMI (Monthly)",
+      style: { width: "10%" },
+      render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "EMI Monthly")),
     },
     {
       key: "brochure",

@@ -153,6 +153,12 @@ export async function fetchSpecialization({ page = 1, limit = 10 }) {
   return res.data;
 }
 
+// Fetch single specialization by id
+export async function fetchSpecializationById(id) {
+  const res = await api.get(`/specializations/${id}`);
+  return res.data;
+}
+
 // Add a new SPECIALIZATION
 export async function addSpecialization(formData) {
   const res = await api.post(`/specializations`, formData, {
@@ -172,5 +178,39 @@ export async function updateSpecializations(id, formData) {
 // Delete a SPECIALIZATION
 export async function deleteSpecializations(id) {
   const res = await api.delete(`/specializations/${id}`);
+  return res.data;
+}
+
+export async function toggleSpecializationStatus(id, is_active) {
+  const res = await api.patch(`/specializations/${id}/toggle-status`, { is_active });
+  return res.data;
+}
+
+export async function toggleSpecializationMenuVisibility(id, menu_visibility) {
+  const res = await api.patch(`/specializations/${id}/toggle-menu-visibility`, {
+    menu_visibility,
+  });
+  return res.data;
+}
+
+///////////////////////    SPECIALIZATION FAQ APIS    ///////////////////////////
+
+export async function fetchSpecializationFaqsBySpecializationId(specializationId) {
+  const res = await api.get(`/specializations/faqs/specializations/${specializationId}/questions`);
+  return res.data;
+}
+
+export async function addSpecializationFaq(data) {
+  const res = await api.post(`/specializations/faqs/questions`, data);
+  return res.data;
+}
+
+export async function updateSpecializationFaq(id, data) {
+  const res = await api.put(`/specializations/faqs/questions/${id}`, data);
+  return res.data;
+}
+
+export async function deleteSpecializationFaq(id) {
+  const res = await api.delete(`/specializations/faqs/questions/${id}`);
   return res.data;
 }

@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchSpecialization, deleteSpecializations } from "@/lib/menuApi";
+import {
+  fetchSpecialization,
+  deleteSpecializations,
+  toggleSpecializationStatus,
+  toggleSpecializationMenuVisibility,
+} from "@/lib/menuApi";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import AddSpecializationForm from "@/components/specialization/AddSpecializationForm";
@@ -50,6 +55,28 @@ export default function SpecializationsPage() {
     }
   };
 
+  const toggleActiveMutation = useMutation({
+    mutationFn: ({ id, value }) => toggleSpecializationStatus(id, value),
+    onSuccess: () => {
+      notifySuccess("Specialization status updated");
+      queryClient.invalidateQueries(["specialization"]);
+    },
+    onError: (err) => {
+      notifyError(err.response?.data?.message || "Failed to update status");
+    },
+  });
+
+  const toggleMenuVisibilityMutation = useMutation({
+    mutationFn: ({ id, value }) => toggleSpecializationMenuVisibility(id, value),
+    onSuccess: () => {
+      notifySuccess("Menu visibility updated");
+      queryClient.invalidateQueries(["specialization"]);
+    },
+    onError: (err) => {
+      notifyError(err.response?.data?.message || "Failed to update menu visibility");
+    },
+  });
+
   const handleFormClose = () => {
     setShowForm(false);
     setEditItem(null);
@@ -73,10 +100,15 @@ export default function SpecializationsPage() {
   }
 
   // Show table view
+  const total = data?.data?.total || 0;
+  
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-bold">Specializations</h3>
+        <div>
+          <h3 className="text-xl font-bold">Specializations</h3>
+          <p className="text-sm text-muted-foreground mt-1">Total: {total}</p>
+        </div>
         <Button onClick={handleAdd}>
           <Plus className="mr-1 h-4 w-4" /> Add Specialization
         </Button>
@@ -89,6 +121,12 @@ export default function SpecializationsPage() {
           items={data?.data?.data || []}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onToggleActive={(id, value) => toggleActiveMutation.mutate({ id, value })}
+          onToggleMenuVisibility={(id, value) =>
+            toggleMenuVisibilityMutation.mutate({ id, value })
+          }
+          currentPage={page}
+          limit={10}
         />
       )}
 
@@ -98,13 +136,9 @@ export default function SpecializationsPage() {
           Prev
         </Button>
         <span className="px-3 py-1">
-          Page {page} of {data?.data.pages}
+          Page {page} of {data?.data?.pages || 1}
         </span>
-        <Button
-          size="sm"
-          disabled={page === data?.data.pages}
-          onClick={() => setPage(page + 1)}
-        >
+        <Button size="sm" disabled={page >= (data?.data?.pages || 0)} onClick={() => setPage(page + 1)}>
           Next
         </Button>
       </div>

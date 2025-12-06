@@ -38,6 +38,7 @@ const SECTION_TEMPLATES = [
   },
   { id: "worth-it", section_key: "worth_it", title: "Worth It?" },
   { id: "career-opportunities", section_key: "career_opportunities", title: "Career Opportunities" },
+  { id: "top-recruiters", section_key: "top_recruiters", title: "Top Recruiters " },
 ];
 
 const generateLocalId = () =>
@@ -611,7 +612,10 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
 
             <div className="space-y-2">
               <Label>Course Slug</Label>
-              <Input placeholder="Auto-generate or override" {...register("slug")} />
+              <Input placeholder="Enter course slug" {...register("slug", { required: "Course slug is required" })} />
+              {errors.slug && (
+                <p className="text-xs text-red-500">{errors.slug.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -626,11 +630,8 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
             </div>
 
             <div className="space-y-2">
-              <Label>Duration (in months)</Label>
+              <Label>Duration</Label>
               <Input
-                type="number"
-                min="0"
-                inputMode="numeric"
                 placeholder="Enter duration"
                 {...register("duration", {
                   required: "Duration is required",
@@ -645,7 +646,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
               <Label>Label (Menu Text)</Label>
               <Input
                 placeholder="Short label for menu"
-                {...register("label", { required: "Label is required" })}
+                {...register("label")}
               />
               {errors.label && (
                 <p className="text-xs text-red-500">{errors.label.message}</p>

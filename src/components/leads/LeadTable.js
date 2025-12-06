@@ -119,6 +119,20 @@ const columns = [
     render: (row) => row.experience || "-",
   },
   {
+    key: "currently_employed",
+    label: "Currently Employed",
+    style: { minWidth: "100px" },
+    cellClassName: defaultCellClass,
+    render: (row) => row.currently_employed || "-",
+  },
+  {
+    key: "university_for_placement_salaryhike_promotions",
+    label: "University for Placement/Salary Hike/Promotions",
+    style: { minWidth: "250px" },
+    cellClassName: defaultCellClass,
+    render: (row) => row.university_for_placement_salaryhike_promotions || "-",
+  },
+  {
     key: "utm_source",
     label: "UTM Source",
     style: { minWidth: "100px" },
