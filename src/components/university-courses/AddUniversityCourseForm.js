@@ -1007,7 +1007,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Course Duration (Years/Months)</Label>
-              <Input {...register("duration")} placeholder="e.g. 2 Years" />
+              <Input {...register("duration")} placeholder="e.g. 2 Years/12 Months" />
             </div>
             <div className="space-y-2">
               <Label>EMI Duration (In Months)</Label>
@@ -1020,7 +1020,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                     return Number.isInteger(Number(value)) || "Must be an integer";
                   }
                 })} 
-                placeholder="e.g. 12" 
+                placeholder="e.g. 24" 
               />
             </div>
           </div>
