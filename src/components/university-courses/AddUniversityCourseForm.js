@@ -978,7 +978,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
             </div>
             <div className="space-y-2">
               <Label>Course Slug</Label>
-              <Input {...register("slug")} placeholder="Auto-generated if left blank" />
+              <Input {...register("slug")} placeholder="Enter course slug" />
             </div>
           </div>
 
@@ -1191,8 +1191,8 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                       <Input
                         id={fieldId}
                         type="number"
-                        step="0.01"
-                        min="0"
+                        // step="0.01"
+                        // min="0"
                         placeholder={`Enter ${label} amount`}
                         {...register(`fee_type_values.${sanitizedKey}`, validationRules)}
                         className="spin-none"

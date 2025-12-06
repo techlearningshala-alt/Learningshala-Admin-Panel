@@ -1127,7 +1127,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
             </div>
             <div className="space-y-2">
               <Label>Specialization Slug</Label>
-              <Input {...register("slug")} placeholder="Auto-generated if left blank" />
+              <Input {...register("slug")} placeholder="Enter specialization slug" />
             </div>
           </div>
 
@@ -1156,7 +1156,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Specialization Duration (Years/Months)</Label>
-              <Input {...register("duration")} placeholder="e.g. 2 Years" />
+              <Input {...register("duration")} placeholder="e.g. 2 Years/12 Months" />
             </div>
             <div className="space-y-2">
               <Label>EMI Duration (In Months)</Label>
@@ -1169,46 +1169,9 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                     return Number.isInteger(Number(value)) || "Must be an integer";
                   }
                 })} 
-                placeholder="e.g. 12" 
+                placeholder="e.g. 24" 
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Course Thumbnail (size: 128x99px )</Label>
-              <Input
-                type="file"
-                accept="image/*"
-                {...register("course_thumbnail")}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setPreviewCourseThumbnail(URL.createObjectURL(file));
-                    setThumbnailRemoved(false);
-                  }
-                }}
-              />
-              {previewCourseThumbnail && (
-                <div className="mt-2 space-y-2">
-                  <img
-                    src={previewCourseThumbnail}
-                    alt="Course thumbnail preview"
-                    className="h-20 object-contain rounded border"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="destructive"
-                    className="bg-red-500 text-white hover:bg-red-500/90"
-                    onClick={handleThumbnailRemoval}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
-            <div />
           </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1312,6 +1275,42 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
               )}
             </div>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Course Thumbnail (size: 128x99px )</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                {...register("course_thumbnail")}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setPreviewCourseThumbnail(URL.createObjectURL(file));
+                    setThumbnailRemoved(false);
+                  }
+                }}
+              />
+              {previewCourseThumbnail && (
+                <div className="mt-2 space-y-2">
+                  <img
+                    src={previewCourseThumbnail}
+                    alt="Course thumbnail preview"
+                    className="h-20 object-contain rounded border"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    className="bg-red-500 text-white hover:bg-red-500/90"
+                    onClick={handleThumbnailRemoval}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div />
+          </div>
 
           <div className="border rounded-md p-4 space-y-4">
             <div className="flex items-center justify-between">
@@ -1344,8 +1343,8 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                       <Input
                         id={fieldId}
                         type="number"
-                        step="0.01"
-                        min="0"
+                        // step="0.01"
+                        // min="0"
                         placeholder={`Enter ${label} amount`}
                         {...register(`fee_type_values.${sanitizedKey}`, validationRules)}
                         className="spin-none"
