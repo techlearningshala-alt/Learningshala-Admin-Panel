@@ -142,17 +142,32 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
 
     if (!remoteSections.length) return base;
 
+    // Create maps for matching - use both original and sanitized keys
     const mapKey = new Map();
     const mapTitle = new Map();
+    const mapById = new Map();
 
     remoteSections.forEach((section) => {
+      // Map by sanitized section_key
       const key = sanitizeSectionKey(section.section_key || section.title);
-      const titleKey = sanitizeSectionKey(section.title);
       if (key && !mapKey.has(key)) {
         mapKey.set(key, section);
       }
+      // Also map by original section_key (case-insensitive)
+      if (section.section_key) {
+        const originalKey = sanitizeSectionKey(section.section_key);
+        if (originalKey && !mapKey.has(originalKey)) {
+          mapKey.set(originalKey, section);
+        }
+      }
+      // Map by sanitized title
+      const titleKey = sanitizeSectionKey(section.title);
       if (titleKey && !mapTitle.has(titleKey)) {
         mapTitle.set(titleKey, section);
+      }
+      // Map by ID if available
+      if (section.id) {
+        mapById.set(section.id, section);
       }
     });
 
@@ -169,12 +184,21 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
     };
 
     const usedKeys = new Set();
+    const usedIds = new Set();
     const claimSection = (section) => {
       if (!section) return null;
-      const identifier =
-        section.id ?? sanitizeSectionKey(section.section_key || section.title);
+      // Check by ID first
+      if (section.id && usedIds.has(section.id)) {
+        return null;
+      }
+      // Then check by key
+      const identifier = sanitizeSectionKey(section.section_key || section.title);
       if (identifier && usedKeys.has(identifier)) {
         return null;
+      }
+      // Mark as used
+      if (section.id) {
+        usedIds.add(section.id);
       }
       if (identifier) {
         usedKeys.add(identifier);
@@ -189,39 +213,38 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
         remote = claimSection(mapTitle.get(normalizedKey));
       }
 
-    if (!remote) {
+      if (!remote) {
+        return {
+          ...section,
+          section_key: normalizedKey,
+          existingImage: section.existingImage || null,
+          imagePreview: section.imagePreview || null,
+          imageRemoved: !!section.imageRemoved,
+        };
+      }
+
       return {
         ...section,
-        section_key: normalizedKey,
-        existingImage: section.existingImage || null,
-        imagePreview: section.imagePreview || null,
-        imageRemoved: !!section.imageRemoved,
+        section_key: remote.section_key || normalizedKey, // Use remote section_key if available
+        title: remote.title || section.title,
+        description: extractDescription(remote) || section.description || "",
+        existingImage: remote.image || section.existingImage || null,
+        imagePreview:
+          remote.image || section.existingImage
+            ? buildAssetUrl(remote.image || section.existingImage)
+            : null,
+        imageRemoved: false,
       };
-    }
-
-    return {
-      ...section,
-      section_key: normalizedKey,
-      title: remote.title || section.title,
-      description: extractDescription(remote) || section.description || "",
-      existingImage: remote.image || section.existingImage || null,
-      imagePreview:
-        remote.image || section.existingImage
-          ? buildAssetUrl(remote.image || section.existingImage)
-          : null,
-      imageRemoved: false,
-    };
     });
 
     const extras = remoteSections
       .filter((section) => {
-        const identifier =
-          section.id ?? sanitizeSectionKey(section.section_key || section.title);
+        const identifier = sanitizeSectionKey(section.section_key || section.title);
         return identifier ? !usedKeys.has(identifier) : true;
       })
       .map((section) => ({
         id: section.id ?? generateLocalId(),
-        section_key: sanitizeSectionKey(section.section_key || section.title),
+        section_key: section.section_key || sanitizeSectionKey(section.title),
         title: section.title || "Custom Section",
         description: extractDescription(section),
         supportsImage: Boolean(
