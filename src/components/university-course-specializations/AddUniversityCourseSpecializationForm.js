@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -314,6 +315,7 @@ const createNewBanner = () => ({
 });
 
 export default function AddUniversityCourseSpecializationForm({ specialization, onCancel, onSuccess }) {
+  useScrollToTop();
   const queryClient = useQueryClient();
   
   const {

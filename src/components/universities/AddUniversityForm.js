@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addUniversity, updateUniversity } from "@/lib/universityApi";
@@ -148,6 +149,9 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
 
 export default function AddUniversityForm({ item, onCancel, onSuccess, approvals = [], placementPartners = [], emiPartners = [] }) {
   const queryClient = useQueryClient();
+
+  // Scroll to top when form component mounts
+  useScrollToTop();
 
   // preview states
   const [previewLogo, setPreviewLogo] = useState(null);

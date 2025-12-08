@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -23,7 +24,10 @@ import { ArrowLeft, Plus, Trash } from "lucide-react";
 const SECTION_TEMPLATES = [
   { id: "course-overview", section_key: "course_overview", title: "Course Overview" },
   { id: "why-choose", section_key: "why_choose", title: "Why Choose?" },
-  { id: "who-can-pursue", section_key: "who_can_pursue", title: "Who Can Pursue?" },
+  { id: "who-can-pursue", section_key: "who_can_pursue_1", title: "Who Can Pursue 1 ?" },
+  { id: "who-can-pursue", section_key: "who_can_pursue_2", title: "Who Can Pursue 2 ?" },
+  { id: "who-can-pursue", section_key: "who_can_pursue_3", title: "Who Can Pursue 3 ?" },
+  { id: "who-can-pursue", section_key: "who_can_pursue_4", title: "Who Can Pursue 4 ?" },
   { id: "key-highlights", section_key: "key_highlights", title: "Key Highlights" },
   { id: "eligibility-criteria", section_key: "eligibility_criteria", title: "Eligibility Criteria" },
   { id: "course-duration", section_key: "course_duration", title: "Course Duration" },
@@ -96,6 +100,7 @@ const defaultFormValues = {
 };
 
 export default function AddCourseForm({ item, onCancel, onSuccess }) {
+  useScrollToTop();
   const queryClient = useQueryClient();
   const [previewThumbnail, setPreviewThumbnail] = useState(null);
   const [existingThumbnail, setExistingThumbnail] = useState(null);

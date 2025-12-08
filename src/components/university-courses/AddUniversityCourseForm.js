@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -300,6 +301,7 @@ const defaultSections = [
 );
 
 export default function AddUniversityCourseForm({ course, onCancel, onSuccess }) {
+  useScrollToTop();
   const {
     register,
     control,
