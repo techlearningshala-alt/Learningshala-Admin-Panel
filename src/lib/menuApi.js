@@ -200,6 +200,54 @@ export async function fetchSpecializationFaqsBySpecializationId(specializationId
   return res.data;
 }
 
+///////////////////////    COURSE IMAGES APIS    ///////////////////////////
+
+// Fetch course images with pagination
+export async function fetchCourseImages({ page = 1, limit = 10 }) {
+  const res = await api.get(`/course-images`, {
+    params: { page, limit },
+  });
+  return res.data;
+}
+
+// Fetch all course images for select dropdown
+export async function fetchAllCourseImages() {
+  const res = await api.get(`/course-images/select`);
+  return res.data;
+}
+
+// Fetch single course image by id
+export async function fetchCourseImageById(id) {
+  const res = await api.get(`/course-images/${id}`);
+  return res.data;
+}
+
+// Add a new course image
+export async function addCourseImage(formData) {
+  const res = await api.post(`/course-images`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+}
+
+// Update course image
+export async function updateCourseImage(id, formData) {
+  const res = await api.put(`/course-images/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+}
+
+// Delete course image
+export async function deleteCourseImage(id) {
+  const res = await api.delete(`/course-images/${id}`);
+  return res.data;
+}
+
 export async function addSpecializationFaq(data) {
   const res = await api.post(`/specializations/faqs/questions`, data);
   return res.data;

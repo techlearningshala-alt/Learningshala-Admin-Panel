@@ -63,8 +63,15 @@ const navItemsData = [
     //     { name: "Fees Types", href: "/fees-types", roles: ["admin"] },
     //     { name: "Placement/Hiring Partners", href: "/placements", roles: ["admin"] },
     //   ],
-    // },
-    { name: "Leads", href: "/leads", roles: ["admin"] },
+    //   },
+  {
+    name: "Miscellaneous",
+    roles: ["admin"],
+    subItems: [
+      { name: "Course Images", href: "/course-images", roles: ["admin"] },
+    ],
+  },
+  { name: "Leads", href: "/leads", roles: ["admin"] },
 ];
 
 export default navItemsData;

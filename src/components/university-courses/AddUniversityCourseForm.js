@@ -13,12 +13,14 @@ import {
   fetchFeeTypes,
   addUniversityCourseFaq,
 } from "@/lib/universityApi";
+import { fetchAllCourseImages } from "@/lib/menuApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Trash, Plus } from "lucide-react";
+import { ArrowLeft, Trash, Plus, Check } from "lucide-react";
+import { Dropdown } from "primereact/dropdown";
 import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
 import { SectionsForm } from "@/components/universities/components/SectionRenderer";
 import { processSectionFiles } from "@/utils/fileProcessing";
@@ -71,8 +73,16 @@ const normalizeApiList = (payload) => {
 
 const buildAssetUrl = (value) => {
   if (!value) return null;
-  if (typeof value === "string" && value.startsWith("http")) return value;
-  return `${process.env.NEXT_PUBLIC_thumbnail_URL}${value}`;
+  // Handle objects - extract image path if it's an object
+  if (typeof value === 'object' && value !== null) {
+    value = value.image || value.path || value.url || null;
+  }
+  if (!value || typeof value !== "string") return null;
+  if (value.startsWith("http")) return value;
+  const cleanPath = value.startsWith("/") ? value.slice(1) : value;
+  const baseUrl = process.env.NEXT_PUBLIC_thumbnail_URL || "";
+  const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+  return `${normalizedBaseUrl}/${cleanPath}`;
 };
 
 const getFileName = (path) => {
@@ -81,7 +91,7 @@ const getFileName = (path) => {
   return segments[segments.length - 1];
 };
 
-const FILE_FIELDS = ["course_thumbnail", "syllabus_file", "brochure_file"];
+const FILE_FIELDS = ["syllabus_file", "brochure_file"];
 
 const createNewBanner = () => ({
   banner_key: `banner_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -356,6 +366,48 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     queryFn: fetchAllUniversities,
   });
 
+  const {
+    data: courseImagesResponse,
+    isLoading: isLoadingCourseImages,
+  } = useQuery({
+    queryKey: ["course-images", "all"],
+    queryFn: fetchAllCourseImages,
+  });
+
+  const courseImages = useMemo(() => {
+    return normalizeApiList(courseImagesResponse?.data || []);
+  }, [courseImagesResponse]);
+
+  // Sync course_thumbnail value when courseImages are loaded (for editing)
+  useEffect(() => {
+    if (course?.course_thumbnail && courseImages.length > 0) {
+      const thumbnailPath = course.course_thumbnail && !course.course_thumbnail.includes('banners')
+        ? course.course_thumbnail
+        : null;
+      
+      if (thumbnailPath) {
+        // Normalize paths for matching
+        const normalizePath = (path) => {
+          if (!path) return "";
+          return String(path).replace(/^\/+|\/+$/g, "");
+        };
+        const valPath = normalizePath(thumbnailPath);
+        
+        // Check if the thumbnail exists in courseImages
+        const exists = courseImages.some((img) => {
+          const imgPath = normalizePath(img.image);
+          return imgPath === valPath || img.image === thumbnailPath;
+        });
+        
+        if (exists) {
+          setValue("course_thumbnail", thumbnailPath);
+          setPreviewCourseThumbnail(buildAssetUrl(thumbnailPath));
+          setThumbnailRemoved(false);
+        }
+      }
+    }
+  }, [courseImages, course, setValue]);
+
   const universities = useMemo(
     () => normalizeApiList(universitiesResponse?.data ?? universitiesResponse),
     [universitiesResponse]
@@ -504,8 +556,20 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
 
       setBanners(loadedBanners);
 
-      setPreviewCourseThumbnail(buildAssetUrl(merged.course_thumbnail));
-      setThumbnailRemoved(false);
+      // Filter out banner images - only use thumbnail images
+      const thumbnailPath = merged.course_thumbnail && !merged.course_thumbnail.includes('banners')
+        ? merged.course_thumbnail
+        : null;
+      
+      if (thumbnailPath) {
+        setPreviewCourseThumbnail(buildAssetUrl(thumbnailPath));
+        setThumbnailRemoved(false);
+        setValue("course_thumbnail", thumbnailPath);
+      } else {
+        setPreviewCourseThumbnail(null);
+        setThumbnailRemoved(false);
+        setValue("course_thumbnail", "");
+      }
 
       setExistingSyllabus(merged.syllabus_file || null);
       setSyllabusFileName("");
@@ -754,6 +818,16 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         return;
       }
 
+      // Handle course_thumbnail as selected image path (not a file)
+      if (key === "course_thumbnail") {
+        if (thumbnailRemoved) {
+          formData.append(key, "");
+        } else if (value && typeof value === "string") {
+          formData.append(key, value);
+        }
+        return;
+      }
+
       if (key === "is_active" || key === "is_page_created") {
         formData.append(key, value ? "true" : "false");
         return;
@@ -902,8 +976,18 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     setPreviewCourseThumbnail(null);
     setThumbnailRemoved(true);
     setValue("course_thumbnail", null);
-    const input = document.querySelector('input[name="course_thumbnail"]');
-    if (input) input.value = "";
+  };
+
+  const handleThumbnailChange = (selectedImagePath) => {
+    if (selectedImagePath) {
+      setValue("course_thumbnail", selectedImagePath);
+      setPreviewCourseThumbnail(buildAssetUrl(selectedImagePath));
+      setThumbnailRemoved(false);
+    } else {
+      setValue("course_thumbnail", null);
+      setPreviewCourseThumbnail(null);
+      setThumbnailRemoved(true);
+    }
   };
 
   const handleSyllabusRemoval = () => {
@@ -1030,37 +1114,162 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Course Thumbnail (size: 128x99px )</Label>
-              <Input
-                type="file"
-                accept="image/*"
-                {...register("course_thumbnail")}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setPreviewCourseThumbnail(URL.createObjectURL(file));
-                    setThumbnailRemoved(false);
+              <Label>Course Thumbnail</Label>
+              <Controller
+                name="course_thumbnail"
+                control={control}
+                render={({ field }) => {
+                  // Filter out banner images from the value if it exists
+                  const isBannerImage = field.value && typeof field.value === 'string' && field.value.includes('banners');
+                  
+                  // Update field value if it was a banner image
+                  if (isBannerImage) {
+                    if (field.value) {
+                      setTimeout(() => {
+                        field.onChange(null);
+                        handleThumbnailChange("");
+                      }, 0);
+                    }
+                    return (
+                      <div className="space-y-2">
+                        <Dropdown
+                          value={null}
+                          onChange={(e) => {
+                            field.onChange(e.value);
+                            handleThumbnailChange(e.value);
+                          }}
+                          options={courseImages}
+                          optionLabel="name"
+                          optionValue="image"
+                          placeholder="Select a course image"
+                          filter
+                          className="w-full"
+                          panelClassName="max-h-60"
+                          itemTemplate={(option) => {
+                            if (!option) return null;
+                            return (
+                              <div className="flex items-center gap-3 p-2">
+                                <img
+                                  src={buildAssetUrl(option.image)}
+                                  alt={option.name}
+                                  className="h-10 w-10 object-contain rounded border"
+                                />
+                                <span>{option.name}</span>
+                              </div>
+                            );
+                          }}
+                          valueTemplate={() => <span className="text-muted-foreground">Select a course image</span>}
+                          disabled={isLoadingCourseImages}
+                          showClear
+                        />
+                        <p className="text-sm text-amber-600">Previous selection was a banner image. Please select a thumbnail image.</p>
+                      </div>
+                    );
                   }
+                  
+                  // Normalize paths for comparison (remove leading/trailing slashes)
+                  const normalizePath = (path) => {
+                    if (!path) return "";
+                    return String(path).replace(/^\/+|\/+$/g, "");
+                  };
+                  
+                  const currentValue = field.value;
+                  const selectedImage = currentValue
+                    ? courseImages.find((img) => {
+                        const imgPath = normalizePath(img.image);
+                        const valPath = normalizePath(currentValue);
+                        return imgPath === valPath || img.image === currentValue || currentValue === img.image;
+                      })
+                    : null;
+                  
+                  return (
+                    <div className="space-y-2">
+                      <Dropdown
+                        value={typeof field.value === 'string' ? field.value : (field.value?.image || null)}
+                        onChange={(e) => {
+                          const value = typeof e.value === 'string' ? e.value : (e.value?.image || null);
+                          field.onChange(value);
+                          handleThumbnailChange(value);
+                        }}
+                        options={courseImages}
+                        optionLabel="name"
+                        optionValue="image"
+                        placeholder="Select a course image"
+                        filter
+                        className="w-full"
+                        panelClassName="max-h-60"
+                        itemTemplate={(option) => {
+                          if (!option) return null;
+                          const normalizePath = (path) => {
+                            if (!path) return "";
+                            return String(path).replace(/^\/+|\/+$/g, "");
+                          };
+                          const currentValue = typeof field.value === 'string' ? field.value : (field.value?.image || null);
+                          const isSelected = currentValue && (
+                            normalizePath(option.image) === normalizePath(currentValue) ||
+                            option.image === currentValue ||
+                            currentValue === option.image
+                          );
+                          return (
+                            <div className="flex items-center gap-3 p-2">
+                              <img
+                                src={buildAssetUrl(option.image)}
+                                alt={option.name}
+                                className="h-10 w-10 object-contain rounded border"
+                              />
+                              <span className="flex-1">{option.name}</span>
+                              {isSelected && (
+                                <Check className="h-4 w-4 text-green-600" />
+                              )}
+                            </div>
+                          );
+                        }}
+                        valueTemplate={(selectedValue) => {
+                          if (!selectedValue) return <span className="text-muted-foreground">Select a course image</span>;
+                          
+                          // Handle case where selectedValue might be an object
+                          const imagePath = typeof selectedValue === 'string' 
+                            ? selectedValue 
+                            : (selectedValue?.image || selectedValue);
+                          
+                          if (!imagePath || typeof imagePath !== 'string') {
+                            return <span className="text-muted-foreground">Select a course image</span>;
+                          }
+                          
+                          // Normalize paths for comparison
+                          const normalizePath = (path) => {
+                            if (!path) return "";
+                            return String(path).replace(/^\/+|\/+$/g, "");
+                          };
+                          
+                          const valPath = normalizePath(imagePath);
+                          const img = courseImages.find((i) => {
+                            const imgPath = normalizePath(i.image);
+                            return imgPath === valPath || i.image === imagePath || imagePath === i.image;
+                          });
+                          
+                          // Always show image if value exists, even if not in courseImages list
+                          return (
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={buildAssetUrl(img?.image || imagePath)}
+                                alt={img?.name || "Selected Image"}
+                                className="h-6 w-6 object-contain rounded"
+                              />
+                              <span>{img?.name || "Selected Image"}</span>
+                            </div>
+                          );
+                        }}
+                        disabled={isLoadingCourseImages}
+                        showClear
+                      />
+                      {isLoadingCourseImages && (
+                        <p className="text-sm text-muted-foreground">Loading course images...</p>
+                      )}
+                    </div>
+                  );
                 }}
               />
-              {previewCourseThumbnail && (
-                <div className="mt-2 space-y-2">
-                  <img
-                    src={previewCourseThumbnail}
-                    alt="Course thumbnail preview"
-                    className="h-20 object-contain rounded border"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="destructive"
-                    className="bg-red-500 text-white hover:bg-red-500/90"
-                    onClick={handleThumbnailRemoval}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
             </div>
             <div className="space-y-2">
               <Label>Upload Syllabus (Max 4MB)

@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
+import { PrimeReactProvider } from 'primereact/api';
 import { useRouter } from "next/router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/context/AuthContext";
@@ -35,22 +36,29 @@ export default function App({ Component, pageProps }) {
     "/university-course-specializations",
     "/fee-types",
     "/leads",
+    "/course-images",
   ];
 
   const useCMSLayout = cmsPages.some((path) => router.pathname.startsWith(path));
 
+  const primeReactConfig = {
+    hideOverlaysOnDocumentScrolling: true,
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        {useCMSLayout ? (
-          <CMSLayout>
+      <PrimeReactProvider value={primeReactConfig}>
+        <AuthProvider>
+          {useCMSLayout ? (
+            <CMSLayout>
+              <Component {...pageProps} />
+            </CMSLayout>
+          ) : (
             <Component {...pageProps} />
-          </CMSLayout>
-        ) : (
-          <Component {...pageProps} />
-        )}
-        <Toaster position="top-right" reverseOrder={false} />
-      </AuthProvider>
+          )}
+          <Toaster position="top-right" reverseOrder={false} />
+        </AuthProvider>
+      </PrimeReactProvider>
     </QueryClientProvider>
   );
 }
