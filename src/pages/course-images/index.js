@@ -73,19 +73,29 @@ export default function CourseImagesPage() {
   // Show table view
   const total = data?.data?.total || 0;
   
-  // Filter items based on search
+  // Filter items based on search (Frontend-only filtering)
   const filteredItems = (data?.data?.data || []).filter((item) => {
     if (!search.trim()) return true;
     const searchLower = search.toLowerCase();
     return item.name?.toLowerCase().includes(searchLower);
   });
   
+  // Use filtered count when searching, otherwise use total from API
+  const displayTotal = search.trim().length > 0 ? filteredItems.length : total;
+  
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h3 className="text-xl font-bold">Course Images</h3>
-          <p className="text-sm text-muted-foreground mt-1">Total: {total}</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Total: {displayTotal}
+            {search.trim().length > 0 && (
+              <span className="text-xs text-muted-foreground ml-1">
+                (filtered from {total})
+              </span>
+            )}
+          </p>
         </div>
         <Button onClick={handleAdd}>
           <Plus className="mr-1 h-4 w-4" /> Add Course Image
