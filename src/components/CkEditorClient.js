@@ -35,6 +35,7 @@ import {
   TableToolbar,
   TextTransformation,
   SourceEditing,
+  GeneralHtmlSupport,
 } from "ckeditor5";
 
 // Editor UI + content CSS
@@ -121,6 +122,7 @@ const CKEditorClient = ({ editorData = "", onChange, onFocus, onBlur }) => {
             Underline,
             Alignment,
             SourceEditing,
+            GeneralHtmlSupport,
           ],
           toolbar: [
             "undo",
@@ -318,18 +320,28 @@ const CKEditorClient = ({ editorData = "", onChange, onFocus, onBlur }) => {
             ],
           },
           link: {
-            addTargetToExternalLinks: true,
+            // Do not auto-force target/rel; let user or decorators control it
+            addTargetToExternalLinks: false,
             defaultProtocol: "https://",
             decorators: {
               openInNewTab: {
-                mode: 'manual',
-                label: 'Open in a new tab',
+                mode: "manual",
+                label: "Open in a new tab",
                 attributes: {
-                  target: '_blank',
-                  rel: 'noopener noreferrer'
-                }
-              }
-            }
+                  target: "_blank",
+                  // rel: "noopener noreferrer",
+                },
+              },
+            },
+          },
+          // Allow custom attributes like rel="nofollow" on links (and any other tags if needed)
+          htmlSupport: {
+            allow: [
+              {
+                name: "a",
+                attributes: ["rel", "target"],
+              },
+            ],
           },
           table: {
             contentToolbar: ["tableColumn", "tableRow", "mergeTableCells"],
