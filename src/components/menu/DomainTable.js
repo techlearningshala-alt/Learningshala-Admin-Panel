@@ -4,9 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
 
-export default function DomainTable({ items, onEdit, onDelete }) {
+export default function DomainTable({ items, onEdit, onDelete, page = 1, limit = 10 }) {
   const columns = [
-    { key: "id", label: "ID" },
+    {
+      key: "sr_no",
+      label: "Sr. No.",
+      render: (_row, rowIndex) => (page - 1) * limit + rowIndex + 1,
+      style: { width: "80px" },
+      headerClassName: "border px-2 py-1 text-left",
+      cellClassName: "border px-2 py-1 text-left",
+    },
     {
       key: "name",
       label: "Name",
@@ -31,7 +38,7 @@ export default function DomainTable({ items, onEdit, onDelete }) {
     {
       key: "updated_at",
       label: "Updated At",
-      render: (row) => new Date(row.updated_at).toLocaleString(),
+      render: (row) => new Date(row.updated_at).toLocaleDateString(),
     },
   ];
 

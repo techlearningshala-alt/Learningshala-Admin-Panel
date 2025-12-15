@@ -71,7 +71,7 @@ const navItemsData = [
       { name: "Course Images", href: "/course-images", roles: ["admin"] },
     ],
   },
-  { name: "Leads", href: "/leads", roles: ["admin"] },
+  // { name: "Leads", href: "/leads", roles: ["admin"] },
 ];
 
 export default navItemsData;

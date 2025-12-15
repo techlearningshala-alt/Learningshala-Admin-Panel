@@ -13,17 +13,20 @@ import { Plus } from "lucide-react";
 import AddCourseForm from "@/components/courses/AddCourseForm";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import CourseTable from "@/components/courses/CourseTable";
+import { Input } from "@/components/ui/input";
 
 export default function CoursesPage() {
+  const limit = 10;
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
 
   // ✅ Fetch all courses
   const { data, isLoading } = useQuery({
     queryKey: ["courses", page],
-    queryFn: () => fetchCourses({ page, limit: 10 }),
+    queryFn: () => fetchCourses({ page, limit }),
     keepPreviousData: true,
   });
 
@@ -101,13 +104,32 @@ export default function CoursesPage() {
 
   // Show table view
   const total = data?.data?.total || 0;
+  const items = data?.data?.data || [];
+  const filteredItems = search
+    ? items.filter((item) => {
+        const term = search.toLowerCase();
+        return (
+          item.name?.toLowerCase().includes(term) ||
+          item.domain_name?.toLowerCase().includes(term) ||
+          item.slug?.toLowerCase().includes(term)
+        );
+      })
+    : items;
   
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+        <div className="flex flex-col gap-1">
           <h3 className="text-xl font-bold">Courses</h3>
-          <p className="text-sm text-muted-foreground mt-1">Total: {total}</p>
+          <p className="text-sm text-muted-foreground">Total: {total}</p>
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Search by name, domain, or slug"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-72"
+            />
+          </div>
         </div>
         <Button onClick={handleAdd}>
           <Plus className="mr-1 h-4 w-4" /> Add Course
@@ -118,7 +140,9 @@ export default function CoursesPage() {
         <p>Loading...</p>
       ) : (
         <CourseTable
-          items={data?.data?.data || []}
+          items={filteredItems}
+          page={page}
+          limit={limit}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onToggleActive={(id, value) => toggleActiveMutation.mutate({ id, value })}
@@ -129,17 +153,19 @@ export default function CoursesPage() {
       )}
 
       {/* Pagination */}
-      <div className="flex justify-center mt-4 gap-2">
-        <Button size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
-          Prev
-        </Button>
-        <span className="px-3 py-1">
-          Page {page} of {data?.data?.pages || 1}
-        </span>
-        <Button size="sm" disabled={page >= (data?.data?.pages || 0)} onClick={() => setPage(page + 1)}>
-          Next
-        </Button>
-      </div>
+      {!search && (
+        <div className="flex justify-center mt-4 gap-2">
+          <Button size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
+            Prev
+          </Button>
+          <span className="px-3 py-1">
+            Page {page} of {data?.data?.pages || 1}
+          </span>
+          <Button size="sm" disabled={page >= (data?.data?.pages || 0)} onClick={() => setPage(page + 1)}>
+            Next
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

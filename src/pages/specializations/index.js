@@ -13,17 +13,20 @@ import { Plus } from "lucide-react";
 import AddSpecializationForm from "@/components/specialization/AddSpecializationForm";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import SpecializationTable from "@/components/specialization/SpecializationTable";
+import { Input } from "@/components/ui/input";
 
 export default function SpecializationsPage() {
+  const limit = 10;
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
 
   // ✅ Fetch all specializations
   const { data, isLoading } = useQuery({
     queryKey: ["specialization", page],
-    queryFn: () => fetchSpecialization({ page, limit: 10 }),
+    queryFn: () => fetchSpecialization({ page, limit }),
     keepPreviousData: true,
   });
 
@@ -101,13 +104,32 @@ export default function SpecializationsPage() {
 
   // Show table view
   const total = data?.data?.total || 0;
+  const items = data?.data?.data || [];
+  const filteredItems = search
+    ? items.filter((item) => {
+        const term = search.toLowerCase();
+        return (
+          item.name?.toLowerCase().includes(term) ||
+          item.course_name?.toLowerCase().includes(term) ||
+          item.slug?.toLowerCase().includes(term)
+        );
+      })
+    : items;
   
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+        <div className="flex flex-col gap-1">
           <h3 className="text-xl font-bold">Specializations</h3>
-          <p className="text-sm text-muted-foreground mt-1">Total: {total}</p>
+          <p className="text-sm text-muted-foreground">Total: {total}</p>
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Search by name, course, or slug"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-72"
+            />
+          </div>
         </div>
         <Button onClick={handleAdd}>
           <Plus className="mr-1 h-4 w-4" /> Add Specialization
@@ -118,7 +140,7 @@ export default function SpecializationsPage() {
         <p>Loading...</p>
       ) : (
         <SpecializationTable
-          items={data?.data?.data || []}
+          items={filteredItems}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onToggleActive={(id, value) => toggleActiveMutation.mutate({ id, value })}
@@ -126,22 +148,24 @@ export default function SpecializationsPage() {
             toggleMenuVisibilityMutation.mutate({ id, value })
           }
           currentPage={page}
-          limit={10}
+          limit={limit}
         />
       )}
 
       {/* Pagination */}
-      <div className="flex justify-center mt-4 gap-2">
-        <Button size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
-          Prev
-        </Button>
-        <span className="px-3 py-1">
-          Page {page} of {data?.data?.pages || 1}
-        </span>
-        <Button size="sm" disabled={page >= (data?.data?.pages || 0)} onClick={() => setPage(page + 1)}>
-          Next
-        </Button>
-      </div>
+      {!search && (
+        <div className="flex justify-center mt-4 gap-2">
+          <Button size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
+            Prev
+          </Button>
+          <span className="px-3 py-1">
+            Page {page} of {data?.data?.pages || 1}
+          </span>
+          <Button size="sm" disabled={page >= (data?.data?.pages || 0)} onClick={() => setPage(page + 1)}>
+            Next
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

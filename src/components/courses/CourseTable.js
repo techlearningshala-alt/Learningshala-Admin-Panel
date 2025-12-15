@@ -10,9 +10,18 @@ export default function CourseTable({
   onDelete,
   onToggleActive,
   onToggleMenuVisibility,
+  page = 1,
+  limit = 10,
 }) {
   const columns = [
-    { key: "id", label: "ID" },
+    {
+      key: "sr_no",
+      label: "Sr. No.",
+      render: (_row, rowIndex) => (page - 1) * limit + rowIndex + 1,
+      style: { width: "80px" },
+      headerClassName: "border px-2 py-1 text-left",
+      cellClassName: "border px-2 py-1 text-left",
+    },
     { key: "domain_name", label: "Domain" },
     {
       key: "name",
