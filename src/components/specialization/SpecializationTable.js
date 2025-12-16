@@ -14,12 +14,7 @@ export default function SpecializationTable({
   limit = 10,
 }) {
   const columns = [
-    {
-      key: "sr_no",
-      label: "Sr. No.",
-      render: (row, rowIndex) => (currentPage - 1) * limit + rowIndex + 1,
-    },
-    { key: "course_name", label: "Course" },
+    { key: "priority", label: "Priority" },
     {
       key: "name",
       label: "Name",
@@ -29,36 +24,11 @@ export default function SpecializationTable({
         </Button>
       ),
     },
+    { key: "course_name", label: "Course" },
     {
-      key: "thumbnail",
-      label: "Thumbnail",
-      render: (row) =>
-        row.thumbnail ? (
-          <img
-            src={`${process.env.NEXT_PUBLIC_thumbnail_URL}${row.thumbnail}`}
-            alt="thumbnail"
-            className="h-10 w-10 object-contain rounded"
-          />
-        ) : null,
-    },
-    { key: "priority", label: "Priority" },
-    {
-      key: "is_active",
-      label: "Active / Inactive",
-      render: (row) => (
-        <Button
-          size="sm"
-          variant={row.is_active ? "default" : "outline"}
-          className={
-            row.is_active
-              ? ""
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
-          }
-          onClick={() => onToggleActive?.(row.id, !row.is_active)}
-        >
-          {row.is_active ? "Active" : "Inactive"}
-        </Button>
-      ),
+      key: "duration",
+      label: "Duration",
+      render: (row) => row.course_duration || row.duration || "-",
     },
     {
       key: "menu_visibility",
@@ -79,8 +49,26 @@ export default function SpecializationTable({
       ),
     },
     {
+      key: "is_active",
+      label: "Active / Inactive",
+      render: (row) => (
+        <Button
+          size="sm"
+          variant={row.is_active ? "default" : "outline"}
+          className={
+            row.is_active
+              ? ""
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
+          }
+          onClick={() => onToggleActive?.(row.id, !row.is_active)}
+        >
+          {row.is_active ? "Active" : "Inactive"}
+        </Button>
+      ),
+    },
+    {
       key: "updated_at",
-      label: "Updated At",
+      label: "Updated Date",
       render: (row) =>
         row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",
     },
@@ -105,7 +93,7 @@ export default function SpecializationTable({
         </Button>
       ),
     },
-  ];
+  ]; 
 
   return <DataTable columns={columns} data={items} actions={actions} />;
 }

@@ -21,8 +21,8 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: "/",
-        destination: "/login",
+        source: "https://admin.learningshala.com/",
+        destination: "https://admin.learningshala.com/login",
         permanent: true, // use false if you may change it later
       },
     ];
