@@ -16,14 +16,31 @@ export const AuthProvider = ({ children }) => {
     const verifyUser = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
+        // Clear any stale user data
+        localStorage.removeItem("user");
+        setUser(null);
         setLoading(false);
         return;
       }
 
       try {
+        // Decode JWT token to see what's in it (for debugging)
+        try {
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            console.log("🔍 Frontend - JWT token payload:", { id: payload.id, role: payload.role });
+          }
+        } catch (e) {
+          console.warn("Could not decode token:", e);
+        }
+        
         const res = await api.get("/users/me");
-        setUser(res.data.data); // assuming { data: user }
-        localStorage.setItem("user", JSON.stringify(res.data.data));
+        const freshUser = res.data.data;
+        console.log("🔍 Frontend - /users/me response:", { id: freshUser.id, email: freshUser.email, role: freshUser.role });
+        // Always update with fresh data from API (never trust localStorage)
+        setUser(freshUser);
+        localStorage.setItem("user", JSON.stringify(freshUser));
       } catch (err) {
         console.warn("Token invalid or expired", err);
         localStorage.removeItem("token");
@@ -40,14 +57,25 @@ export const AuthProvider = ({ children }) => {
 
   // Login
   const login = async (email, password) => {
+    // Clear any old tokens before login
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    
     const res = await api.post("/users/login", { email, password });
-    console.log(res.data.data,"logindata")
+    console.log("🔍 Frontend - Login response:", res.data.data);
     const { accessToken, user } = res.data.data;
+    console.log("🔍 Frontend - Setting user after login:", { id: user.id, email: user.email, role: user.role });
 
     localStorage.setItem("token", accessToken);
     localStorage.setItem("user", JSON.stringify(user));
     setUser(user);
-    router.push("/dashboard");
+    
+    // Redirect based on user role
+    if (user.role === "lead") {
+      router.push("/leads");
+    } else {
+      router.push("/dashboard");
+    }
   };
 
   // Logout

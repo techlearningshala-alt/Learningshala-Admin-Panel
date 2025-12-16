@@ -1,18 +1,20 @@
+import { BookText, Menu } from "lucide-react";
+
 const navItemsData = [
   {
     name: "Home",
-    roles: ["admin", "mentor", "editor"],
+    roles: ["admin", "user"],
     subItems: [
-      { name: "Dashboard", href: "/dashboard", roles: ["admin", "mentor", "editor"] },
+      { name: "Dashboard", href: "/dashboard", roles: ["admin", "user", "editor"] },
       // { name: "Home Banners", href: "/home-banners", roles: ["admin", "editor"] },
       { name: "Mentors", href: "/mentors", roles: ["admin", "mentor"] },
-      { name: "Media Spotlight", href: "/media-spotlight", roles: ["admin", "editor"] },
-      { name: "Testimonials", href: "/testimonials", roles: ["admin", "editor"] },
+      { name: "Media Spotlight", href: "/media-spotlight", roles: ["admin", "editor","mentor"] },
+      { name: "Testimonials", href: "/testimonials", roles: ["admin", "editor","mentor"] },
       {
         name: "FAQs",
         roles: ["admin", "mentor"],
         subItems: [
-          { name: "Categories", href: "/faq-category", roles: ["admin"] },
+          { name: "Categories", href: "/faq-category", roles: ["admin","mentor"] },
           { name: "All FAQs", href: "/faqs", roles: ["admin", "mentor"] },
         ],
       },
@@ -20,12 +22,12 @@ const navItemsData = [
   },
   {
     name: "Menu",
-    roles: ["admin"],
+    roles: ["admin","mentor"],
     subItems: [
-      { name: "Domains", href: "/domains", roles: ["admin"] },
-      { name: "Courses", href: "/courses", roles: ["admin"] },
-      { name: "Specializations", href: "/specializations", roles: ["admin"] },
-      { name: "FAQs", href: "/course-faqs", roles: ["admin"] },
+      { name: "Domains", href: "/domains", roles: ["admin","mentor"] },
+      { name: "Courses", href: "/courses", roles: ["admin","mentor"] },
+      { name: "Specializations", href: "/specializations", roles: ["admin","mentor"] },
+      { name: "FAQs", href: "/course-faqs", roles: ["admin","mentor"] },
       // { name: "Questions", href: "/questions", roles: ["admin"] }
     ],
   },
@@ -33,13 +35,13 @@ const navItemsData = [
     name: "Universities",
     roles: ["admin", "mentor"],
     subItems: [
-      { name: "Universities", href: "/universities", roles: ["admin"] },
-      { name: "University Courses", href: "/university-courses", roles: ["admin"] },
-      { name: "Course Specializations", href: "/university-course-specializations", roles: ["admin"] },
-      { name: "Approvals", href: "/universities-approvals", roles: ["admin"] },
-      { name: "Fee Types", href: "/fee-types", roles: ["admin"] },
-      { name: "Placement/Hiring Partners", href: "/placements", roles: ["admin"] },
-      { name: "EMI/Financing Partners", href: "/emi-partners", roles: ["admin"] },
+      { name: "Universities", href: "/universities", roles: ["admin","mentor"] },
+      { name: "University Courses", href: "/university-courses", roles: ["admin","mentor"] },
+      { name: "Course Specializations", href: "/university-course-specializations", roles: ["admin","mentor"] },
+      { name: "Approvals", href: "/universities-approvals", roles: ["admin","mentor"] },
+      { name: "Fee Types", href: "/fee-types", roles: ["admin","mentor"] },
+      { name: "Placement/Hiring Partners", href: "/placements", roles: ["admin","mentor"] },
+      { name: "EMI/Financing Partners", href: "/emi-partners", roles: ["admin","mentor"] },
       { name: "FAQs", href: "/university-faqs", roles: ["admin", "mentor"] },
 
       // {
@@ -51,27 +53,14 @@ const navItemsData = [
       // },
     ],
   },
-  // {
-  //   name: "Universities",
-  //   href: "#",
-  //   roles: ["admin"],
-    //   subItems: [
-    //     { name: "Universities", href: "/universities", roles: ["admin"] },
-    //     { name: "University Courses", href: "/university-courses", roles: ["admin"] },
-    //     { name: "University Specializations", href: "/university-specializations", roles: ["admin"] },
-    //     { name: "Approvals", href: "/approvals", roles: ["admin"] },
-    //     { name: "Fees Types", href: "/fees-types", roles: ["admin"] },
-    //     { name: "Placement/Hiring Partners", href: "/placements", roles: ["admin"] },
-    //   ],
-    //   },
   {
     name: "Miscellaneous",
-    roles: ["admin"],
+    roles: ["admin","mentor"],
     subItems: [
-      { name: "Course Images", href: "/course-images", roles: ["admin"] },
+      { name: "Course Images", href: "/course-images", roles: ["admin","mentor"] },
     ],
   },
-  // { name: "Leads", href: "/leads", roles: ["admin"] },
+  { name: <span className="flex items-center gap-2"><BookText size={16} /> All Leads</span>, href: "/leads", roles: ["lead"] },
 ];
 
 export default navItemsData;

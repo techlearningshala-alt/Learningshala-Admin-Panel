@@ -40,12 +40,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "radial-gradient(circle at top, #232338 50%, #0f0f14 60%)" }}>
       <div className="bg-white shadow-xl rounded-2xl p-10 max-w-md w-full relative">
         {/* Logo/Brand */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-blue-600">Learning Shala</h1>
-          <p className="text-gray-500 mt-2">Empowering your learning journey</p>
+          <h1 className="text-3xl font-bold text-blue-900">LearningShala</h1>
+          <p className="text-gray-500 mt-2 font-medium">Empowering your learning journey</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -56,7 +56,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border-0 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -66,13 +66,13 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="********"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border-0 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+            className="w-full bg-blue-900 text-white py-2 rounded-lg hover:bg-blue-850 transition"
           >
             {loading ? "Logging in..." : "Login"}
           </button>

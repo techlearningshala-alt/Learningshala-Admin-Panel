@@ -7,10 +7,11 @@ const api = axios.create({
 // Attach token before every request
 api.interceptors.request.use(
   (config) => {
-    // Priority: 1. Environment variable (for one-time setup), 2. localStorage (for login-based)
-    const envToken = process.env.NEXT_PUBLIC_JWT_TOKEN;
+    // Priority: 1. localStorage (for login-based), 2. Environment variable (for one-time setup only)
     const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const token = envToken || localToken;
+    const envToken = process.env.NEXT_PUBLIC_JWT_TOKEN;
+    // Always prefer localStorage token if it exists (user is logged in)
+    const token = localToken || envToken;
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

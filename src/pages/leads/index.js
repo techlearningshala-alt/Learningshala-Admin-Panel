@@ -6,10 +6,11 @@ import { fetchLeads } from "@/lib/api";
 import LeadTable from "@/components/leads/LeadTable";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 const PAGE_SIZE = 10;
 
-export default function LeadsPage() {
+function LeadsPageContent() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
 
@@ -85,6 +86,14 @@ export default function LeadsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function LeadsPage() {
+  return (
+    <ProtectedRoute roles={["admin", "lead"]}>
+      <LeadsPageContent />
+    </ProtectedRoute>
   );
 }
 
