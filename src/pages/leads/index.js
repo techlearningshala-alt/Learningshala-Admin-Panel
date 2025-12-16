@@ -36,12 +36,12 @@ function LeadsPageContent() {
 
   return (
     <div className="p-4 space-y-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
         <div>
-          <h3 className="text-xl font-semibold">Leads</h3>
+          <h3 className="text-xl font-semibold text-blue-900">Filters</h3>
         </div>
-        <div className="text-sm text-muted-foreground">
-          Total Leads: <span className="font-medium text-foreground">{total}</span>
+        <div className="text-sm text-blue-900 bg-white px-4 py-2 font-bold rounded-md">
+          Total Leads: <span className="text-blue-900 font-bold">{total}</span>
         </div>
       </div>
 
@@ -51,7 +51,8 @@ function LeadsPageContent() {
             <label htmlFor="lead-search" className="text-sm font-medium text-muted-foreground">
               Search
             </label>
-            <Input
+              <Input
+              className="bg-white rounded-md"
               id="lead-search"
               placeholder="Search by name, email, phone, or course"
               value={search}
@@ -66,6 +67,7 @@ function LeadsPageContent() {
               From Date
             </label>
             <Input
+             className="bg-white"
               id="from-date"
               type="date"
               value={fromDate}
@@ -80,6 +82,7 @@ function LeadsPageContent() {
               To Date
             </label>
             <Input
+             className="bg-white"
               id="to-date"
               type="date"
               value={toDate}
@@ -106,8 +109,8 @@ function LeadsPageContent() {
           </div>
         )}
       </div>
-
-      <div className="rounded-md border">
+      <h3 className="text-xl font-semibold text-blue-900 ">Leads Details</h3>
+      <div className="rounded-md border bg-white">
         <LeadTable data={leads} isLoading={isLoading} />
       </div>
 

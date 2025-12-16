@@ -35,8 +35,8 @@ export default function Layout({ children }) {
         {/* Main content */}
         <div className="flex-1 overflow-x-auto">
           {/* Topbar */}
-          <header className="bg-white shadow p-4 flex justify-between items-center sticky top-0 z-10">
-            <h1 className="text-lg font-bold">{pageTitle}</h1>
+          <header className="bg-white text-blue-900 shadow p-4 flex justify-between items-center sticky top-0 z-10">
+            <h3 className="text-md font-bold">{pageTitle}</h3>
             <Button variant="destructive" onClick={handleLogout}>
               Logout
             </Button>
