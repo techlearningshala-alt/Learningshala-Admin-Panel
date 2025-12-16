@@ -52,7 +52,7 @@ export default function UnauthorizedPage() {
 
         <div className="space-y-3">
           <p className="text-sm text-gray-500">
-            You don't have permission to access this page.
+            You don&apos;t have permission to access this page.
           </p>
           {user && (
             <p className="text-sm text-gray-500">
