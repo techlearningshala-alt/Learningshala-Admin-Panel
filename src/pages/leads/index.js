@@ -13,14 +13,18 @@ const PAGE_SIZE = 10;
 function LeadsPageContent() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["leads", page, search],
+    queryKey: ["leads", page, search, fromDate, toDate],
     queryFn: () =>
       fetchLeads({
         page,
         limit: PAGE_SIZE,
         search: search || undefined,
+        fromDate: fromDate || undefined,
+        toDate: toDate || undefined,
       }),
     keepPreviousData: true,
   });
@@ -41,21 +45,66 @@ function LeadsPageContent() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="space-y-1">
-          <label htmlFor="lead-search" className="text-sm font-medium text-muted-foreground">
-            Search
-          </label>
-          <Input
-            id="lead-search"
-            placeholder="Search by name, email, phone, or course"
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-          />
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-1">
+            <label htmlFor="lead-search" className="text-sm font-medium text-muted-foreground">
+              Search
+            </label>
+            <Input
+              id="lead-search"
+              placeholder="Search by name, email, phone, or course"
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="from-date" className="text-sm font-medium text-muted-foreground">
+              From Date
+            </label>
+            <Input
+              id="from-date"
+              type="date"
+              value={fromDate}
+              onChange={(event) => {
+                setFromDate(event.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="to-date" className="text-sm font-medium text-muted-foreground">
+              To Date
+            </label>
+            <Input
+              id="to-date"
+              type="date"
+              value={toDate}
+              onChange={(event) => {
+                setToDate(event.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
         </div>
+        {(fromDate || toDate) && (
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setFromDate("");
+                setToDate("");
+                setPage(1);
+              }}
+            >
+              Clear Date Filters
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="rounded-md border">
