@@ -58,9 +58,11 @@ const navItemsData = [
     roles: ["admin","mentor"],
     subItems: [
       { name: "Course Images", href: "/course-images", roles: ["admin","mentor"] },
+      { name: "Specialization Images", href: "/specialization-images", roles: ["admin","mentor"] },
     ],
   },
-  { name: <span className="flex items-center gap-2"><BookText size={16} /> All Leads</span>, href: "/leads", roles: ["lead"] },
+  { name: "Leads", href: "/leads", roles: ["lead"] },
+  { name: "Website Leads", href: "/website-leads", roles: ["lead"] },
 ];
 
 export default navItemsData;

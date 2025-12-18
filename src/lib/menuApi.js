@@ -248,6 +248,54 @@ export async function deleteCourseImage(id) {
   return res.data;
 }
 
+///////////////////////    SPECIALIZATION IMAGES APIS    ///////////////////////////
+
+// Fetch specialization images with pagination
+export async function fetchSpecializationImages({ page = 1, limit = 10 }) {
+  const res = await api.get(`/specialization-images`, {
+    params: { page, limit },
+  });
+  return res.data;
+}
+
+// Fetch all specialization images for select dropdown
+export async function fetchAllSpecializationImages() {
+  const res = await api.get(`/specialization-images/select`);
+  return res.data;
+}
+
+// Fetch single specialization image by id
+export async function fetchSpecializationImageById(id) {
+  const res = await api.get(`/specialization-images/${id}`);
+  return res.data;
+}
+
+// Add a new specialization image
+export async function addSpecializationImage(formData) {
+  const res = await api.post(`/specialization-images`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+}
+
+// Update specialization image
+export async function updateSpecializationImage(id, formData) {
+  const res = await api.put(`/specialization-images/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+}
+
+// Delete specialization image
+export async function deleteSpecializationImage(id) {
+  const res = await api.delete(`/specialization-images/${id}`);
+  return res.data;
+}
+
 export async function addSpecializationFaq(data) {
   const res = await api.post(`/specializations/faqs/questions`, data);
   return res.data;

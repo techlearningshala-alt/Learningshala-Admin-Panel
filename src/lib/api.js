@@ -24,6 +24,17 @@ export async function fetchLeads({ page = 1, limit = 10, search, fromDate, toDat
   return res.data;
 }
 
+// Fetch website leads (paginated)
+export async function fetchWebsiteLeads({ page = 1, limit = 10, search, fromDate, toDate } = {}) {
+  const params = { page, limit };
+  if (search) params.search = search;
+  if (fromDate) params.fromDate = fromDate;
+  if (toDate) params.toDate = toDate;
+
+  const res = await api.get("/website/leads", { params });
+  return res.data;
+}
+
 // Add a new mentor
 export const addMentor = (formData) =>
   api.post("/mentors", formData, {

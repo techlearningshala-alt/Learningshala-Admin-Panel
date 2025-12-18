@@ -36,7 +36,9 @@ export default function App({ Component, pageProps }) {
     "/university-course-specializations",
     "/fee-types",
     "/leads",
+    "/website-leads",
     "/course-images",
+    "/specialization-images",
   ];
 
   const useCMSLayout = cmsPages.some((path) => router.pathname.startsWith(path));

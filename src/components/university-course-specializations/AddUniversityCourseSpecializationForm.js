@@ -17,13 +17,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Trash, Plus } from "lucide-react";
+import { ArrowLeft, Trash, Plus, Check } from "lucide-react";
+import { Dropdown } from "primereact/dropdown";
+import { fetchAllSpecializationImages } from "@/lib/menuApi";
 import { SectionsForm } from "@/components/universities/components/SectionRenderer";
 import { processSectionFiles } from "@/utils/fileProcessing";
 import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
 import {
   addUniversityCourseSpecializationFaq,
 } from "@/lib/universityApi";
+
+// Helper function to build asset URL
+const buildAssetUrl = (value) => {
+  if (!value) return null;
+  if (String(value).startsWith("http")) return value;
+  const base = process.env.NEXT_PUBLIC_thumbnail_URL || "";
+  const normalizedBaseUrl = base.replace(/\/$/, "");
+  const cleanPath = String(value).replace(/^\/+/, "");
+  return `${normalizedBaseUrl}/${cleanPath}`;
+};
 
 // Helper function to convert title to section_key format with underscores
 const generateSectionKey = (title) => {
@@ -290,12 +302,6 @@ const normalizeApiList = (payload) => {
   return [];
 };
 
-const buildAssetUrl = (value) => {
-  if (!value) return null;
-  if (typeof value === "string" && value.startsWith("http")) return value;
-  return `${process.env.NEXT_PUBLIC_thumbnail_URL}${value}`;
-};
-
 const getFileName = (path) => {
   if (!path) return "";
   const segments = path.split("/");
@@ -402,6 +408,18 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
   const courses = useMemo(() => {
     return normalizeApiList(coursesResponse?.data?.data ?? coursesResponse?.data ?? coursesResponse);
   }, [coursesResponse]);
+
+  const {
+    data: specializationImagesResponse,
+    isLoading: isLoadingSpecializationImages,
+  } = useQuery({
+    queryKey: ["specialization-images", "all"],
+    queryFn: fetchAllSpecializationImages,
+  });
+
+  const specializationImages = useMemo(() => {
+    return normalizeApiList(specializationImagesResponse?.data || []);
+  }, [specializationImagesResponse]);
 
   const {
     data: feeTypesResponse,
@@ -645,8 +663,18 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
 
       setBanners(loadedBanners);
 
-      setPreviewCourseThumbnail(buildAssetUrl(merged.course_thumbnail));
-      setThumbnailRemoved(false);
+      // Handle course_thumbnail - check if it's a banner image and filter it out
+      const thumbnailPath = merged.course_thumbnail && !merged.course_thumbnail.includes('banners')
+        ? merged.course_thumbnail
+        : null;
+      
+      if (thumbnailPath) {
+        setPreviewCourseThumbnail(buildAssetUrl(thumbnailPath));
+        setThumbnailRemoved(false);
+      } else {
+        setPreviewCourseThumbnail(null);
+        setThumbnailRemoved(false);
+      }
 
       setExistingSyllabus(merged.syllabus_file || null);
       setSyllabusFileName("");
@@ -957,8 +985,12 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
 
     formData.append("sections", JSON.stringify(processedSections));
 
-    if (thumbnailRemoved) {
+    // Handle course_thumbnail as selected image path (not a file)
+    const courseThumbnailValue = getValues("course_thumbnail");
+    if (thumbnailRemoved || !courseThumbnailValue) {
       formData.append("course_thumbnail", "");
+    } else {
+      formData.append("course_thumbnail", courseThumbnailValue);
     }
 
     if (syllabusRemoved) {
@@ -1002,13 +1034,50 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
     setBanners(updated);
   };
 
+  const handleThumbnailChange = (selectedImagePath) => {
+    if (selectedImagePath) {
+      setValue("course_thumbnail", selectedImagePath);
+      setPreviewCourseThumbnail(buildAssetUrl(selectedImagePath));
+      setThumbnailRemoved(false);
+    } else {
+      setValue("course_thumbnail", null);
+      setPreviewCourseThumbnail(null);
+      setThumbnailRemoved(true);
+    }
+  };
+
   const handleThumbnailRemoval = () => {
     setPreviewCourseThumbnail(null);
     setThumbnailRemoved(true);
     setValue("course_thumbnail", null);
-    const input = document.querySelector('input[name="course_thumbnail"]');
-    if (input) input.value = "";
   };
+
+  // Sync course_thumbnail value when specializationImages are loaded (for editing)
+  useEffect(() => {
+    if (specialization?.course_thumbnail && specializationImages.length > 0) {
+      const thumbnailPath = specialization.course_thumbnail && !specialization.course_thumbnail.includes('banners')
+        ? specialization.course_thumbnail
+        : null;
+      
+      if (thumbnailPath) {
+        // Check if the thumbnail exists in specializationImages
+        const exists = specializationImages.some((img) => {
+          const normalizePath = (path) => {
+            if (!path) return "";
+            return String(path).replace(/^\/+|\/+$/g, "");
+          };
+          const imgPath = normalizePath(img.image);
+          const valPath = normalizePath(thumbnailPath);
+          return imgPath === valPath || img.image === thumbnailPath || thumbnailPath === img.image;
+        });
+        
+        if (exists) {
+          setValue("course_thumbnail", thumbnailPath);
+          setPreviewCourseThumbnail(buildAssetUrl(thumbnailPath));
+        }
+      }
+    }
+  }, [specializationImages, specialization, setValue]);
 
   const handleSyllabusRemoval = () => {
     setExistingSyllabus(null);
@@ -1280,37 +1349,162 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Course Thumbnail (size: 128x99px )</Label>
-              <Input
-                type="file"
-                accept="image/*"
-                {...register("course_thumbnail")}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setPreviewCourseThumbnail(URL.createObjectURL(file));
-                    setThumbnailRemoved(false);
+              <Label>Specialization Thumbnail</Label>
+              <Controller
+                name="course_thumbnail"
+                control={control}
+                render={({ field }) => {
+                  // Filter out banner images from the value if it exists
+                  const isBannerImage = field.value && typeof field.value === 'string' && field.value.includes('banners');
+                  
+                  // Update field value if it was a banner image
+                  if (isBannerImage) {
+                    if (field.value) {
+                      setTimeout(() => {
+                        field.onChange(null);
+                        handleThumbnailChange("");
+                      }, 0);
+                    }
+                    return (
+                      <div className="space-y-2">
+                        <Dropdown
+                          value={null}
+                          onChange={(e) => {
+                            field.onChange(e.value);
+                            handleThumbnailChange(e.value);
+                          }}
+                          options={specializationImages}
+                          optionLabel="name"
+                          optionValue="image"
+                          placeholder="Select a specialization image"
+                          filter
+                          className="w-full"
+                          panelClassName="max-h-60"
+                          itemTemplate={(option) => {
+                            if (!option) return null;
+                            return (
+                              <div className="flex items-center gap-3 p-2">
+                                <img
+                                  src={buildAssetUrl(option.image)}
+                                  alt={option.name}
+                                  className="h-10 w-10 object-contain rounded border"
+                                />
+                                <span>{option.name}</span>
+                              </div>
+                            );
+                          }}
+                          valueTemplate={() => <span className="text-muted-foreground">Select a specialization image</span>}
+                          disabled={isLoadingSpecializationImages}
+                          showClear
+                        />
+                        <p className="text-sm text-amber-600">Previous selection was a banner image. Please select a thumbnail image.</p>
+                      </div>
+                    );
                   }
+                  
+                  // Normalize paths for comparison (remove leading/trailing slashes)
+                  const normalizePath = (path) => {
+                    if (!path) return "";
+                    return String(path).replace(/^\/+|\/+$/g, "");
+                  };
+                  
+                  const currentValue = field.value;
+                  const selectedImage = currentValue
+                    ? specializationImages.find((img) => {
+                        const imgPath = normalizePath(img.image);
+                        const valPath = normalizePath(currentValue);
+                        return imgPath === valPath || img.image === currentValue || currentValue === img.image;
+                      })
+                    : null;
+                  
+                  return (
+                    <div className="space-y-2">
+                      <Dropdown
+                        value={typeof field.value === 'string' ? field.value : (field.value?.image || null)}
+                        onChange={(e) => {
+                          const value = typeof e.value === 'string' ? e.value : (e.value?.image || null);
+                          field.onChange(value);
+                          handleThumbnailChange(value);
+                        }}
+                        options={specializationImages}
+                        optionLabel="name"
+                        optionValue="image"
+                        placeholder="Select a specialization image"
+                        filter
+                        className="w-full"
+                        panelClassName="max-h-60"
+                        itemTemplate={(option) => {
+                          if (!option) return null;
+                          const normalizePath = (path) => {
+                            if (!path) return "";
+                            return String(path).replace(/^\/+|\/+$/g, "");
+                          };
+                          const currentValue = typeof field.value === 'string' ? field.value : (field.value?.image || null);
+                          const isSelected = currentValue && (
+                            normalizePath(option.image) === normalizePath(currentValue) ||
+                            option.image === currentValue ||
+                            currentValue === option.image
+                          );
+                          return (
+                            <div className="flex items-center gap-3 p-2">
+                              <img
+                                src={buildAssetUrl(option.image)}
+                                alt={option.name}
+                                className="h-10 w-10 object-contain rounded border"
+                              />
+                              <span className="flex-1">{option.name}</span>
+                              {isSelected && (
+                                <Check className="h-4 w-4 text-green-600" />
+                              )}
+                            </div>
+                          );
+                        }}
+                        valueTemplate={(selectedValue) => {
+                          if (!selectedValue) return <span className="text-muted-foreground">Select a specialization image</span>;
+                          
+                          // Handle case where selectedValue might be an object
+                          const imagePath = typeof selectedValue === 'string' 
+                            ? selectedValue 
+                            : (selectedValue?.image || selectedValue);
+                          
+                          if (!imagePath || typeof imagePath !== 'string') {
+                            return <span className="text-muted-foreground">Select a specialization image</span>;
+                          }
+                          
+                          // Normalize paths for comparison
+                          const normalizePath = (path) => {
+                            if (!path) return "";
+                            return String(path).replace(/^\/+|\/+$/g, "");
+                          };
+                          
+                          const valPath = normalizePath(imagePath);
+                          const img = specializationImages.find((i) => {
+                            const imgPath = normalizePath(i.image);
+                            return imgPath === valPath || i.image === imagePath || imagePath === i.image;
+                          });
+                          
+                          // Always show image if value exists, even if not in specializationImages list
+                          return (
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={buildAssetUrl(img?.image || imagePath)}
+                                alt={img?.name || "Selected Image"}
+                                className="h-6 w-6 object-contain rounded"
+                              />
+                              <span>{img?.name || "Selected Image"}</span>
+                            </div>
+                          );
+                        }}
+                        disabled={isLoadingSpecializationImages}
+                        showClear
+                      />
+                      {isLoadingSpecializationImages && (
+                        <p className="text-sm text-muted-foreground">Loading specialization images...</p>
+                      )}
+                    </div>
+                  );
                 }}
               />
-              {previewCourseThumbnail && (
-                <div className="mt-2 space-y-2">
-                  <img
-                    src={previewCourseThumbnail}
-                    alt="Course thumbnail preview"
-                    className="h-20 object-contain rounded border"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="destructive"
-                    className="bg-red-500 text-white hover:bg-red-500/90"
-                    onClick={handleThumbnailRemoval}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
             </div>
             <div />
           </div>

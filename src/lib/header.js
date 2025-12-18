@@ -7,11 +7,12 @@ const api = axios.create({
 // Attach token before every request
 api.interceptors.request.use(
   (config) => {
-    // Priority: 1. localStorage (for login-based), 2. Environment variable (for one-time setup only)
-    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    // Priority: 1. sessionStorage (tab-specific), 2. Environment variable (for one-time setup only)
+    // Don't use localStorage to prevent cross-tab interference
+    const sessionToken = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
     const envToken = process.env.NEXT_PUBLIC_JWT_TOKEN;
-    // Always prefer localStorage token if it exists (user is logged in)
-    const token = localToken || envToken;
+    // Only use sessionStorage (tab-specific) or env token
+    const token = sessionToken || envToken;
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -35,9 +36,10 @@ api.interceptors.response.use(
       !originalRequest.url.includes("/users/me")
     ) {
       originalRequest._retry = true;
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
       if (typeof window !== "undefined") {
+        sessionStorage.removeItem("token");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         window.location.href = "/login?error=Session expired, please log in again";
       }
     }
