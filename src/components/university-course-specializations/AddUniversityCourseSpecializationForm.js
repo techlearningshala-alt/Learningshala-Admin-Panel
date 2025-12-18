@@ -617,6 +617,11 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         }
       });
 
+      // Handle course_thumbnail - check if it's a banner image and filter it out
+      const thumbnailPath = merged.course_thumbnail && !merged.course_thumbnail.includes('banners')
+        ? merged.course_thumbnail
+        : null;
+
       reset({
         university_id: merged.university_id ? String(merged.university_id) : "",
         university_course_id: merged.university_course_id ? String(merged.university_course_id) : "",
@@ -629,7 +634,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         author_name: merged.author_name ?? "",
         is_active: merged.is_active !== undefined ? Boolean(merged.is_active) : true,
         is_page_created: merged.is_page_created !== undefined ? Boolean(merged.is_page_created) : true,
-        course_thumbnail: null,
+        course_thumbnail: thumbnailPath,
         syllabus_file: null,
         fee_type_values: feeMap,
         sections: loadedSections, // Include sections in reset
@@ -662,11 +667,6 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
       }
 
       setBanners(loadedBanners);
-
-      // Handle course_thumbnail - check if it's a banner image and filter it out
-      const thumbnailPath = merged.course_thumbnail && !merged.course_thumbnail.includes('banners')
-        ? merged.course_thumbnail
-        : null;
       
       if (thumbnailPath) {
         setPreviewCourseThumbnail(buildAssetUrl(thumbnailPath));
@@ -1054,9 +1054,10 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
 
   // Sync course_thumbnail value when specializationImages are loaded (for editing)
   useEffect(() => {
-    if (specialization?.course_thumbnail && specializationImages.length > 0) {
-      const thumbnailPath = specialization.course_thumbnail && !specialization.course_thumbnail.includes('banners')
-        ? specialization.course_thumbnail
+    const currentSpec = fetchedSpecialization || specialization;
+    if (currentSpec?.course_thumbnail && specializationImages.length > 0) {
+      const thumbnailPath = currentSpec.course_thumbnail && !currentSpec.course_thumbnail.includes('banners')
+        ? currentSpec.course_thumbnail
         : null;
       
       if (thumbnailPath) {
@@ -1077,7 +1078,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         }
       }
     }
-  }, [specializationImages, specialization, setValue]);
+  }, [specializationImages, specialization, fetchedSpecialization, setValue]);
 
   const handleSyllabusRemoval = () => {
     setExistingSyllabus(null);
