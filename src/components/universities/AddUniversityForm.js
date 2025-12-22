@@ -328,6 +328,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     defaultValues: {
       university_name: "",
       university_slug: "",
+      meta_title: "",
+      meta_description: "",
       university_logo: null,
       university_location: "",
       university_brochure: null,
@@ -390,6 +392,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       reset({
         university_name: "",
         university_slug: "",
+        meta_title: "",
+        meta_description: "",
         university_logo: null,
         university_location: "",
         university_brochure: null,
@@ -485,6 +489,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     const formValues = {
       university_name: item.university_name || "",
       university_slug: item.university_slug || "",
+      meta_title: item.meta_title || "",
+      meta_description: item.meta_description || "",
       university_logo: null,
       university_location: item.university_location || "",
       university_brochure: null,
@@ -630,6 +636,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     const formData = new FormData();
     formData.append("university_name", data.university_name);
     formData.append("university_slug", data.university_slug);
+    formData.append("meta_title", data.meta_title || "");
+    formData.append("meta_description", data.meta_description || "");
     formData.append("university_location", data.university_location || "");
     formData.append("author_name", data.author_name || "");
     // MultiSelect returns arrays of IDs directly, no need to map
@@ -757,13 +765,39 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label>University Name</Label>
-            <Input {...register("university_name", { required: "University name is required" })} placeholder="Enter university name" />
+            <Input {...register("university_name", { required: "University name is required" })} placeholder="Enter university name (H1 Tag)" />
             {errors.university_name && <p className="text-red-500 text-sm">{errors.university_name.message}</p>}
           </div>
           <div className="space-y-2">
             <Label>University Slug</Label>
             <Input {...register("university_slug", { required: "University slug is required" })} placeholder="Enter university slug" />
             {errors.university_slug && <p className="text-red-500 text-sm">{errors.university_slug.message}</p>}
+          </div>
+          <div className="space-y-2 col-span-1 md:col-span-2">
+            <Label>Meta Title</Label>
+            <Input
+              {...register("meta_title", { 
+                maxLength: { value: 60, message: "Meta title must be 60 characters or less" }
+              })}
+              placeholder="SEO Meta Title (max 60 character)"
+            />
+            {errors.meta_title && (
+              <p className="text-sm text-red-500">{errors.meta_title.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2 col-span-1 md:col-span-2">
+            <Label>Meta Description</Label>
+            <textarea
+              {...register("meta_description", { 
+                maxLength: { value: 160, message: "Meta description must be 160 characters or less" }
+              })}
+              placeholder="SEO Meta Des (max 160 character)"
+              className="w-full border rounded px-3 py-2 h-17"
+            />
+            {errors.meta_description && (
+              <p className="text-sm text-red-500">{errors.meta_description.message}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label>Location</Label>

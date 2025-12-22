@@ -67,6 +67,12 @@ export default function CourseTable({
       ),
     },
     {
+      key: "created_at",
+      label: "Created Date",
+      render: (row) =>
+        row.created_at ? new Date(row.created_at).toLocaleDateString() : "-",
+    },
+    {
       key: "updated_at",
       label: "Updated Date",
       render: (row) =>

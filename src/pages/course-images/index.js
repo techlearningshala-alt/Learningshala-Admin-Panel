@@ -87,7 +87,7 @@ export default function CourseImagesPage() {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h3 className="text-xl font-bold">Course Images</h3>
+          <h3 className="text-xl font-bold">University Course Images</h3>
           <p className="text-sm text-muted-foreground mt-1">
             Total: {displayTotal}
             {search.trim().length > 0 && (

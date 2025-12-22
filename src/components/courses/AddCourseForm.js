@@ -95,6 +95,8 @@ const defaultFormValues = {
   name: "",
   slug: "",
   h1Tag: "",
+  meta_title: "",
+  meta_description: "",
   duration: "",
   label: "",
   priority: "",
@@ -355,6 +357,8 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
         name: source.name || "",
         slug: source.slug || "",
         h1Tag: source.h1Tag || "",
+        meta_title: source.meta_title || "",
+        meta_description: source.meta_description || "",
         duration: source.course_duration ?? source.duration ?? "",
         label: source.label || "",
         priority: source.priority ?? "",
@@ -561,6 +565,8 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
     appendIfPresent("name", values.name);
     appendIfPresent("slug", values.slug);
     appendIfPresent("h1Tag", values.h1Tag);
+    appendIfPresent("meta_title", values.meta_title);
+    appendIfPresent("meta_description", values.meta_description);
     appendIfPresent("course_duration", values.duration || "");
     appendIfPresent("label", values.label);
     appendIfPresent("priority", values.priority);
@@ -713,11 +719,39 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
             <div className="space-y-2">
               <Label>Course Heading (H1 Tag)</Label>
               <Input
-                placeholder="Primary headline for landing page"
+                placeholder="Primary headline"
                 {...register("h1Tag", { required: "H1 Tag is required" })}
               />
               {errors.h1Tag && (
                 <p className="text-xs text-red-500">{errors.h1Tag.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <Label>Meta Title</Label>
+              <Input
+                className="w-full"
+                placeholder="SEO Meta Title (max 60 character)"
+                {...register("meta_title", { 
+                  maxLength: { value: 60, message: "Meta title must be 60 characters or less" }
+                })}
+              />
+              {errors.meta_title && (
+                <p className="text-xs text-red-500">{errors.meta_title.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <Label>Meta Description</Label>
+              <textarea
+                placeholder="SEO Meta Des (max 160 character)"
+                {...register("meta_description", { 
+                  maxLength: { value: 160, message: "Meta description must be 160 characters or less" }
+                })}
+                className="w-full border rounded px-3 py-2 h-17"
+              />
+              {errors.meta_description && (
+                <p className="text-xs text-red-500">{errors.meta_description.message}</p>
               )}
             </div>
 

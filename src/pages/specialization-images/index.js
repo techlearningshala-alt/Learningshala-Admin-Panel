@@ -87,7 +87,7 @@ export default function SpecializationImagesPage() {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h3 className="text-xl font-bold">Specialization Images</h3>
+          <h3 className="text-xl font-bold">University Specialization Images</h3>
           <p className="text-sm text-muted-foreground mt-1">
             Total: {displayTotal}
             {search.trim().length > 0 && (

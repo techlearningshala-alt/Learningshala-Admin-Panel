@@ -48,6 +48,12 @@ export const toggleUniversityStatus = async (id, isActive) => {
   return res.data;
 };
 
+// ✅ Search universities (Elasticsearch)
+export const searchUniversitiesApi = async (query, { page = 1, limit = 10 } = {}) => {
+  const res = await api.get(`/universities/search`, { params: { q: query, page, limit } });
+  return res.data; // { success, data: { data, total, page, pages } }
+};
+
 
 ///////////////////  UNIVERSITY APPROVALS APIS   /////////////////////////////
 

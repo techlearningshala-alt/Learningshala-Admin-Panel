@@ -5,15 +5,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchUniversities, deleteUniversity, toggleUniversityStatus, fetchApprovals, fetchAllPlacementPartners, fetchAllEmiPartners } from "@/lib/universityApi";
 
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import UniversityTable from "@/components/universities/UniversityTable";
 import AddUniversityForm from "@/components/universities/AddUniversityForm";
 import { notifySuccess, notifyError } from "@/lib/notify";
+import { Input } from "@/components/ui/input";
 
 export default function UniversitiesPage() {
   const [selectedUniversity, setSelectedUniversity] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
 
   const queryClient = useQueryClient();
 
@@ -124,14 +126,42 @@ export default function UniversitiesPage() {
   }
 
   // Show table view
-  const total = data?.data?.total || 0;
+  const items = data?.data?.data || [];
+  const filteredItems = search
+    ? items.filter((item) => {
+        const term = search.toLowerCase();
+        return item.university_name?.toLowerCase().includes(term);
+      })
+    : items;
+
+  const total = search ? filteredItems.length : (data?.data?.total || 0);
   
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
         <div>
           <h3 className="text-xl font-bold">Universities</h3>
-          <p className="text-sm text-muted-foreground mt-1">Total: {total}</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Total: {total} {search && `(filtered from ${data?.data?.total || items.length})`}
+          </p>
+          <div className="flex items-center gap-2 mt-2">
+            <div className="relative w-72">
+              <Input
+                placeholder="Search by university name"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pr-8"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
         <Button onClick={handleAdd}>
           <Plus className="mr-1 h-4 w-4" /> Add University
@@ -142,25 +172,27 @@ export default function UniversitiesPage() {
         <p>Loading...</p>
       ) : (
         <UniversityTable
-          items={data?.data?.data || []}
+          items={filteredItems}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onToggleStatus={handleToggleStatus}
         />
       )}
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-4 gap-2">
-        <Button size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
-          Prev
-        </Button>
-        <span className="px-3 py-1">
-          Page {page} of {data?.data.pages}
-        </span>
-        <Button size="sm" disabled={page === data?.data.pages} onClick={() => setPage(page + 1)}>
-          Next
-        </Button>
-      </div>
+      {/* Pagination - Hide when searching */}
+      {!search && (
+        <div className="flex justify-center mt-4 gap-2">
+          <Button size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
+            Prev
+          </Button>
+          <span className="px-3 py-1">
+            Page {page} of {data?.data?.pages || 1}
+          </span>
+          <Button size="sm" disabled={page === (data?.data?.pages || 1)} onClick={() => setPage(page + 1)}>
+            Next
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

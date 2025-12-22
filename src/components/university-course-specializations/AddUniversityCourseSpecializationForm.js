@@ -71,6 +71,8 @@ const defaultValues = {
   name: "",
   slug: "",
   h1Tag: "",
+  meta_title: "",
+  meta_description: "",
   duration: "",
   emi_duration: "",
   label: "",
@@ -628,6 +630,8 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         name: merged.name || "",
         slug: merged.slug || "",
         h1Tag: merged.h1Tag || "",
+        meta_title: merged.meta_title || "",
+        meta_description: merged.meta_description || "",
         duration: merged.duration ?? "",
         emi_duration: merged.emi_duration ?? "",
         label: merged.label ?? "",
@@ -1213,6 +1217,33 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
             <p className="text-sm text-red-500">{errors.h1Tag.message}</p>
           )}
         </div>
+
+        <div className="space-y-2">
+          <Label>Meta Title</Label>
+          <Input
+            {...register("meta_title", { 
+              maxLength: { value: 60, message: "Meta title must be 60 characters or less" }
+            })}
+            placeholder="SEO Meta Title (max 60 character)"
+          />
+          {errors.meta_title && (
+            <p className="text-sm text-red-500">{errors.meta_title.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+            <Label>Meta Description</Label>
+            <textarea
+              {...register("meta_description", { 
+                maxLength: { value: 160, message: "Meta description must be 160 characters or less" }
+              })}
+              placeholder="SEO Meta Des (max 160 character)"
+              className="w-full border rounded px-3 py-2 h-17"
+            />
+            {errors.meta_description && (
+              <p className="text-sm text-red-500">{errors.meta_description.message}</p>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
