@@ -6,7 +6,14 @@ import DataTable from "../table/DataTable";
 
 export default function MentorTable({ mentors, onEdit, onDelete }) {
   const columns = [
-    { key: "id", label: "ID" },
+    {
+      key: "sr_no",
+      label: "Sr. No.",
+      render: (row, index) => index + 1,
+      style: { width: "80px" },
+      headerClassName: "border px-2 py-1 text-left",
+      cellClassName: "border px-2 py-1 text-left",
+    },
     {
       key: "name",
       label: "Name",

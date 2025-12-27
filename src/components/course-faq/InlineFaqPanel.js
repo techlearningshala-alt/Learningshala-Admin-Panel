@@ -480,27 +480,29 @@ export default function CourseFaqInlinePanel({
           }
         }}
       >
-        <DialogContent className="w-[95vw] max-w-[95vw] sm:w-[90vw] sm:max-w-[90vw] lg:w-[85vw] lg:max-w-[85vw] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingFaq ? "Edit FAQ" : "Add FAQ"}</DialogTitle>
-            <DialogDescription>
-              {editingFaq
-                ? "Update the FAQ details below."
-                : "Fill in the question and answer to add a new FAQ."}
-            </DialogDescription>
-          </DialogHeader>
-          {isFaqFormOpen && (
-            <FaqForm
-              categories={categories}
-              defaultValues={editingFaq?.id ? editingFaq : editingFaq?.tempId ? editingFaq : undefined}
-              onSubmit={handleSaveFaq}
-              onCancel={handleCloseFaqForm}
-              submitLabel={editingFaq ? "Update FAQ" : "Save FAQ"}
-              disableSubmit={isLoadingCategories}
-              isEditing={Boolean(editingFaq)}
-              containerClassName="space-y-4"
-            />
-          )}
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:w-[90vw] sm:max-w-[90vw] lg:w-[85vw] lg:max-w-[85vw] p-0 overflow-hidden">
+          <div className="max-h-[95vh] overflow-y-auto p-6 space-y-4">
+            <DialogHeader>
+              <DialogTitle>{editingFaq ? "Edit FAQ" : "Add FAQ"}</DialogTitle>
+              <DialogDescription>
+                {editingFaq
+                  ? "Update the FAQ details below."
+                  : "Fill in the question and answer to add a new FAQ."}
+              </DialogDescription>
+            </DialogHeader>
+            {isFaqFormOpen && (
+              <FaqForm
+                categories={categories}
+                defaultValues={editingFaq?.id ? editingFaq : editingFaq?.tempId ? editingFaq : undefined}
+                onSubmit={handleSaveFaq}
+                onCancel={handleCloseFaqForm}
+                submitLabel={editingFaq ? "Update FAQ" : "Save FAQ"}
+                disableSubmit={isLoadingCategories}
+                isEditing={Boolean(editingFaq)}
+                containerClassName="space-y-4"
+              />
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

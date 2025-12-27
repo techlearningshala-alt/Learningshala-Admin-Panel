@@ -40,7 +40,7 @@ export default function AddFaqForm({
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 max-h-[calc(100vh-100px)] overflow-y-auto">
       <div className="relative flex justify-center items-center mb-6">
         <Button variant="ghost" size="sm" onClick={onCancel} className="absolute left-0">
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -88,17 +88,19 @@ export default function AddFaqForm({
         {/* Answer */}
         <div className="space-y-2">
           <Label>Answer</Label>
-          <Controller
-            name="description"
-            control={control}
-            rules={{ required: "Answer is required" }}
-            render={({ field }) => (
-              <CKEditor
-                value={field.value || ""}
-                onChange={(html) => field.onChange(html)}
-              />
-            )}
-          />
+          <div className="min-h-[200px] rounded-md border bg-white">
+            <Controller
+              name="description"
+              control={control}
+              rules={{ required: "Answer is required" }}
+              render={({ field }) => (
+                <CKEditor
+                  value={field.value || ""}
+                  onChange={(html) => field.onChange(html)}
+                />
+              )}
+            />
+          </div>
           {errors.description && (
             <p className="text-red-500 text-sm">{errors.description.message}</p>
           )}

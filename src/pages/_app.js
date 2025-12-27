@@ -39,6 +39,7 @@ export default function App({ Component, pageProps }) {
     "/website-leads",
     "/course-images",
     "/specialization-images",
+    "/contact-us",
   ];
 
   const useCMSLayout = cmsPages.some((path) => router.pathname.startsWith(path));

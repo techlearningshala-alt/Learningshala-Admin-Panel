@@ -54,6 +54,19 @@ export default function AddCourseFaqCategoryForm({ item, onCancel, onSuccess }) 
           )}
         </div>
 
+        {/* Priority */}
+        <div className="space-y-2">
+          <Label>Priority</Label>
+          <Input
+            type="number"
+            {...register("priority", { required: "Priority is required", valueAsNumber: true })}
+            placeholder="Enter priority (lower number = higher priority)"
+          />
+          {errors.priority && (
+            <p className="text-red-500 text-sm">{errors.priority.message}</p>
+          )}
+        </div>
+
         {/* Buttons */}
         {item ? (
           <div className="flex gap-2">

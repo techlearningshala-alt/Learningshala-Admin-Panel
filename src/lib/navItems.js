@@ -1,11 +1,13 @@
 import { BookText, Menu } from "lucide-react";
 
 const navItemsData = [
+  // Dashboard as top-level item for lead role
+  { name: "Dashboard", href: "/dashboard", roles: ["lead"] },
   {
     name: "Home",
-    roles: ["admin", "user"],
+    roles: ["admin", "mentor"],
     subItems: [
-      { name: "Dashboard", href: "/dashboard", roles: ["admin", "user", "editor"] },
+      { name: "Dashboard", href: "/dashboard", roles: ["admin", "mentor"] },
       // { name: "Home Banners", href: "/home-banners", roles: ["admin", "editor"] },
       { name: "Mentors", href: "/mentors", roles: ["admin", "mentor"] },
       { name: "Media Spotlight", href: "/media-spotlight", roles: ["admin", "editor","mentor"] },
@@ -63,6 +65,7 @@ const navItemsData = [
   },
   { name: "Leads", href: "/leads", roles: ["lead"] },
   { name: "Website Leads", href: "/website-leads", roles: ["lead"] },
+  { name: "Contact Us", href: "/contact-us", roles: ["lead"] }
 ];
 
 export default navItemsData;

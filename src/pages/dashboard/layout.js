@@ -6,7 +6,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 export default function DashboardLayout({ children }) {
   return (
-    <ProtectedRoute roles={["admin", "mentor"]}>
+    <ProtectedRoute roles={["admin", "mentor", "lead"]}>
       <Layout>{children}</Layout>
     </ProtectedRoute>
   );

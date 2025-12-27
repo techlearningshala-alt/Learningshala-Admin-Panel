@@ -248,3 +248,42 @@ export async function fetchAllUniversities() {
   return res.data;
 }
 
+// ===== Contact Us APIs =====
+
+// Fetch contact us messages (paginated)
+export async function fetchContactUs({ page = 1, limit = 10, search, fromDate, toDate } = {}) {
+  const params = { page, limit };
+  if (search) params.search = search;
+  if (fromDate) params.fromDate = fromDate;
+  if (toDate) params.toDate = toDate;
+
+  const res = await api.get("/contact-us", { params });
+  return res.data;
+}
+
+// Delete a contact us message
+export async function deleteContactUs(id) {
+  const res = await api.delete(`/contact-us/${id}`);
+  return res.data;
+}
+
+// ===== Dashboard APIs =====
+
+// Fetch complete dashboard data (statistics, recent activity, today/week stats)
+export async function fetchDashboardData() {
+  const res = await api.get("/dashboard");
+  return res.data; // { success, data: { statistics, recentActivity, todayStats, weekStats } }
+}
+
+// Fetch only statistics
+export async function fetchDashboardStatistics() {
+  const res = await api.get("/dashboard/statistics");
+  return res.data; // { success, data: { leads, websiteLeads, ... } }
+}
+
+// Fetch recent activity
+export async function fetchRecentActivity() {
+  const res = await api.get("/dashboard/recent-activity");
+  return res.data; // { success, data: { recentLeads, recentWebsiteLeads, ... } }
+}
+
