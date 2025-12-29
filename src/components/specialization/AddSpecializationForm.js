@@ -11,6 +11,9 @@ import {
   fetchSpecializationById,
   addSpecializationFaq,
 } from "@/lib/menuApi";
+import {
+  fetchAllPlacementPartners,
+} from "@/lib/universityApi";
 import SpecializationFaqInlinePanel from "@/components/specialization-faq/InlineFaqPanel";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
@@ -20,6 +23,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import SafeCKEditor from "@/components/CKEditor";
 import { ArrowLeft, Plus, Trash } from "lucide-react";
+import { MultiSelect } from "primereact/multiselect";
 
 const SECTION_TEMPLATES = [
   { id: "course-overview", section_key: "course_overview", title: "Course Overview" },
@@ -114,6 +118,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
   const [banners, setBanners] = useState([createNewBanner()]);
   const [saveWithoutDate, setSaveWithoutDate] = useState(false);
   const [stagedFaqs, setStagedFaqs] = useState([]);
+  const [selectedPlacementPartners, setSelectedPlacementPartners] = useState([]);
   const ebookInputRef = useRef(null);
   const specializationId = item?.id;
   const isEdit = Boolean(specializationId);
@@ -138,6 +143,28 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
   const courses = useMemo(
     () => courseResponse?.data?.data || courseResponse?.data || [],
     [courseResponse]
+  );
+
+  const { data: placementPartnerResponse } = useQuery({
+    queryKey: ["placement-partners", "all"],
+    queryFn: () => fetchAllPlacementPartners(),
+  });
+
+  const placementPartners = useMemo(
+    () =>
+      placementPartnerResponse?.data?.data ||
+      placementPartnerResponse?.data ||
+      placementPartnerResponse ||
+      [],
+    [placementPartnerResponse]
+  );
+
+  const selectedPlacementPartnersDisplay = useMemo(
+    () =>
+      placementPartners.filter((p) =>
+        selectedPlacementPartners.includes(p.id)
+      ),
+    [placementPartners, selectedPlacementPartners]
   );
 
   const hydrateSections = useCallback((specialization) => {
@@ -315,6 +342,13 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
       setEbookFileName("");
       setEbookRemoved(false);
       setSaveWithoutDate(false);
+
+      // Partners (arrays)
+      setSelectedPlacementPartners(
+        Array.isArray(source?.placement_partner_ids)
+          ? source.placement_partner_ids.map((n) => Number(n)).filter((n) => !Number.isNaN(n))
+          : []
+      );
     },
     [reset, hydrateSections, hydrateBanners]
   );
@@ -561,6 +595,8 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
     formData.append("banners", JSON.stringify(bannersPayload));
     const shouldSaveWithDate = item ? !saveWithoutDate : true;
     formData.append("saveWithDate", shouldSaveWithDate ? "true" : "false");
+
+    formData.append("placement_partner_ids", JSON.stringify(selectedPlacementPartners));
 
     mutation.mutate(formData);
   };
@@ -963,6 +999,50 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
                 value={section.description}
                 onChange={(value) => handleSectionDescriptionChange(index, value)}
               />
+
+              {section.section_key === "top_recruiters" && (
+                <div className="space-y-2">
+                  <Label className="block mb-1 text-sm font-medium">
+                    Placement / Hiring Partners
+                  </Label>
+                  <MultiSelect
+                    value={selectedPlacementPartners}
+                    onChange={(e) => setSelectedPlacementPartners(e.value || [])}
+                    options={placementPartners}
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Select placement partners"
+                    filter
+                    display="chip"
+                    maxSelectedLabels={-1}
+                    className="w-full"
+                    panelClassName="max-h-60"
+                  />
+                  {selectedPlacementPartnersDisplay.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {selectedPlacementPartnersDisplay.map((partner) => (
+                        <div
+                          key={partner.id}
+                          className="group flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm shadow-sm"
+                        >
+                          <span className="font-medium">{partner.name}</span>
+                          <button
+                            type="button"
+                            className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
+                            onClick={() => {
+                              setSelectedPlacementPartners((prev) =>
+                                prev.filter((id) => Number(id) !== Number(partner.id))
+                              );
+                            }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {section.supportsImage && (
                 <div className="space-y-2">

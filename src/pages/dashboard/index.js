@@ -32,7 +32,7 @@ export default function DashboardPage() {
             Welcome back, {user?.name || "User"} 🎉
           </h2>
           <p className="mt-2 text-gray-600">
-            Here`&apos;` what`&apos;` happening with your platform today.
+            Here is what&apos;s happening with your platform today.
           </p>
         </div>
 
@@ -66,16 +66,18 @@ export default function DashboardPage() {
                 userRole={user?.role}
               />
             )}
-{/* 
-            Main Statistics Grid
-            <div>
-              <h3 className="text-xl font-semibold mb-4">Overview Statistics</h3>
-              <StatisticsGrid
-                statistics={data.statistics}
-                isLoading={isLoading}
-                userRole={user?.role}
-              />
-            </div> */}
+
+            {/* Main Statistics Grid - Hidden for lead role */}
+            {user?.role !== "lead" && (
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Overview Statistics</h3>
+                <StatisticsGrid
+                  statistics={data.statistics}
+                  isLoading={isLoading}
+                  userRole={user?.role}
+                />
+              </div>
+            )}
 
             {/* Recent Activity */}
             <div>

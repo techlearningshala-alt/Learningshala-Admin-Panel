@@ -34,40 +34,49 @@ export default function StatisticsGrid({ statistics, isLoading, userRole }) {
   const isAdmin = userRole === "admin";
   const isLead = userRole === "lead";
   
-  const stats = [
-    // Non-lead stats - only for admin and other roles (not for lead)
-    ...(!isLead ? [
-      {
-        title: "Universities",
-        value: statistics.universities || 0,
-        icon: Building2,
-        color: "orange",
-      },
-      {
-        title: "University Courses",
-        value: statistics.universityCourses || 0,
-        icon: BookOpen,
-        color: "indigo",
-      },
-      {
-        title: "Course Specializations",
-        value: statistics.universityCourseSpecializations || 0,
-        icon: GraduationCap,
-        color: "blue",
-      },
-      {
-        title: "Degree Courses",
-        value: statistics.courses || 0,
-        icon: BookOpen,
-        color: "green",
-      },
-      {
-        title: "Degree Specializations",
-        value: statistics.specializations || 0,
-        icon: GraduationCap,
-        color: "purple",
-      },
-      {
+  if (isLead) {
+    return null;
+  }
+
+  // First div: University and Degree data (2 rows × 3 columns)
+  const universityDegreeStats = [
+    {
+      title: "Universities",
+      value: statistics.universities || 0,
+      icon: Building2,
+      color: "orange",
+    },
+    {
+      title: "University Courses",
+      value: statistics.universityCourses || 0,
+      icon: BookOpen,
+      color: "indigo",
+    },
+    {
+      title: "Course Specializations",
+      value: statistics.universityCourseSpecializations || 0,
+      icon: GraduationCap,
+      color: "blue",
+    },
+    {
+      title: "Domains",
+      value: statistics.domains || 0,
+      icon: FolderOpen,
+      color: "orange",
+    },
+    {
+      title: "Degree Courses",
+      value: statistics.courses || 0,
+      icon: BookOpen,
+      color: "green",
+    },
+    {
+      title: "Degree Specializations",
+      value: statistics.specializations || 0,
+      icon: GraduationCap,
+      color: "purple",
+    },
+    {
         title: "Mentors",
         value: statistics.mentors || 0,
         icon: Users,
@@ -85,38 +94,55 @@ export default function StatisticsGrid({ statistics, isLoading, userRole }) {
         icon: Newspaper,
         color: "blue",
       },
-      {
-        title: "Placement Partners",
-        value: statistics.placementPartners || 0,
-        icon: Briefcase,
-        color: "green",
-      },
-      {
-        title: "EMI Partners",
-        value: statistics.emiPartners || 0,
-        icon: CreditCard,
-        color: "purple",
-      },
-      {
-        title: "Domains",
-        value: statistics.domains || 0,
-        icon: FolderOpen,
-        color: "orange",
-      },
-    ] : []),
+  ];
+
+  // Second div: Other data
+  const otherStats = [
+    {
+      title: "Placement Partners",
+      value: statistics.placementPartners || 0,
+      icon: Briefcase,
+      color: "green",
+    },
+    {
+      title: "EMI Partners",
+      value: statistics.emiPartners || 0,
+      icon: CreditCard,
+      color: "purple",
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {stats.map((stat, index) => (
-        <StatCard
-          key={index}
-          title={stat.title}
-          value={stat.value}
-          icon={stat.icon}
-          color={stat.color}
-        />
-      ))}
+    <div className="flex flex-col lg:flex-row gap-6 items-stretch">
+      {/* First div: University and Degree data (2 rows × 3 columns) */}
+      <div className="flex-[3.5] w-full lg:w-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {universityDegreeStats.map((stat, index) => (
+            <StatCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              color={stat.color}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Second div: Other data (single column, parallel, same height) */}
+      <div className="flex-1 w-full lg:w-auto lg:max-w-sm">
+        <div className="grid grid-cols-1 gap-6">
+          {otherStats.map((stat, index) => (
+            <StatCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              color={stat.color}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
