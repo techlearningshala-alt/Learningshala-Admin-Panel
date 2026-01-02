@@ -18,13 +18,18 @@ export default function UniversitiesPage() {
   const [showForm, setShowForm] = useState(false);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [universityTypeFilter, setUniversityTypeFilter] = useState("");
 
   const queryClient = useQueryClient();
 
   // Fetch paginated universities
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["universities", page],
-    queryFn: () => fetchUniversities({ page, limit: 20 }),
+    queryKey: ["universities", page, universityTypeFilter],
+    queryFn: () => fetchUniversities({ 
+      page, 
+      limit: 20, 
+      university_type_id: universityTypeFilter ? parseInt(universityTypeFilter) : undefined 
+    }),
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
@@ -166,7 +171,7 @@ export default function UniversitiesPage() {
           <p className="text-sm text-muted-foreground mt-1">
             Total: {total} {search && `(filtered from ${data?.data?.total || items.length})`}
           </p>
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
             <div className="relative w-72">
               <Input
                 placeholder="Search by university name"
@@ -183,6 +188,36 @@ export default function UniversitiesPage() {
                 </button>
               )}
             </div>
+            <div className="relative">
+              <select
+                value={universityTypeFilter}
+                onChange={(e) => {
+                  setUniversityTypeFilter(e.target.value);
+                  setPage(1); // Reset to first page when filter changes
+                }}
+                className="w-50 border rounded px-4 py-2 pr-8"
+              >
+                <option value="">All University Types</option>
+                {universityTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {(universityTypeFilter || search) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setUniversityTypeFilter("");
+                  setSearch("");
+                  setPage(1);
+                }}
+              >
+                Clear Filters
+              </Button>
+            )}
           </div>
         </div>
         <PermissionGuard permission="create">
@@ -204,8 +239,8 @@ export default function UniversitiesPage() {
         />
       )}
 
-      {/* Pagination - Hide when searching */}
-      {!search && (
+      {/* Pagination - Hide when searching or filtering */}
+      {!search && !universityTypeFilter && (
         <div className="flex justify-center mt-4 gap-2">
           <Button size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
             Prev

@@ -1,9 +1,12 @@
 import api from "./header"; // Use shared axios instance with token interceptor
 
 // ✅ Fetch all universities (paginated)
-export const fetchUniversities = async ({ page = 1, limit = 10 } = {}) => {
-  const res = await api.get(`/universities`, { params: { page, limit } });
-  console.log(res.data,"data")
+export const fetchUniversities = async ({ page = 1, limit = 10, university_type_id } = {}) => {
+  const params = { page, limit };
+  if (university_type_id) {
+    params.university_type_id = university_type_id;
+  }
+  const res = await api.get(`/universities`, { params });
   return res.data; // { success, data, total, page, pages }
 };
 

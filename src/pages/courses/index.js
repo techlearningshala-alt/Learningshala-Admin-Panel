@@ -18,7 +18,7 @@ import PermissionGuard from "@/components/common/PermissionGuard";
 import { usePermissions } from "@/hooks/usePermissions";
 
 export default function CoursesPage() {
-  const limit = 10;
+  const limit = 20;
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [page, setPage] = useState(1);

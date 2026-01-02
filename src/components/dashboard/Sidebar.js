@@ -98,9 +98,13 @@ export default function Sidebar({ mobile = false, onClose }) {
         mobile ? "" : "w-[200px] flex-shrink-0 hidden md:flex flex-col"
       } bg-gray-900 text-white`}
     >
-      <div className="bg-blue-900 p-4 text-md font-bold border-b border-gray-700">
+      <Link
+        href="/dashboard"
+        className="bg-blue-900 p-4 text-md font-bold border-b border-gray-700 block hover:bg-blue-800 transition-colors cursor-pointer"
+        onClick={onClose}
+      >
         LearningShala Admin
-      </div>
+      </Link>
       <nav className="flex-1 overflow-y-auto p-4 space-y-2">
         {renderNavItems(filteredNavItems)}
       </nav>
