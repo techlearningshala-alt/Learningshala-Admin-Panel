@@ -14,6 +14,7 @@ import AddSpecializationForm from "@/components/specialization/AddSpecialization
 import { notifySuccess, notifyError } from "@/lib/notify";
 import SpecializationTable from "@/components/specialization/SpecializationTable";
 import { Input } from "@/components/ui/input";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 export default function SpecializationsPage() {
   const limit = 10;
@@ -131,9 +132,11 @@ export default function SpecializationsPage() {
             />
           </div>
         </div>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-1 h-4 w-4" /> Add Specialization
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={handleAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Add Specialization
+          </Button>
+        </PermissionGuard>
       </div>
 
       {isLoading ? (

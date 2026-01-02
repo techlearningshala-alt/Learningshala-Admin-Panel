@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 export default function UniversityApprovalsPage() {
   const [showForm, setShowForm] = useState(false);
@@ -79,9 +80,11 @@ export default function UniversityApprovalsPage() {
     <div className="p-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
         <h3 className="text-xl font-bold">University Approvals</h3>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-1 h-4 w-4" /> Add Approval
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={handleAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Add Approval
+          </Button>
+        </PermissionGuard>
       </div>
 
       <div className="max-w-md mb-4">

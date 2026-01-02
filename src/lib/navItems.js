@@ -42,6 +42,7 @@ const navItemsData = [
       { name: "Course Specializations", href: "/university-course-specializations", roles: ["admin","mentor"] },
       { name: "Approvals", href: "/universities-approvals", roles: ["admin","mentor"] },
       { name: "Fee Types", href: "/fee-types", roles: ["admin","mentor"] },
+      { name: "University Types", href: "/university-types", roles: ["admin", "mentor"] },
       { name: "Placement/Hiring Partners", href: "/placements", roles: ["admin","mentor"] },
       { name: "EMI/Financing Partners", href: "/emi-partners", roles: ["admin","mentor"] },
       { name: "FAQs", href: "/university-faqs", roles: ["admin", "mentor"] },
@@ -65,7 +66,8 @@ const navItemsData = [
   },
   { name: "Leads", href: "/leads", roles: ["lead"] },
   { name: "Website Leads", href: "/website-leads", roles: ["lead"] },
-  { name: "Contact Us", href: "/contact-us", roles: ["lead"] }
+  { name: "Contact Us", href: "/contact-us", roles: ["lead"] },
+  { name: "Create User", href: "/create-user", roles: ["admin"] }
 ];
 
 export default navItemsData;

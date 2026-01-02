@@ -8,6 +8,7 @@ import AddMediaSpotlightForm from "@/components/medaiSpotlight/AddMediaSpotlight
 import MediaSpotlightTable from "@/components/medaiSpotlight/MediaSpotlightTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 export default function MediaSpotlightPage() {
   const [showForm, setShowForm] = useState(false);
@@ -75,9 +76,11 @@ export default function MediaSpotlightPage() {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-bold">Media Spotlight</h3>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-1 h-4 w-4" /> Add Spotlight
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={handleAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Add Spotlight
+          </Button>
+        </PermissionGuard>
       </div>
 
       {isLoading ? (

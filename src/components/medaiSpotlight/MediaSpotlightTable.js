@@ -3,8 +3,12 @@
 import { Button } from "../ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
+import PermissionGuard from "../common/PermissionGuard";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function MediaSpotlightTable({ items, onEdit, onDelete }) {
+  const { canRead } = usePermissions();
+
   const columns = [
     {
       key: "sr_no",
@@ -20,11 +24,14 @@ export default function MediaSpotlightTable({ items, onEdit, onDelete }) {
       width: "50%",
       style: { width: "50%" },
       cellClassName: "border px-2 py-1 align-middle",
-      render: (row) => (
-        <Button variant="link" onClick={() => onEdit(row)}>
-          {row.title}
-        </Button>
-      ),
+      render: (row) =>
+        canRead ? (
+          <Button variant="link" onClick={() => onEdit(row)}>
+            {row.title}
+          </Button>
+        ) : (
+          <span className="text-gray-700">{row.title}</span>
+        ),
     },
     {
       key: "logo",
@@ -71,28 +78,32 @@ export default function MediaSpotlightTable({ items, onEdit, onDelete }) {
   const actions = [
     {
       key: (props) => (
-        <Button
-          size="sm"
-          variant="ghost"
-          type="button"
-          className="h-8 w-8 p-0"
-          onClick={() => onEdit(props.row)}
-        >
-          <Pencil className="h-4 w-4" />
-        </Button>
+        <PermissionGuard permission="update">
+          <Button
+            size="sm"
+            variant="ghost"
+            type="button"
+            className="h-8 w-8 p-0"
+            onClick={() => onEdit(props.row)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
     {
       key: (props) => (
-        <Button
-          size="sm"
-          variant="ghost"
-          type="button"
-          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-          onClick={() => onDelete(props.row.id)}
-        >
-          <Trash className="h-4 w-4" />
-        </Button>
+        <PermissionGuard permission="delete">
+          <Button
+            size="sm"
+            variant="ghost"
+            type="button"
+            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+            onClick={() => onDelete(props.row.id)}
+          >
+            <Trash className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
   ];

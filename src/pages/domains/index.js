@@ -9,6 +9,7 @@ import DomainTable from "@/components/menu/DomainTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 export default function DomainsPage() {
   const limit = 10;
@@ -96,9 +97,11 @@ export default function DomainsPage() {
             />
           </div>
         </div>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-1 h-4 w-4" /> Add Domain
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={handleAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Add Domain
+          </Button>
+        </PermissionGuard>
       </div>
 
       {isLoading ? (

@@ -1100,7 +1100,6 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
             <Label>Meta Description</Label>
             <textarea
               {...register("meta_description", { 
-                maxLength: { value: 160, message: "Meta description must be 160 characters or less" }
               })}
               placeholder="SEO Meta Des (max 160 character)"
               className="w-full border rounded px-3 py-2 h-17"

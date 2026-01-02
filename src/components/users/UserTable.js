@@ -6,8 +6,8 @@ import DataTable from "../table/DataTable";
 import PermissionGuard from "../common/PermissionGuard";
 import { usePermissions } from "@/hooks/usePermissions";
 
-export default function DomainTable({ items, onEdit, onDelete, page = 1, limit = 10 }) {
-  const { canRead } = usePermissions();
+export default function UserTable({ items, onEdit, onDelete, page = 1, limit = 10 }) {
+  const { canRead, canUpdate, canDelete } = usePermissions();
 
   const columns = [
     {
@@ -30,22 +30,34 @@ export default function DomainTable({ items, onEdit, onDelete, page = 1, limit =
           <span className="text-gray-700">{row.name}</span>
         ),
     },
-    { key: "description", label: "Description" },
-    { key: "priority", label: "Priority" },
+    { key: "email", label: "Email" },
+    { key: "role", label: "Role" },
     {
-      key: "is_active",
-      label: "Active",
-      render: (row) => (row.is_active ? "Yes" : "No"),
+      key: "permissions",
+      label: "Permissions",
+      render: (row) => {
+        if (row.role === "admin") {
+          return <span className="text-green-600 font-semibold">All Permissions</span>;
+        }
+        const perms = [];
+        if (row.can_create) perms.push("Create");
+        if (row.can_read) perms.push("Read");
+        if (row.can_update) perms.push("Update");
+        if (row.can_delete) perms.push("Delete");
+        return <span className="text-gray-600">{perms.length > 0 ? perms.join(", ") : "No Permissions"}</span>;
+      },
     },
     {
-      key: "menu_visibility",
-      label: "Menu Visibility",
-      render: (row) => (row.menu_visibility ? "Yes" : "No"),
+      key: "created_at",
+      label: "Created At",
+      render: (row) =>
+        row.created_at ? new Date(row.created_at).toLocaleDateString() : "-",
     },
     {
       key: "updated_at",
       label: "Updated At",
-      render: (row) => new Date(row.updated_at).toLocaleDateString(),
+      render: (row) =>
+        row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",
     },
   ];
 
@@ -72,3 +84,4 @@ export default function DomainTable({ items, onEdit, onDelete, page = 1, limit =
 
   return <DataTable columns={columns} data={items} actions={actions} />;
 }
+

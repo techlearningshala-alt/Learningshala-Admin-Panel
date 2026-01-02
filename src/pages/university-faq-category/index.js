@@ -13,6 +13,7 @@ import AddUniversityFaqCategoryForm from "@/components/university-faq/AddUnivers
 import UniversityFaqCategoryTable from "@/components/university-faq/UniversityFaqCategoryTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 export default function UniversityFaqCategoriesPage() {
   const [showForm, setShowForm] = useState(false);
@@ -107,9 +108,11 @@ export default function UniversityFaqCategoriesPage() {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">University FAQ Categories</h1>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-1 h-4 w-4" /> Add Category
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={handleAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Add Category
+          </Button>
+        </PermissionGuard>
       </div>
 
       {isLoading ? (

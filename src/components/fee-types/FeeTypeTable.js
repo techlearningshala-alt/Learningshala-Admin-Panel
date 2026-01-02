@@ -1,6 +1,7 @@
 import DataTable from "@/components/table/DataTable";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 const columns = [
   {
@@ -30,28 +31,32 @@ export default function FeeTypeTable({ data = [], isLoading, onEdit, onDelete })
   const actions = [
     {
       key: ({ row }) => (
-        <Button
-          size="sm"
-          variant="ghost"
-          type="button"
-          className="h-8 w-8 p-0"
-          onClick={() => onEdit?.(row)}
-        >
-          <Pencil className="h-4 w-4" />
-        </Button>
+        <PermissionGuard permission="update">
+          <Button
+            size="sm"
+            variant="ghost"
+            type="button"
+            className="h-8 w-8 p-0"
+            onClick={() => onEdit?.(row)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
     {
       key: ({ row }) => (
-        <Button
-          size="sm"
-          variant="ghost"
-          type="button"
-          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-          onClick={() => onDelete?.(row)}
-        >
-          <Trash className="h-4 w-4" />
-        </Button>
+        <PermissionGuard permission="delete">
+          <Button
+            size="sm"
+            variant="ghost"
+            type="button"
+            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+            onClick={() => onDelete?.(row)}
+          >
+            <Trash className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
   ];

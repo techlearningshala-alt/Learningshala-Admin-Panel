@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
+import PermissionGuard from "../common/PermissionGuard";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function SpecializationImageTable({
   items,
@@ -12,6 +14,7 @@ export default function SpecializationImageTable({
   limit = 10,
   isFiltered = false,
 }) {
+  const { canRead } = usePermissions();
   const buildAssetUrl = (value) => {
     if (!value) return null;
     if (String(value).startsWith("http")) return value;
@@ -33,6 +36,14 @@ export default function SpecializationImageTable({
     {
       key: "name",
       label: "Name",
+      render: (row) =>
+        canRead ? (
+          <Button variant="link" onClick={() => onEdit(row)}>
+            {row.name}
+          </Button>
+        ) : (
+          <span className="text-gray-700">{row.name}</span>
+        ),
     },
     {
       key: "image",
@@ -58,20 +69,24 @@ export default function SpecializationImageTable({
       label: "Actions",
       render: (row) => (
         <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onEdit(row)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={() => onDelete(row.id)}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
+          <PermissionGuard permission="update">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onEdit(row)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          </PermissionGuard>
+          <PermissionGuard permission="delete">
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => onDelete(row.id)}
+            >
+              <Trash className="h-4 w-4" />
+            </Button>
+          </PermissionGuard>
         </div>
       ),
     },

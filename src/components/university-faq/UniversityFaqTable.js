@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import DataTable from "@/components/table/DataTable";
 import { Pencil, Trash } from "lucide-react";
 import dynamic from "next/dynamic";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 // Dynamically import CKEditor to avoid SSR issues
 const CKEditor = dynamic(() => import("@/components/CKEditor"), {
@@ -79,12 +80,16 @@ export default function UniversityFaqTable({ data, onEdit, onDelete }) {
       label: "Actions",
       render: (item) => (
         <div className="flex gap-1">
-          <Button size="sm" variant="outline" onClick={() => onEdit(item)}>
-            <Pencil className="h-2 w-2" />
-          </Button>
-          <Button size="sm" variant="destructive" onClick={() => onDelete(item.id)}>
-            <Trash className="h-2 w-2" />
-          </Button>
+          <PermissionGuard permission="update">
+            <Button size="sm" variant="outline" onClick={() => onEdit(item)}>
+              <Pencil className="h-2 w-2" />
+            </Button>
+          </PermissionGuard>
+          <PermissionGuard permission="delete">
+            <Button size="sm" variant="destructive" onClick={() => onDelete(item.id)}>
+              <Trash className="h-2 w-2" />
+            </Button>
+          </PermissionGuard>
         </div>
       ),
     },

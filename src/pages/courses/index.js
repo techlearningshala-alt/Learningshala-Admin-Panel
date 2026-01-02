@@ -14,6 +14,8 @@ import AddCourseForm from "@/components/courses/AddCourseForm";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import CourseTable from "@/components/courses/CourseTable";
 import { Input } from "@/components/ui/input";
+import PermissionGuard from "@/components/common/PermissionGuard";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function CoursesPage() {
   const limit = 10;
@@ -131,9 +133,11 @@ export default function CoursesPage() {
             />
           </div>
         </div>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-1 h-4 w-4" /> Add Course
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={handleAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Add Course
+          </Button>
+        </PermissionGuard>
       </div>
 
       {isLoading ? (

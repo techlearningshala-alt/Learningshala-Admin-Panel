@@ -43,13 +43,12 @@ export default function RecentActivity({ data, isLoading, userRole }) {
   }
 
 
-  const isAdmin = userRole === "admin";
   const isLead = userRole === "lead";
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Recent Leads - Only for admin and lead */}
-      {(isAdmin || isLead) && (
+      {/* Recent Leads - Only for lead role */}
+      {isLead && (
         <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -98,8 +97,8 @@ export default function RecentActivity({ data, isLoading, userRole }) {
       </Card>
       )}
 
-      {/* Recent Contact Messages - Only for admin and lead */}
-      {(isAdmin || isLead) && (
+      {/* Recent Contact Messages - Only for lead role */}
+      {isLead && (
         <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -143,8 +142,8 @@ export default function RecentActivity({ data, isLoading, userRole }) {
       </Card>
       )}
 
-      {/* Recent Website Leads - Only for admin and lead */}
-      {(isAdmin || isLead) && data?.recentWebsiteLeads?.length > 0 && (
+      {/* Recent Website Leads - Only for lead role */}
+      {isLead && data?.recentWebsiteLeads?.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">

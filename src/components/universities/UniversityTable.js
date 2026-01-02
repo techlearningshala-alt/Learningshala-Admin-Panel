@@ -3,47 +3,81 @@
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
+import PermissionGuard from "../common/PermissionGuard";
+import { usePermissions } from "@/hooks/usePermissions";
 
-export default function UniversityTable({ items, onEdit, onDelete, onToggleStatus }) {
+export default function UniversityTable({ items, onEdit, onDelete, onToggleStatus, onTogglePageCreated }) {
+  const { canRead, canUpdate } = usePermissions();
+
   const columns = [
-    {
-      key: "index",
-      label: "ID",
-      style: { width: "60px" },
-      render: (_, index) => index + 1,
-      cellClassName: "border px-2 py-1 align-middle text-center",
-    },
+    // {
+    //   key: "index",
+    //   label: "ID",
+    //   style: { width: "60px" },
+    //   render: (_, index) => index + 1,
+    //   cellClassName: "border px-2 py-1 align-middle text-center",
+    // },
     {
       key: "university_name",
       label: "University Name",
-      render: (row) => (
-        <Button variant="link" onClick={() => onEdit(row)}>
-          {row.university_name}
-        </Button>
-      ),
+      render: (row) =>
+        canRead ? (
+          <Button variant="link" onClick={() => onEdit(row)}>
+            {row.university_name}
+          </Button>
+        ) : (
+          <span className="text-gray-700">{row.university_name}</span>
+        ),
     },
     {
       key: "university_slug",
       label: "University Slug",
-      render: (row) => (
-        <Button variant="link" onClick={() => onEdit(row)}>
-          {row.university_slug}
-        </Button>
-      ),
+      render: (row) =>
+        canRead ? (
+          <Button variant="link" onClick={() => onEdit(row)}>
+            {row.university_slug}
+          </Button>
+        ) : (
+          <span className="text-gray-700">{row.university_slug}</span>
+        ),
     },
     {
       key: "is_active",
-      label: "Status",
-      render: (row) => (
-        <Button
-          size="sm"
-          variant={row.is_active ? "default" : "outline"}
-          className={row.is_active ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
-          onClick={() => onToggleStatus(row.id, !row.is_active)}
-        >
-          {row.is_active ? "Active" : "Inactive"}
-        </Button>
-      ),
+      label: "Active / Inactive",
+      render: (row) =>
+        canUpdate ? (
+          <Button
+            size="sm"
+            variant={row.is_active ? "default" : "outline"}
+            className={row.is_active ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
+            onClick={() => onToggleStatus(row.id, !row.is_active)}
+          >
+            {row.is_active ? "Active" : "Inactive"}
+          </Button>
+        ) : (
+          <span className={row.is_active ? "text-green-600" : "text-gray-500"}>
+            {row.is_active ? "Active" : "Inactive"}
+          </span>
+        ),
+    },
+    {
+      key: "menu_visibility",
+      label: "Visibility",
+      render: (row) =>
+        canUpdate ? (
+          <Button
+            size="sm"
+            variant={row.menu_visibility ? "default" : "outline"}
+            className={row.menu_visibility ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
+            onClick={() => onTogglePageCreated?.(row.id, !row.menu_visibility)}
+          >
+            {row.menu_visibility ? "Visible" : "Hidden"}
+          </Button>
+        ) : (
+          <span className={row.menu_visibility ? "text-green-600" : "text-gray-500"}>
+            {row.menu_visibility ? "Visible" : "Hidden"}
+          </span>
+        ),
     },
     {
       key: "university_logo",
@@ -63,20 +97,24 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
   const actions = [
     {
       key: (props) => (
-        <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
-          <Pencil className="mr-1 h-4 w-4" /> 
-        </Button>
+        <PermissionGuard permission="update">
+          <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
     {
       key: (props) => (
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={() => onDelete(props.row.id)}
-        >
-          <Trash className="mr-1 h-4 w-4" />
-        </Button>
+        <PermissionGuard permission="delete">
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={() => onDelete(props.row.id)}
+          >
+            <Trash className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
   ];

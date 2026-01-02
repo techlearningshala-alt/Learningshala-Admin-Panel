@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 const PAGE_SIZE = 25;
 
@@ -156,10 +157,12 @@ export default function UniversityCourseSpecializationsPage() {
           <h3 className="text-xl font-bold">University Course Specializations</h3>
           <p className="text-sm text-muted-foreground mt-1">Total: {total}</p>
         </div>
-        <Button onClick={() => openForm()}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Specialization
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={() => openForm()}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Specialization
+          </Button>
+        </PermissionGuard>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

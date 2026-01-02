@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import PermissionGuard from "@/components/common/PermissionGuard";
 import AddUniversityCourseFaqForm from "@/components/university-course-faq/AddUniversityCourseFaqForm";
 import UniversityCourseFaqTable from "@/components/university-course-faq/UniversityCourseFaqTable";
 import {
@@ -143,9 +144,11 @@ export default function UniversityCourseFaqPage() {
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">University Course FAQs</h1>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-1 h-4 w-4" /> Add FAQ
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={handleAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Add FAQ
+          </Button>
+        </PermissionGuard>
       </div>
 
       {/* Filters */}

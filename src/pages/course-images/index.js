@@ -9,6 +9,7 @@ import CourseImageTable from "@/components/course-images/CourseImageTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 export default function CourseImagesPage() {
   const [showForm, setShowForm] = useState(false);
@@ -97,9 +98,11 @@ export default function CourseImagesPage() {
             )}
           </p>
         </div>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-1 h-4 w-4" /> Add Course Image
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={handleAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Add Course Image
+          </Button>
+        </PermissionGuard>
       </div>
 
       {/* Search Input */}

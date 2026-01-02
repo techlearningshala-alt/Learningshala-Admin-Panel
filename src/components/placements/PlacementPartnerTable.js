@@ -3,8 +3,12 @@
 import { Button } from "../ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
+import PermissionGuard from "../common/PermissionGuard";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function PlacementPartnerTable({ partners, onEdit, onDelete }) {
+  const { canRead } = usePermissions();
+
   const columns = [
     {
       key: "sr_no",
@@ -17,11 +21,14 @@ export default function PlacementPartnerTable({ partners, onEdit, onDelete }) {
     {
       key: "name",
       label: "Partner Name",
-      render: (row) => (
-        <Button variant="link" onClick={() => onEdit(row)}>
-          {row.name || "N/A"}
-        </Button>
-      ),
+      render: (row) =>
+        canRead ? (
+          <Button variant="link" onClick={() => onEdit(row)}>
+            {row.name || "N/A"}
+          </Button>
+        ) : (
+          <span className="text-gray-700">{row.name || "N/A"}</span>
+        ),
     },
     {
       key: "logo",
@@ -47,16 +54,20 @@ export default function PlacementPartnerTable({ partners, onEdit, onDelete }) {
   const actions = [
     {
       key: (props) => (
-        <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
-          <Pencil />
-        </Button>
+        <PermissionGuard permission="update">
+          <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
     {
       key: (props) => (
-        <Button size="sm" variant="destructive" onClick={() => onDelete(props.row.id)}>
-          <Trash /> 
-        </Button>
+        <PermissionGuard permission="delete">
+          <Button size="sm" variant="destructive" onClick={() => onDelete(props.row.id)}>
+            <Trash className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
   ];

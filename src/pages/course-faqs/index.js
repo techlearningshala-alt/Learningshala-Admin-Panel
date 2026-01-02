@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
+import PermissionGuard from "@/components/common/PermissionGuard";
 import AddCourseFaqCategoryForm from "@/components/course-faq/AddCourseFaqCategoryForm";
 import CourseFaqCategoryTable from "@/components/course-faq/CourseFaqCategoryTable";
 import {
@@ -115,9 +116,11 @@ export default function CourseFaqPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
         <h3 className="text-xl font-bold">Course FAQ Categories</h3>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleAddCategory}>
-            <Plus className="mr-1 h-4 w-4" /> Add Category
-          </Button>
+          <PermissionGuard permission="create">
+            <Button variant="outline" onClick={handleAddCategory}>
+              <Plus className="mr-1 h-4 w-4" /> Add Category
+            </Button>
+          </PermissionGuard>
         </div>
       </div>
       {/* Category Table */}

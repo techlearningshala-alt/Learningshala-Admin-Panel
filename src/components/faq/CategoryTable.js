@@ -3,6 +3,7 @@
 import { Button } from "../ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
+import PermissionGuard from "../common/PermissionGuard";
 
 export default function FaqCategoryTable({ categories, onEdit, onDelete }) {
   const columns = [
@@ -19,24 +20,28 @@ export default function FaqCategoryTable({ categories, onEdit, onDelete }) {
   const actions = [
     {
       key: (props) => (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => onEdit(props.row)}
-        >
-          <Pencil/>
-        </Button>
+        <PermissionGuard permission="update">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onEdit(props.row)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
     {
       key: (props) => (
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={() => onDelete(props.row.id)}
-        >
-          <Trash />
-        </Button>
+        <PermissionGuard permission="delete">
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={() => onDelete(props.row.id)}
+          >
+            <Trash className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
   ];

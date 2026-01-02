@@ -13,6 +13,7 @@ import AddFaqCategoryForm from "@/components/faq/AddFaqCategoryForm";
 import FaqCategoryTable from "@/components/faq/CategoryTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 export default function FaqCategoriesPage() {
   const [showForm, setShowForm] = useState(false);
@@ -107,9 +108,11 @@ export default function FaqCategoriesPage() {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-bold">FAQ Categories</h3>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-1 h-4 w-4" /> Add Category
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={handleAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Add Category
+          </Button>
+        </PermissionGuard>
       </div>
 
       {isLoading ? (

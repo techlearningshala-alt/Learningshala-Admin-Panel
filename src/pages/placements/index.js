@@ -9,6 +9,7 @@ import PlacementPartnerTable from "@/components/placements/PlacementPartnerTable
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 export default function PlacementsPage() {
   const [showForm, setShowForm] = useState(false);
@@ -76,9 +77,11 @@ export default function PlacementsPage() {
     <div className="p-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
         <h3 className="text-xl font-bold">Placement/Hiring Partners</h3>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-1 h-4 w-4" /> Add Partner
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={handleAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Add Partner
+          </Button>
+        </PermissionGuard>
       </div>
 
       <div className="mb-4 max-w-sm">

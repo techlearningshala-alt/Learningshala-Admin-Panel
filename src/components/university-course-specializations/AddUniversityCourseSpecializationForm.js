@@ -1234,9 +1234,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         <div className="space-y-2">
             <Label>Meta Description</Label>
             <textarea
-              {...register("meta_description", { 
-                maxLength: { value: 160, message: "Meta description must be 160 characters or less" }
-              })}
+              {...register("meta_description")}
               placeholder="SEO Meta Des (max 160 character)"
               className="w-full border rounded px-3 py-2 h-17"
             />

@@ -48,6 +48,12 @@ export const toggleUniversityStatus = async (id, isActive) => {
   return res.data;
 };
 
+// ✅ Toggle university page visibility
+export const toggleUniversityPageCreated = async (id, isPageCreated) => {
+  const res = await api.patch(`/universities/${id}/toggle-page-created`, { is_page_created: isPageCreated });
+  return res.data;
+};
+
 // ✅ Search universities (Elasticsearch)
 export const searchUniversitiesApi = async (query, { page = 1, limit = 10 } = {}) => {
   const res = await api.get(`/universities/search`, { params: { q: query, page, limit } });

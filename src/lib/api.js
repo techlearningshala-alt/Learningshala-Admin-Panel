@@ -47,6 +47,38 @@ export const updateMentor = (id, formData) =>
     headers: { "Content-Type": "multipart/form-data" },
   });
 
+// Create user (admin only)
+export const createUser = async (data) => {
+  const res = await api.post("/admin/users", data);
+  return res.data;
+};
+
+// Get all users (admin only) - filter by role if provided
+export const fetchUsers = async ({ page = 1, limit = 10, role } = {}) => {
+  const params = { page, limit };
+  if (role) params.role = role;
+  const res = await api.get("/admin/users", { params });
+  return res.data;
+};
+
+// Get user by ID
+export const getUser = async (id) => {
+  const res = await api.get(`/admin/users/${id}`);
+  return res.data;
+};
+
+// Update user (admin only)
+export const updateUser = async (id, data) => {
+  const res = await api.put(`/admin/users/${id}`, data);
+  return res.data;
+};
+
+// Delete user (admin only)
+export const deleteUser = async (id) => {
+  const res = await api.delete(`/admin/users/${id}`);
+  return res.data;
+};
+
 // Delete a mentor
 export const deleteMentor = (id) => api.delete(`/mentors/${id}`);
 
@@ -239,6 +271,30 @@ export async function updateUniversityFaqCategory(id, payload) {
 
 export async function deleteUniversityFaqCategory(id) {
   const res = await api.delete(`/universities/faqs/${id}`);
+  return res.data;
+}
+
+// ===== University Types APIs =====
+
+export async function fetchUniversityTypes({ page = 1, limit = 10 } = {}) {
+  const res = await api.get(`/universities/types`, {
+    params: { page, limit },
+  });
+  return res.data; // { success, data: { data, page, pages, total } }
+}
+
+export async function addUniversityType(payload) {
+  const res = await api.post(`/universities/types`, payload);
+  return res.data;
+}
+
+export async function updateUniversityType(id, payload) {
+  const res = await api.put(`/universities/types/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteUniversityType(id) {
+  const res = await api.delete(`/universities/types/${id}`);
   return res.data;
 }
 

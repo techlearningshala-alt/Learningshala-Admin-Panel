@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchUniversities, deleteUniversity, toggleUniversityStatus, fetchApprovals, fetchAllPlacementPartners, fetchAllEmiPartners } from "@/lib/universityApi";
+import { fetchUniversities, deleteUniversity, toggleUniversityStatus, toggleUniversityPageCreated, fetchApprovals, fetchAllPlacementPartners, fetchAllEmiPartners } from "@/lib/universityApi";
+import { fetchUniversityTypes } from "@/lib/api";
 
 import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
@@ -10,6 +11,7 @@ import UniversityTable from "@/components/universities/UniversityTable";
 import AddUniversityForm from "@/components/universities/AddUniversityForm";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import { Input } from "@/components/ui/input";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 export default function UniversitiesPage() {
   const [selectedUniversity, setSelectedUniversity] = useState(null);
@@ -45,6 +47,12 @@ export default function UniversitiesPage() {
   });
   const emiPartners = emiPartnersData?.data?.data || [];
 
+  const { data: universityTypesData } = useQuery({
+    queryKey: ["university-types-all"],
+    queryFn: () => fetchUniversityTypes({ page: 1, limit: 1000 }),
+  });
+  const universityTypes = universityTypesData?.data?.data || [];
+
   const deleteMutation = useMutation({
     mutationFn: deleteUniversity,
     onSuccess: () => {
@@ -61,6 +69,15 @@ export default function UniversitiesPage() {
       queryClient.invalidateQueries(["universities"]);
     },
     onError: (err) => notifyError(err.response?.data?.message || "Status update failed"),
+  });
+
+  const togglePageCreatedMutation = useMutation({
+    mutationFn: ({ id, isPageCreated }) => toggleUniversityPageCreated(id, isPageCreated),
+    onSuccess: () => {
+      notifySuccess("University page visibility updated successfully");
+      queryClient.invalidateQueries(["universities"]);
+    },
+    onError: (err) => notifyError(err.response?.data?.message || "Page visibility update failed"),
   });
 
   const handleAdd = () => {
@@ -81,6 +98,10 @@ export default function UniversitiesPage() {
 
   const handleToggleStatus = (id, isActive) => {
     toggleStatusMutation.mutate({ id, isActive });
+  };
+
+  const handleTogglePageCreated = (id, isPageCreated) => {
+    togglePageCreatedMutation.mutate({ id, isPageCreated });
   };
 
   const handleFormClose = () => {
@@ -119,6 +140,7 @@ export default function UniversitiesPage() {
         approvals={approvals}
         placementPartners={placementPartners}
         emiPartners={emiPartners}
+        universityTypes={universityTypes}
         onCancel={handleFormClose}
         onSuccess={handleFormSuccess}
       />
@@ -163,9 +185,11 @@ export default function UniversitiesPage() {
             </div>
           </div>
         </div>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-1 h-4 w-4" /> Add University
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={handleAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Add University
+          </Button>
+        </PermissionGuard>
       </div>
 
       {isLoading ? (
@@ -176,6 +200,7 @@ export default function UniversitiesPage() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onToggleStatus={handleToggleStatus}
+          onTogglePageCreated={handleTogglePageCreated}
         />
       )}
 

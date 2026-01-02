@@ -680,27 +680,17 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
               <Input
                 className="w-full"
                 placeholder="SEO Meta Title (max 60 character)"
-                {...register("meta_title", { 
-                  maxLength: { value: 60, message: "Meta title must be 60 characters or less" }
-                })}
+                {...register("meta_title")}
               />
-              {errors.meta_title && (
-                <p className="text-xs text-red-500">{errors.meta_title.message}</p>
-              )}
             </div>
 
             <div className="space-y-2 col-span-1 md:col-span-2">
               <Label>Meta Description</Label>
               <textarea
                 placeholder="SEO Meta Des (max 160 character)"
-                {...register("meta_description", { 
-                  maxLength: { value: 160, message: "Meta description must be 160 characters or less" }
-                })}
+                {...register("meta_description")}
                 className="w-full border rounded px-3 py-2 h-17"
               />
-              {errors.meta_description && (
-                <p className="text-xs text-red-500">{errors.meta_description.message}</p>
-              )}
             </div>
 
             <div className="space-y-2">

@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
+import PermissionGuard from "../common/PermissionGuard";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const HtmlContent = ({ content }) => {
   if (!content || content === null || content === undefined) {
@@ -52,17 +54,22 @@ const HtmlContent = ({ content }) => {
 };
 
 export default function UniversityApprovalTable({ items, onEdit, onDelete }) {
+  const { canRead } = usePermissions();
+
   const columns = [
     
     { key: "id", label: "ID",cellClassName: "w-10 text-center" },
     {
       key: "title",
       label: "Title",
-      render: (row) => (
-        <Button variant="link" onClick={() => onEdit(row)}>
-          {row.title}
-        </Button> 
-      ),
+      render: (row) =>
+        canRead ? (
+          <Button variant="link" onClick={() => onEdit(row)}>
+            {row.title}
+          </Button>
+        ) : (
+          <span className="text-gray-700">{row.title}</span>
+        ),
     },
     { key: "description", label: "Description",render: (row) => <HtmlContent content={row.description} /> },
     {
@@ -82,16 +89,20 @@ export default function UniversityApprovalTable({ items, onEdit, onDelete }) {
   const actions = [
     {
       key: (props) => (
-        <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
-          <Pencil className="h-4 w-4" /> 
-        </Button>
+        <PermissionGuard permission="update">
+          <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
     {
       key: (props) => (
-        <Button size="sm" variant="destructive" onClick={() => onDelete(props.row.id)}>
-          <Trash className=" h-4 w-4" /> 
-        </Button>
+        <PermissionGuard permission="delete">
+          <Button size="sm" variant="destructive" onClick={() => onDelete(props.row.id)}>
+            <Trash className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
   ];

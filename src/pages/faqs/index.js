@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import FaqTable from "@/components/faq/FaqTable";
+import PermissionGuard from "@/components/common/PermissionGuard";
 import AddFaqForm from "@/components/faq/AddFaqForm";
 import {
   fetchFaqs,
@@ -115,9 +116,11 @@ export default function FaqPage() {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-bold">FAQs</h3>
-        <Button onClick={handleAdd}>
-          <Plus className="mr-1 h-4 w-4" /> Add FAQ
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={handleAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Add FAQ
+          </Button>
+        </PermissionGuard>
       </div>
 
       {isLoading ? (

@@ -31,6 +31,7 @@ export default function App({ Component, pageProps }) {
     "/emi-partners",
     "/university-faqs",
     "/university-faq-category",
+    "/university-types",
     "/university-courses",
     "/university-course-faqs",
     "/university-course-specializations",
@@ -40,6 +41,7 @@ export default function App({ Component, pageProps }) {
     "/course-images",
     "/specialization-images",
     "/contact-us",
+    "/create-user",
   ];
 
   const useCMSLayout = cmsPages.some((path) => router.pathname.startsWith(path));

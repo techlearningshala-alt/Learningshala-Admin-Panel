@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import DataTable from "@/components/table/DataTable";
 import { Pencil, Trash } from "lucide-react";
+import PermissionGuard from "@/components/common/PermissionGuard";
+import { usePermissions } from "@/hooks/usePermissions";
 
 function formatCurrency(value) {
   if (value === undefined || value === null || value === "") {
@@ -77,11 +79,21 @@ export default function UniversityCourseSpecializationTable({
   onToggleStatus,
   onTogglePageCreated,
 }) {
+  const { canRead, canUpdate } = usePermissions();
+
   const columns = [
     {
       key: "name",
       label: "Specialization Name",
       style: { width: "18%" },
+      render: (row) =>
+        canRead ? (
+          <Button variant="link" onClick={() => onEdit(row)}>
+            {row.name}
+          </Button>
+        ) : (
+          <span className="text-gray-700">{row.name}</span>
+        ),
     },
     {
       key: "course_name",
@@ -141,58 +153,72 @@ export default function UniversityCourseSpecializationTable({
     key: "is_active",
     label: "Active / Deactivate",
     style: { width: "10%" },
-    render: (row) => (
-      <Button
-        size="sm"
-        variant={row.is_active ? "default" : "outline"}
-        className={row.is_active ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
-        onClick={() => onToggleStatus?.(row.id, !row.is_active)}
-      >
-        {row.is_active ? "Active" : "Inactive"}
-      </Button>
-    ),
+    render: (row) =>
+      canUpdate ? (
+        <Button
+          size="sm"
+          variant={row.is_active ? "default" : "outline"}
+          className={row.is_active ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
+          onClick={() => onToggleStatus?.(row.id, !row.is_active)}
+        >
+          {row.is_active ? "Active" : "Inactive"}
+        </Button>
+      ) : (
+        <span className={row.is_active ? "text-green-600" : "text-gray-500"}>
+          {row.is_active ? "Active" : "Inactive"}
+        </span>
+      ),
   },
   {
     key: "is_page_created",
     label: "Page Created",
     style: { width: "10%" },
-    render: (row) => (
-      <Button
-        size="sm"
-        variant={row.is_page_created ? "default" : "outline"}
-        className={row.is_page_created ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
-        onClick={() => onTogglePageCreated?.(row.id, !row.is_page_created)}
-      >
-        {row.is_page_created ? "Yes" : "No"}
-      </Button>
-    ),
+    render: (row) =>
+      canUpdate ? (
+        <Button
+          size="sm"
+          variant={row.is_page_created ? "default" : "outline"}
+          className={row.is_page_created ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
+          onClick={() => onTogglePageCreated?.(row.id, !row.is_page_created)}
+        >
+          {row.is_page_created ? "Yes" : "No"}
+        </Button>
+      ) : (
+        <span className={row.is_page_created ? "text-green-600" : "text-gray-500"}>
+          {row.is_page_created ? "Yes" : "No"}
+        </span>
+      ),
   },
   ];
   const actions = [
     {
       key: ({ row }) => (
-        <Button
-          size="sm"
-          variant="ghost"
-          type="button"
-          className="h-8 w-8 p-0"
-          onClick={() => onEdit(row)}
-        >
-          <Pencil className="h-4 w-4" />
-        </Button>
+        <PermissionGuard permission="update">
+          <Button
+            size="sm"
+            variant="ghost"
+            type="button"
+            className="h-8 w-8 p-0"
+            onClick={() => onEdit(row)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
     {
       key: ({ row }) => (
-        <Button
-          size="sm"
-          variant="ghost"
-          type="button"
-          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-          onClick={() => onDelete(row)}
-        >
-          <Trash className="h-4 w-4" />
-        </Button>
+        <PermissionGuard permission="delete">
+          <Button
+            size="sm"
+            variant="ghost"
+            type="button"
+            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+            onClick={() => onDelete(row)}
+          >
+            <Trash className="h-4 w-4" />
+          </Button>
+        </PermissionGuard>
       ),
     },
   ];

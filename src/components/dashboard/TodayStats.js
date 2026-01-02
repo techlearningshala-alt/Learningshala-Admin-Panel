@@ -21,10 +21,9 @@ export default function TodayStats({ todayStats, weekStats, statistics, isLoadin
     );
   }
 
-  const isAdmin = userRole === "admin";
   const isLead = userRole === "lead";
   
-  const stats = (isAdmin || isLead) ? [
+  const stats = isLead ? [
     {
       title: "Landing page",
       today: todayStats?.leadsToday || 0,
@@ -57,8 +56,8 @@ export default function TodayStats({ todayStats, weekStats, statistics, isLoadin
     },
   ] : [];
   
-  // If no stats to show (non-admin and non-lead), return null or empty message
-  if (!isAdmin && !isLead) {
+  // If no stats to show (not lead role), return null
+  if (!isLead) {
     return null;
   }
 

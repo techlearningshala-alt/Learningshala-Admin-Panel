@@ -147,7 +147,7 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
   );
 }
 
-export default function AddUniversityForm({ item, onCancel, onSuccess, approvals = [], placementPartners = [], emiPartners = [] }) {
+export default function AddUniversityForm({ item, onCancel, onSuccess, approvals = [], placementPartners = [], emiPartners = [], universityTypes = [] }) {
   const queryClient = useQueryClient();
 
   // Scroll to top when form component mounts
@@ -326,6 +326,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
+      university_type_id: null,
       university_name: "",
       university_slug: "",
       meta_title: "",
@@ -390,6 +391,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     if (!item) {
       // 🧹 Reset everything when adding new
       reset({
+        university_type_id: null,
         university_name: "",
         university_slug: "",
         meta_title: "",
@@ -422,19 +424,15 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     }
 
     // Parse placement_partner_ids - use fetched objects if available, otherwise parse JSON
-    console.log("🔍 item.placement_partners:", item.placement_partners);
-    console.log("🔍 item.placement_partner_ids:", item.placement_partner_ids);
     let selectedPlacementPartners = [];
     if (item.placement_partners && Array.isArray(item.placement_partners)) {
       // Use pre-fetched partner objects from backend
       selectedPlacementPartners = item.placement_partners;
-      console.log("✅ Using pre-fetched placement partners:", selectedPlacementPartners);
     } else {
       // Fallback: parse IDs and filter from available partners
       try {
         const ids = JSON.parse(item.placement_partner_ids || "[]");
         selectedPlacementPartners = placementPartners.filter((p) => ids.includes(p.id));
-        console.log("⚠️ Fallback: filtered placement partners:", selectedPlacementPartners);
       } catch (err) {
         selectedPlacementPartners = [];
         console.error("Error parsing placement_partner_ids:", err);
@@ -442,19 +440,15 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     }
 
     // Parse emi_partner_ids - use fetched objects if available, otherwise parse JSON
-    console.log("🔍 item.emi_partners:", item.emi_partners);
-    console.log("🔍 item.emi_partner_ids:", item.emi_partner_ids);
     let selectedEmiPartners = [];
     if (item.emi_partners && Array.isArray(item.emi_partners)) {
       // Use pre-fetched partner objects from backend
       selectedEmiPartners = item.emi_partners;
-      console.log("✅ Using pre-fetched EMI partners:", selectedEmiPartners);
     } else {
       // Fallback: parse IDs and filter from available partners
       try {
         const ids = JSON.parse(item.emi_partner_ids || "[]");
         selectedEmiPartners = emiPartners.filter((p) => ids.includes(p.id));
-        console.log("⚠️ Fallback: filtered EMI partners:", selectedEmiPartners);
       } catch (err) {
         selectedEmiPartners = [];
         console.error("Error parsing emi_partner_ids:", err);
@@ -487,22 +481,23 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     });
 
     const formValues = {
+      university_type_id: item.university_type_id ? Number(item.university_type_id) : null,
       university_name: item.university_name || "",
       university_slug: item.university_slug || "",
-      meta_title: item.meta_title || "",
-      meta_description: item.meta_description || "",
+      meta_title: item.meta_title ?? "",
+      meta_description: item.meta_description ?? "",
       university_logo: null,
       university_location: item.university_location || "",
       university_brochure: null,
       author_name: item.author_name || "",
       banners: Array.isArray(item.banners) && item.banners.length
         ? item.banners.map(b => ({
-          banner_image: null,
-          video_id: b.video_id || "",
-          video_title: b.video_title || "",
-          existing_banner_image: b.banner_image || "",
-          remove_image: false,
-        }))
+            banner_image: null,
+            video_id: b.video_id || "",
+            video_title: b.video_title || "",
+            existing_banner_image: b.banner_image || "",
+            remove_image: false,
+          }))
         : [{ banner_image: null, video_id: "", video_title: "", existing_banner_image: "", remove_image: false }],
       sections: mergedSections,
       approval_ids: selectedApprovals.map((a) => a.id), // <- extract IDs only
@@ -565,7 +560,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       setSectionPreviews(newPreviews);
     }
 
-  }, [item, reset]);
+  }, [item, reset, setValue]);
 
   const persistStagedFaqs = async (newUniversityId) => {
     if (!stagedFaqs.length || !newUniversityId) return;
@@ -634,6 +629,9 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
   const onSubmit = (data, saveWithDate = true) => {
     const formData = new FormData();
+    if (data.university_type_id) {
+      formData.append("university_type_id", data.university_type_id.toString());
+    }
     formData.append("university_name", data.university_name);
     formData.append("university_slug", data.university_slug);
     formData.append("meta_title", data.meta_title || "");
@@ -761,6 +759,30 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       </div>
 
       <form className="space-y-4 max-w-4xl mx-auto">
+        {/* University Type Dropdown - At the top */}
+        <div className="space-y-2">
+          <Label>University Type</Label>
+          <Controller
+            name="university_type_id"
+            control={control}
+            render={({ field }) => (
+              <select
+                {...field}
+                value={field.value ? String(field.value) : ""}
+                onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="">Select University Type</option>
+                {universityTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          />
+        </div>
+
         {/* University Info & Logo */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
@@ -776,28 +798,18 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
           <div className="space-y-2 col-span-1 md:col-span-2">
             <Label>Meta Title</Label>
             <Input
-              {...register("meta_title", { 
-                maxLength: { value: 60, message: "Meta title must be 60 characters or less" }
-              })}
+              {...register("meta_title")}
               placeholder="SEO Meta Title (max 60 character)"
             />
-            {errors.meta_title && (
-              <p className="text-sm text-red-500">{errors.meta_title.message}</p>
-            )}
           </div>
 
           <div className="space-y-2 col-span-1 md:col-span-2">
             <Label>Meta Description</Label>
             <textarea
-              {...register("meta_description", { 
-                maxLength: { value: 160, message: "Meta description must be 160 characters or less" }
-              })}
+              {...register("meta_description")}
               placeholder="SEO Meta Des (max 160 character)"
               className="w-full border rounded px-3 py-2 h-17"
             />
-            {errors.meta_description && (
-              <p className="text-sm text-red-500">{errors.meta_description.message}</p>
-            )}
           </div>
           <div className="space-y-2">
             <Label>Location</Label>

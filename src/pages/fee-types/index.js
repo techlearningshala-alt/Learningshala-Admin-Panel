@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import FeeTypeTable from "@/components/fee-types/FeeTypeTable";
 import AddFeeTypeForm from "@/components/fee-types/AddFeeTypeForm";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 export default function FeeTypesPage() {
   const queryClient = useQueryClient();
@@ -75,10 +76,12 @@ export default function FeeTypesPage() {
     <div className="p-4 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h3 className="text-xl font-bold">Fee Types</h3>
-        <Button onClick={() => openForm()}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Fee Type
-        </Button>
+        <PermissionGuard permission="create">
+          <Button onClick={() => openForm()}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Fee Type
+          </Button>
+        </PermissionGuard>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -56,8 +56,8 @@ export default function DashboardPage() {
         {/* Dashboard Content */}
         {!isLoading && !error && data && (
           <>
-            {/* Today's Statistics - Only for admin and lead */}
-            {(user?.role === "admin" || user?.role === "lead") && (
+            {/* Today's Statistics - Only for lead role */}
+            {user?.role === "lead" && (
               <TodayStats
                 todayStats={data.todayStats}
                 weekStats={data.weekStats}
