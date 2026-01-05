@@ -21,7 +21,7 @@ import { addUniversityFaq } from "@/lib/api";
 import { processSectionFiles } from "@/utils/fileProcessing";
 
 // Banner Section Component (separate component to avoid hooks in IIFE)
-function BannerSection({ control, register, previewBanners, setPreviewBanners, setValue, watch }) {
+function BannerSection({ control, register, previewBanners, setPreviewBanners, setValue, watch, clearErrors }) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: "banners",
@@ -94,6 +94,9 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
                       });
                       setValue(`banners.${index}.remove_image`, false, { shouldDirty: true });
                       setValue(`banners.${index}.existing_banner_image`, banner?.existing_banner_image || "", { shouldDirty: true });
+                      if (clearErrors) {
+                        clearErrors("banners");
+                      }
                       console.log(`🧪 [BANNERS] New file selected`, { index, name: file.name });
                     }
                   }}
@@ -321,6 +324,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     handleSubmit,
     reset,
     setValue,
+    setError,
+    clearErrors,
     control,
     watch,
     formState: { errors, isSubmitting },
@@ -628,6 +633,44 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
   });
 
   const onSubmit = (data, saveWithDate = true) => {
+    let hasError = false;
+
+    // Validate university logo when adding new
+    if (!item) {
+      const hasLogo = (data.university_logo && data.university_logo[0]) || previewLogo;
+      if (!hasLogo) {
+        setError("university_logo", {
+          type: "manual",
+          message: "University logo is required",
+        });
+        hasError = true;
+      } else {
+        clearErrors("university_logo");
+      }
+    }
+
+    // Validate at least one banner when adding new
+    if (!item) {
+      const hasBannerImage = data.banners.some((banner, index) => {
+        const hasNewImage = banner.banner_image instanceof FileList && banner.banner_image[0];
+        const hasPreview = previewBanners[index] && previewBanners[index].includes("blob:");
+        return hasNewImage || hasPreview;
+      });
+      if (!hasBannerImage) {
+        setError("banners", {
+          type: "manual",
+          message: "At least one banner image is required",
+        });
+        hasError = true;
+      } else {
+        clearErrors("banners");
+      }
+    }
+
+    if (hasError) {
+      return;
+    }
+
     const formData = new FormData();
     if (data.university_type_id) {
       formData.append("university_type_id", data.university_type_id.toString());
@@ -916,9 +959,13 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 const file = e.target.files?.[0];
                 if (file) {
                   setPreviewLogo(URL.createObjectURL(file));
+                  clearErrors("university_logo");
                 }
               }}
             />
+            {errors.university_logo && errors.university_logo.message && (
+              <p className="text-red-500 text-sm">{errors.university_logo.message}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label>Brochure</Label>
@@ -941,7 +988,11 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             setPreviewBanners={setPreviewBanners}
             setValue={setValue}
             watch={watch}
+            clearErrors={clearErrors}
           />
+          {errors.banners && errors.banners.message && (
+            <p className="text-red-500 text-sm mt-2">{errors.banners.message}</p>
+          )}
         </div>
 
 

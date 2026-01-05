@@ -332,6 +332,8 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
     handleSubmit,
     reset,
     setValue,
+    setError,
+    clearErrors,
     getValues,
     watch,
     formState: { isSubmitting, errors },
@@ -891,6 +893,20 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
   });
 
   const submitSpecialization = (data) => {
+    // Validate specialization thumbnail when adding new
+    if (!isEdit) {
+      const hasThumbnail = data.course_thumbnail && data.course_thumbnail.trim() !== "";
+      if (!hasThumbnail) {
+        setError("course_thumbnail", {
+          type: "manual",
+          message: "Specialization thumbnail is required",
+        });
+        return;
+      } else {
+        clearErrors("course_thumbnail");
+      }
+    }
+
     const formData = new FormData();
 
     Object.entries(data).forEach(([key, value]) => {
@@ -1203,7 +1219,10 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
             </div>
             <div className="space-y-2">
               <Label>Specialization Slug</Label>
-              <Input {...register("slug")} placeholder="Enter specialization slug" />
+              <Input {...register("slug", { required: "Slug is required" })} placeholder="Enter specialization slug" />
+              {errors.slug && (
+                <p className="text-xs text-red-500">{errors.slug.message}</p>
+              )}
             </div>
           </div>
 
@@ -1402,6 +1421,9 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                           onChange={(e) => {
                             field.onChange(e.value);
                             handleThumbnailChange(e.value);
+                            if (e.value && clearErrors) {
+                              clearErrors("course_thumbnail");
+                            }
                           }}
                           options={specializationImages}
                           optionLabel="name"
@@ -1455,6 +1477,9 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                           const value = typeof e.value === 'string' ? e.value : (e.value?.image || null);
                           field.onChange(value);
                           handleThumbnailChange(value);
+                          if (value && clearErrors) {
+                            clearErrors("course_thumbnail");
+                          }
                         }}
                         options={specializationImages}
                         optionLabel="name"
@@ -1530,6 +1555,9 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                       />
                       {isLoadingSpecializationImages && (
                         <p className="text-sm text-muted-foreground">Loading specialization images...</p>
+                      )}
+                      {errors.course_thumbnail && errors.course_thumbnail.message && (
+                        <p className="text-red-500 text-sm">{errors.course_thumbnail.message}</p>
                       )}
                     </div>
                   );

@@ -320,6 +320,8 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     handleSubmit,
     reset,
     setValue,
+    setError,
+    clearErrors,
     getValues,
     watch,
     formState: { isSubmitting, errors },
@@ -810,6 +812,20 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
   });
 
   const submitCourse = (data) => {
+    // Validate course thumbnail when adding new
+    if (!isEdit) {
+      const hasThumbnail = data.course_thumbnail && data.course_thumbnail.trim() !== "";
+      if (!hasThumbnail) {
+        setError("course_thumbnail", {
+          type: "manual",
+          message: "Course thumbnail is required",
+        });
+        return;
+      } else {
+        clearErrors("course_thumbnail");
+      }
+    }
+
     const formData = new FormData();
 
     Object.entries(data).forEach(([key, value]) => {
@@ -1068,7 +1084,10 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
             </div>
             <div className="space-y-2">
               <Label>Course Slug</Label>
-              <Input {...register("slug")} placeholder="Enter course slug" />
+              <Input {...register("slug", { required: "Course slug is required" })} placeholder="Enter course slug" />
+              {errors.slug && (
+                <p className="text-xs text-red-500">{errors.slug.message}</p>
+              )}
             </div>
           </div>
 
@@ -1123,7 +1142,10 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Course Duration (Years/Months)</Label>
-              <Input {...register("duration")} placeholder="e.g. 2 Years" />
+              <Input {...register("duration", { required: "Course duration is required" })} placeholder="e.g. 2 Years" />
+              {errors.duration && (
+                <p className="text-xs text-red-500">{errors.duration.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>EMI Duration (In Months)</Label>
@@ -1167,6 +1189,9 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                           onChange={(e) => {
                             field.onChange(e.value);
                             handleThumbnailChange(e.value);
+                            if (e.value && clearErrors) {
+                              clearErrors("course_thumbnail");
+                            }
                           }}
                           options={courseImages}
                           optionLabel="name"
@@ -1220,6 +1245,9 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                           const value = typeof e.value === 'string' ? e.value : (e.value?.image || null);
                           field.onChange(value);
                           handleThumbnailChange(value);
+                          if (value && clearErrors) {
+                            clearErrors("course_thumbnail");
+                          }
                         }}
                         options={courseImages}
                         optionLabel="name"
@@ -1295,6 +1323,9 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                       />
                       {isLoadingCourseImages && (
                         <p className="text-sm text-muted-foreground">Loading course images...</p>
+                      )}
+                      {errors.course_thumbnail && errors.course_thumbnail.message && (
+                        <p className="text-red-500 text-sm">{errors.course_thumbnail.message}</p>
                       )}
                     </div>
                   );
