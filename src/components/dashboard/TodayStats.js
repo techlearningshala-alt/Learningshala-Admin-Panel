@@ -74,7 +74,7 @@ export default function TodayStats({ todayStats, weekStats, statistics, isLoadin
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-3xl font-bold">{stat.today}</p>
+                <p className="text-3xl font-bold">Today: {stat.today}</p>
                 <p className="text-sm text-gray-500 mt-1">
                   Yesterday: {stat.yesterday} • This week: {stat.week}
                 </p>
