@@ -31,7 +31,11 @@ export default function UserTable({ items, onEdit, onDelete, page = 1, limit = 1
         ),
     },
     { key: "email", label: "Email" },
-    { key: "role", label: "Role" },
+    {
+      key: "role",
+      label: "Role",
+      render: (row) => row.role === "mentor" ? "User" : row.role,
+    },
     {
       key: "permissions",
       label: "Permissions",

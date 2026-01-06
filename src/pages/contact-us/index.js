@@ -131,7 +131,7 @@ function ContactUsPageContent() {
       </div>
       <h3 className="text-xl font-semibold text-blue-900">Contact Messages</h3>
       <div className="rounded-md border bg-white">
-        <ContactUsTable data={contacts} isLoading={isLoading} onDelete={handleDelete} />
+        <ContactUsTable data={contacts} isLoading={isLoading} />
       </div>
 
       {totalPages > 1 && (

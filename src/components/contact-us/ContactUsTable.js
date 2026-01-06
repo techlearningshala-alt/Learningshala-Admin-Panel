@@ -2,8 +2,6 @@
 
 import DataTable from "@/components/table/DataTable";
 import { maskEmail, maskPhone } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
 
 const defaultCellClass =
   "border px-2 py-1 align-middle whitespace-nowrap text-sm text-muted-foreground";
@@ -73,30 +71,11 @@ const columns = [
   },
 ];
 
-export default function ContactUsTable({ data = [], isLoading, onDelete }) {
+export default function ContactUsTable({ data = [], isLoading }) {
   if (isLoading) {
     return <p>Loading contact messages...</p>;
   }
 
-  const actions = onDelete
-    ? [
-        {
-          key: (props) => (
-            <Button
-              size="sm"
-              variant="ghost"
-              type="button"
-              onClick={() => onDelete(props.row.id)}
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-              title="Delete"
-            >
-              <Trash className="h-4 w-4" />
-            </Button>
-          ),
-        },
-      ]
-    : [];
-
-  return <DataTable columns={columns} data={data} actions={actions} />;
+  return <DataTable columns={columns} data={data} actions={[]} />;
 }
 

@@ -170,9 +170,9 @@ export default function CreateUserForm({ item, onCancel, onSuccess }) {
               className="w-full border rounded px-3 py-2"
               {...register("role", { required: "Role is required" })}
             >
-              <option value="mentor">Mentor</option>
+              <option value="mentor">User</option>
               <option value="admin">Admin</option>
-              <option value="lead">Lead</option>
+              {/* <option value="lead">Lead</option> */}
             </select>
             {errors.role && (
               <p className="text-sm text-red-500">{errors.role.message}</p>
@@ -183,7 +183,7 @@ export default function CreateUserForm({ item, onCancel, onSuccess }) {
             <div className="space-y-4 border-t pt-4 mt-4">
               <Label className="text-base font-semibold">CRUD Permissions</Label>
               <p className="text-sm text-gray-600">
-                Select which permissions this mentor should have:
+                Select which permissions this user should have:
               </p>
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
