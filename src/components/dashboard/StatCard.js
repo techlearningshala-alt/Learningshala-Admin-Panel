@@ -18,7 +18,7 @@ export default function StatCard({ title, value, icon: Icon, color = "blue" }) {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-gray-600">{title}</p>
-            <p className="text-3xl font-bold mt-2">{value?.toLocaleString() || 0}</p>
+            <p className="!text-xl !font-bold mt-2">{value?.toLocaleString() || 0}</p>
           </div>
           {Icon && (
             <div className={`${colorClasses[color]} p-3 rounded-lg`}>

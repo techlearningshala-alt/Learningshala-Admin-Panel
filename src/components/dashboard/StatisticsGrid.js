@@ -99,15 +99,15 @@ export default function StatisticsGrid({ statistics, isLoading, userRole }) {
   // Second div: Other data
   const otherStats = [
     {
-      title: "Placement Partners",
-      value: statistics.placementPartners || 0,
-      icon: Briefcase,
+      title: "Partner University",
+      value: statistics.partnerUniversities || 0,
+      icon: Building2,
       color: "green",
     },
     {
-      title: "EMI Partners",
-      value: statistics.emiPartners || 0,
-      icon: CreditCard,
+      title: "Non Partner University",
+      value: statistics.nonPartnerUniversities || 0,
+      icon: Building2,
       color: "purple",
     },
   ];
