@@ -85,20 +85,26 @@ export default function UniversityCourseTable({
   { 
     key: "name", 
     label: "Course Name", 
-    style: { width: "18%" },
+    style: { width: "140px", maxWidth: "140px", minWidth: "115px", wordBreak: "break-word", overflowWrap: "break-word" },
+    cellClassName: "border px-2 py-1",
+    contentClassName: "break-words whitespace-normal w-full",
     render: (row) =>
       canRead ? (
-        <Button variant="link" onClick={() => onEdit(row)}>
-          {row.name}
-        </Button>
+        <div className="w-full max-w-full break-words whitespace-normal overflow-wrap-anywhere">
+          <Button variant="link" onClick={() => onEdit(row)} className="text-left break-words whitespace-normal">
+            {row.name}
+          </Button>
+        </div>
       ) : (
-        <span className="text-gray-700">{row.name}</span>
+        <div className="w-full max-w-full break-words whitespace-normal overflow-wrap-anywhere">
+          <span className="text-gray-700 break-words whitespace-normal">{row.name}</span>
+        </div>
       ),
   },
   {
     key: "university_name",
     label: "University Name",
-    style: { width: "18%" },
+    style: { minWidth: "124px" },
   },
   {
     key: "duration",
@@ -109,13 +115,13 @@ export default function UniversityCourseTable({
   {
     key: "full_fee",
     label: "Full Fee",
-    style: { width: "10%" },
+    style: { minWidth: "80px" },
     render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "full_fees")),
   },
   {
     key: "sem_fee",
     label: "Sem Fee",
-    style: { width: "10%" },
+    style: { minWidth: "80px" },
     render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "Semester Fee")),
   },
   {
@@ -152,7 +158,7 @@ export default function UniversityCourseTable({
   {
     key: "updated_at",
     label: "Updated Date",
-    style: { width: "10%" },
+    style: { minWidth: "90px" },
     cellClassName: "border px-2 py-1 align-middle whitespace-nowrap",
     render: (row) =>
       row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",

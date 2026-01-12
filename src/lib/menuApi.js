@@ -146,10 +146,11 @@ export async function deleteCourseFaqCategory(id) {
 ///////////////////////    SPECIALIZATION APIS    ///////////////////////////
 
 // Fetch SPECIALIZATION with pagination
-export async function fetchSpecialization({ page = 1, limit = 10 }) {
-  const res = await api.get(`/specializations`, {
-    params: { page, limit },
-  });
+export async function fetchSpecialization({ page = 1, limit = 10, search, course_id }) {
+  const params = { page, limit };
+  if (search) params.search = search;
+  if (course_id) params.course_id = course_id;
+  const res = await api.get(`/specializations`, { params });
   return res.data;
 }
 

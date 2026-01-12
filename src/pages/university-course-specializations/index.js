@@ -6,7 +6,6 @@ import {
   fetchUniversityCourseSpecializations,
   deleteUniversityCourseSpecialization,
   fetchAllUniversities,
-  fetchUniversityCourses,
   toggleUniversityCourseSpecializationStatus,
   toggleUniversityCourseSpecializationPageCreated,
 } from "@/lib/universityApi";
@@ -35,8 +34,7 @@ export default function UniversityCourseSpecializationsPage() {
   const [editingSpecialization, setEditingSpecialization] = useState(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [selectedUniversity, setSelectedUniversity] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState(""); 
+  const [selectedUniversity, setSelectedUniversity] = useState(""); 
 
   const { data: universitiesResponse } = useQuery({
     queryKey: ["universities", "all"],
@@ -47,27 +45,11 @@ export default function UniversityCourseSpecializationsPage() {
     return normalizeApiList(universitiesResponse?.data ?? universitiesResponse);
   }, [universitiesResponse]);
 
-  const { data: coursesResponse } = useQuery({
-    queryKey: ["university-courses", "options", selectedUniversity],
-    queryFn: () =>
-      fetchUniversityCourses({
-        page: 1,
-        limit: 200,
-        university_id: selectedUniversity || undefined,
-      }),
-    enabled: Boolean(selectedUniversity),
-  });
-
-  const courses = useMemo(() => {
-    return normalizeApiList(coursesResponse?.data?.data ?? coursesResponse?.data ?? coursesResponse);
-  }, [coursesResponse]);
-
   const { data: specializationResponse, isLoading } = useQuery({
     queryKey: [
       "university-course-specializations",
       page,
       selectedUniversity,
-      selectedCourse,
       search,
     ],
     queryFn: () =>
@@ -75,7 +57,6 @@ export default function UniversityCourseSpecializationsPage() {
         page,
         limit: PAGE_SIZE,
         university_id: selectedUniversity || undefined,
-        university_course_id: selectedCourse || undefined,
         search: search || undefined,
       }),
     keepPreviousData: true,
@@ -165,7 +146,7 @@ export default function UniversityCourseSpecializationsPage() {
         </PermissionGuard>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="specialization-search">Search</Label>
           <Input
@@ -188,7 +169,6 @@ export default function UniversityCourseSpecializationsPage() {
               onChange={(e) => {
                 const value = e.target.value;
                 setSelectedUniversity(value);
-                setSelectedCourse("");
                 setPage(1);
               }}
             >
@@ -206,42 +186,6 @@ export default function UniversityCourseSpecializationsPage() {
                 size="sm"
                 onClick={() => {
                   setSelectedUniversity("");
-                  setSelectedCourse("");
-                  setPage(1);
-                }}
-              >
-                Clear
-              </Button>
-            )}
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="filter-course">Filter by Course</Label>
-          <div className="flex items-center gap-2">
-            <select
-              id="filter-course"
-              className="w-full border rounded p-2"
-              value={selectedCourse}
-              onChange={(e) => {
-                setSelectedCourse(e.target.value);
-                setPage(1);
-              }}
-              disabled={!selectedUniversity}
-            >
-              <option value="">All Courses</option>
-              {courses.map((courseOption) => (
-                <option key={courseOption.id} value={courseOption.id}>
-                  {courseOption.name}
-                </option>
-              ))}
-            </select>
-            {selectedCourse && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedCourse("");
                   setPage(1);
                 }}
               >

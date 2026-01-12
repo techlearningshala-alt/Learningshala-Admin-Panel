@@ -85,20 +85,22 @@ export default function UniversityCourseSpecializationTable({
     {
       key: "name",
       label: "Specialization Name",
-      style: { width: "18%" },
+      style: { minWidth: "150px", wordBreak: "break-word", overflowWrap: "break-word" },
+      cellClassName: "border px-2 py-1",
+      contentClassName: "break-words whitespace-normal w-full",
       render: (row) =>
         canRead ? (
-          <Button variant="link" onClick={() => onEdit(row)}>
+          <Button variant="link" onClick={() => onEdit(row)} className="text-left break-words whitespace-normal">
             {row.name}
           </Button>
         ) : (
-          <span className="text-gray-700">{row.name}</span>
+          <span className="text-gray-700 break-words whitespace-normal">{row.name}</span>
         ),
     },
     {
       key: "course_name",
       label: "Course Name",
-      style: { width: "18%" },
+      style: { width: "11%" },
     },
     {
       key: "university_name",
@@ -108,19 +110,19 @@ export default function UniversityCourseSpecializationTable({
     {
       key: "full_fee",
       label: "Full Fee",
-      style: { width: "10%" },
+      style: { minWidth: "85px" },
       render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "full_fees")),
     },
     {
       key: "sem_fee",
       label: "Sem Fee",
-      style: { width: "10%" },
+      style: { minWidth: "75px" },
       render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "Semester Fee")),
     },
     {
       key: "emi_monthly",
       label: "EMI (Monthly)",
-      style: { width: "10%" },
+      style: {minWidth: "45px" },
       render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "EMI Monthly")),
     },
     {
@@ -144,7 +146,7 @@ export default function UniversityCourseSpecializationTable({
     {
       key: "updated_at",
       label: "Updated Date",
-      style: { width: "8%" },
+      style: {minWidth: "90px" },
       cellClassName: "border px-2 py-1 align-middle whitespace-nowrap",
       render: (row) =>
         row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",

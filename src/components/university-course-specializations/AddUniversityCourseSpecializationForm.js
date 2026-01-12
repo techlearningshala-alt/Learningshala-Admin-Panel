@@ -1240,9 +1240,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         <div className="space-y-2">
           <Label>Meta Title</Label>
           <Input
-            {...register("meta_title", { 
-              maxLength: { value: 60, message: "Meta title must be 60 characters or less" }
-            })}
+            {...register("meta_title")}
             placeholder="SEO Meta Title (max 60 character)"
           />
           {errors.meta_title && (

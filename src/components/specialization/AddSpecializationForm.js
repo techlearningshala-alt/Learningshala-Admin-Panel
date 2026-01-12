@@ -130,6 +130,8 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
     reset,
     setValue,
     watch,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: defaultFormValues,
@@ -484,10 +486,29 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
       next[index] = { ...next[index], ...updates };
       return next;
     });
+    // Clear banner error if a file is being added
+    if (updates.file) {
+      clearErrors("banners");
+    }
   };
 
   const removeBanner = (index) => {
-    setBanners((prev) => prev.filter((_, idx) => idx !== index));
+    setBanners((prev) => {
+      const updated = prev.filter((_, idx) => idx !== index);
+      // Check if removal leaves no banners - if so, show error
+      const hasAnyBanner = updated.some((banner) => {
+        const hasNewImage = banner.file;
+        const hasExisting = banner.existingBanner && !banner.bannerRemoved;
+        return hasNewImage || hasExisting;
+      });
+      if (updated.length === 0 || !hasAnyBanner) {
+        setError("banners", {
+          type: "manual",
+          message: "At least one banner image is required",
+        });
+      }
+      return updated;
+    });
   };
 
   const addBanner = () => {
@@ -504,6 +525,35 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
   };
 
   const submitSpecialization = (values) => {
+    // Validate banner (at least one banner image required - applies to both add and edit)
+    const hasBannerImage = banners.some((banner) => {
+      const hasNewImage = banner.file;
+      const hasExisting = banner.existingBanner && !banner.bannerRemoved;
+      return hasNewImage || hasExisting;
+    });
+    if (!hasBannerImage) {
+      setError("banners", {
+        type: "manual",
+        message: "At least one banner image is required",
+      });
+      notifyError("At least one banner image is required");
+      return;
+    }
+    clearErrors("banners");
+
+    // Validate course overview (course_overview section description required)
+    const courseOverviewSection = sections.find((s) => s.section_key === "course_overview");
+    if (!courseOverviewSection || !courseOverviewSection.description || !courseOverviewSection.description.trim()) {
+      setError("course_overview", {
+        type: "manual",
+        message: "Course overview is required",
+      });
+      notifyError("Course overview is required");
+      return;
+    } else {
+      clearErrors("course_overview");
+    }
+
     const formData = new FormData();
     const appendIfPresent = (key, value) => {
       if (value === undefined || value === null) return;
@@ -732,7 +782,10 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
 
             <div className="space-y-2">
               <Label>Author Name</Label>
-              <Input placeholder="Editor / Subject matter expert" {...register("author_name")} />
+              <Input placeholder="Editor / Subject matter expert" {...register("author_name", { required: "Author name is required" })} />
+              {errors.author_name && (
+                <p className="text-xs text-red-500">{errors.author_name.message}</p>
+              )}
             </div>
 
             
@@ -771,12 +824,6 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
                         return "File size must be less than 20kb";
                       }
                     }
-                    if (hasFile || existingThumbnail || thumbnailRemoved) {
-                      return true;
-                    }
-                    if (!item) {
-                      return "Specialization icon is required";
-                    }
                     return true;
                   },
                 })}
@@ -792,6 +839,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
                     }
                     setPreviewThumbnail(URL.createObjectURL(file));
                     setThumbnailRemoved(false);
+                    clearErrors("thumbnail");
                   }
                 }}
               />
@@ -864,7 +912,10 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
 
         <section className="border rounded-lg p-4 space-y-4">
           <div>
-            <h4 className="text-lg font-semibold">Banner Information</h4>
+            <h4 className="text-lg font-semibold">Banner Information *</h4>
+            {errors.banners && (
+              <p className="text-xs text-red-500 mt-1">{errors.banners.message}</p>
+            )}
           </div>
 
           {banners.map((banner, index) => (
@@ -908,11 +959,14 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
                     accept="image/*"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      updateBanner(index, {
-                        file: file || null,
-                        previewBanner: file ? URL.createObjectURL(file) : null,
-                        bannerRemoved: false,
-                      });
+                      if (file) {
+                        updateBanner(index, {
+                          file: file,
+                          previewBanner: URL.createObjectURL(file),
+                          bannerRemoved: false,
+                        });
+                        clearErrors("banners");
+                      }
                     }}
                   />
                   {(banner.previewBanner || banner.existingBanner) && (
@@ -920,14 +974,33 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
                       type="button"
                       size="sm"
                       variant="outline"
-                      onClick={() =>
+                      onClick={() => {
+                        // Check if this is the only banner with an image (before removal)
+                        const bannersWithImages = banners.filter((b, idx) => {
+                          if (idx === index) return false; // Exclude the one being removed
+                          const hasNewImage = b.file;
+                          const hasExisting = b.existingBanner && !b.bannerRemoved;
+                          return hasNewImage || hasExisting;
+                        });
+                        
+                        // Check if current banner has an image
+                        const currentBannerHasImage = banner.file || (banner.existingBanner && !banner.bannerRemoved);
+                        
                         updateBanner(index, {
                           file: null,
                           previewBanner: null,
                           existingBanner: null,
                           bannerRemoved: true,
-                        })
-                      }
+                        });
+                        
+                        // If this banner had an image and no other banners have images, show error
+                        if (currentBannerHasImage && bannersWithImages.length === 0) {
+                          setError("banners", {
+                            type: "manual",
+                            message: "At least one banner image is required",
+                          });
+                        }
+                      }}
                     >
                       <Trash className="h-4 w-4 mr-1" />
                       Remove Image
@@ -965,13 +1038,24 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
 
         <section className="border rounded-lg p-4 space-y-4">
           <div>
-            <h3 className="text-lg font-semibold">Specialization Intro</h3>
+            <h3 className="text-lg font-semibold">Specialization Intro *</h3>
           </div>
           <Controller
             name="specialization_intro"
             control={control}
+            rules={{ required: "Specialization intro is required" }}
             render={({ field }) => (
-              <SafeCKEditor value={field.value || ""} onChange={field.onChange} />
+              <div>
+                <SafeCKEditor value={field.value || ""} onChange={(value) => {
+                  field.onChange(value);
+                  if (value && value.trim()) {
+                    clearErrors("specialization_intro");
+                  }
+                }} />
+                {errors.specialization_intro && (
+                  <p className="text-xs text-red-500 mt-2">{errors.specialization_intro.message}</p>
+                )}
+              </div>
             )}
           />
         </section>
@@ -983,12 +1067,20 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
               className="rounded-lg border p-4 space-y-4 bg-muted/30"
             >
               <div className="flex flex-col gap-1">
-                <h3 className="font-semibold">{section.title}</h3>
+                <h3 className="font-semibold">{section.title}{section.section_key === "course_overview" && " *"}</h3>
               </div>
               <SafeCKEditor
                 value={section.description}
-                onChange={(value) => handleSectionDescriptionChange(index, value)}
+                onChange={(value) => {
+                  handleSectionDescriptionChange(index, value);
+                  if (section.section_key === "course_overview" && value && value.trim()) {
+                    clearErrors("course_overview");
+                  }
+                }}
               />
+              {section.section_key === "course_overview" && errors.course_overview && (
+                <p className="text-xs text-red-500 mt-2">{errors.course_overview.message}</p>
+              )}
 
               {section.section_key === "top_recruiters" && (
                 <div className="space-y-2">

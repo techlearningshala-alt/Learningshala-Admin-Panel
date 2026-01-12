@@ -133,6 +133,8 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
     reset,
     setValue,
     watch,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: defaultFormValues,
@@ -555,6 +557,38 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
   };
 
   const submitCourse = (values) => {
+    // Validate banner (at least one banner image required when adding new)
+    if (!item) {
+      const hasBannerImage = banners.some((banner) => {
+        const hasNewImage = banner.file;
+        const hasExisting = banner.existingBanner && !banner.bannerRemoved;
+        return hasNewImage || hasExisting;
+      });
+      if (!hasBannerImage) {
+        setError("banners", {
+          type: "manual",
+          message: "At least one banner image is required",
+        });
+        notifyError("At least one banner image is required");
+        return;
+      } else {
+        clearErrors("banners");
+      }
+    }
+
+    // Validate course overview (course_overview section description required)
+    const courseOverviewSection = sections.find((s) => s.section_key === "course_overview");
+    if (!courseOverviewSection || !courseOverviewSection.description || !courseOverviewSection.description.trim()) {
+      setError("course_overview", {
+        type: "manual",
+        message: "Course overview is required",
+      });
+      notifyError("Course overview is required");
+      return;
+    } else {
+      clearErrors("course_overview");
+    }
+
     const formData = new FormData();
     const appendIfPresent = (key, value) => {
       if (value === undefined || value === null) return;
@@ -784,7 +818,10 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
 
             <div className="space-y-2">
               <Label>Author Name</Label>
-              <Input placeholder="Editor / Subject matter expert" {...register("author_name")} />
+              <Input placeholder="Editor / Subject matter expert" {...register("author_name", { required: "Author name is required" })} />
+              {errors.author_name && (
+                <p className="text-xs text-red-500">{errors.author_name.message}</p>
+              )}
             </div>
 
             
@@ -844,6 +881,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
                     }
                     setPreviewThumbnail(URL.createObjectURL(file));
                     setThumbnailRemoved(false);
+                    clearErrors("thumbnail");
                   }
                 }}
               />
@@ -916,7 +954,10 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
 
         <section className="border rounded-lg p-4 space-y-4">
           <div>
-            <h4 className="text-lg font-semibold">Banner Information</h4>
+            <h4 className="text-lg font-semibold">Banner Information *</h4>
+            {errors.banners && (
+              <p className="text-xs text-red-500 mt-1">{errors.banners.message}</p>
+            )}
           </div>
 
           {banners.map((banner, index) => (
@@ -965,6 +1006,9 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
                         previewBanner: file ? URL.createObjectURL(file) : null,
                         bannerRemoved: false,
                       });
+                      if (file) {
+                        clearErrors("banners");
+                      }
                     }}
                   />
                   {(banner.previewBanner || banner.existingBanner) && (
@@ -1017,13 +1061,24 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
 
         <section className="border rounded-lg p-4 space-y-4">
           <div>
-            <h3 className="text-lg font-semibold">Course Intro</h3>
+            <h3 className="text-lg font-semibold">Course Intro *</h3>
           </div>
           <Controller
             name="course_intro"
             control={control}
+            rules={{ required: "Course intro is required" }}
             render={({ field }) => (
-              <SafeCKEditor value={field.value || ""} onChange={field.onChange} />
+              <div>
+                <SafeCKEditor value={field.value || ""} onChange={(value) => {
+                  field.onChange(value);
+                  if (value && value.trim()) {
+                    clearErrors("course_intro");
+                  }
+                }} />
+                {errors.course_intro && (
+                  <p className="text-xs text-red-500 mt-2">{errors.course_intro.message}</p>
+                )}
+              </div>
             )}
           />
         </section>
@@ -1035,12 +1090,20 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
               className="rounded-lg border p-4 space-y-4 bg-muted/30"
             >
               <div className="flex flex-col gap-1">
-                <h3 className="font-semibold">{section.title}</h3>
+                <h3 className="font-semibold">{section.title}{section.section_key === "course_overview" && " *"}</h3>
               </div>
               <SafeCKEditor
                 value={section.description}
-                onChange={(value) => handleSectionDescriptionChange(index, value)}
+                onChange={(value) => {
+                  handleSectionDescriptionChange(index, value);
+                  if (section.section_key === "course_overview" && value && value.trim()) {
+                    clearErrors("course_overview");
+                  }
+                }}
               />
+              {section.section_key === "course_overview" && errors.course_overview && (
+                <p className="text-xs text-red-500 mt-2">{errors.course_overview.message}</p>
+              )}
 
               {section.supportsImage && (
                 <div className="space-y-2">
