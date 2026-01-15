@@ -43,6 +43,13 @@ const columns = [
     render: (row) => row.course || "-",
   },
   {
+    key: "university",
+    label: "University",
+    style: { minWidth: "140px" },
+    cellClassName: defaultCellClass,
+    render: (row) => row.university || "-",
+  },
+  {
     key: "specialisation",
     label: "Specialisation",
     style:  { minWidth: "110px" },
