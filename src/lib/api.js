@@ -304,6 +304,69 @@ export async function fetchAllUniversities() {
   return res.data;
 }
 
+// ===== Blog Categories APIs =====
+
+export async function fetchBlogCategories({ page = 1, limit = 10 } = {}) {
+  const res = await api.get(`/blog-categories`, {
+    params: { page, limit },
+  });
+  return res.data; // { success, data: { data, page, pages, total } }
+}
+
+export async function addBlogCategory(payload) {
+  const res = await api.post(`/blog-categories`, payload);
+  return res.data;
+}
+
+export async function updateBlogCategory(id, payload) {
+  const res = await api.put(`/blog-categories/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteBlogCategory(id) {
+  const res = await api.delete(`/blog-categories/${id}`);
+  return res.data;
+}
+
+// ===== Blogs APIs =====
+
+export async function fetchBlogs({ page = 1, limit = 10, search, category_id } = {}) {
+  const params = { page, limit };
+  if (search) params.search = search;
+  if (category_id) params.category_id = category_id;
+  const res = await api.get(`/blogs`, { params });
+  return res.data; // { success, data: { data, page, pages, total } }
+}
+
+export async function fetchBlogById(id) {
+  const res = await api.get(`/blogs/${id}`);
+  return res.data;
+}
+
+export async function addBlog(formData) {
+  const res = await api.post(`/blogs`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+}
+
+export async function updateBlog(id, formData) {
+  const res = await api.put(`/blogs/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+}
+
+export async function deleteBlog(id) {
+  const res = await api.delete(`/blogs/${id}`);
+  return res.data;
+}
+
+export async function toggleBlogVerified(id, verified) {
+  const res = await api.patch(`/blogs/${id}/toggle-verified`, { verified });
+  return res.data;
+}
+
 // ===== Contact Us APIs =====
 
 // Fetch contact us messages (paginated)

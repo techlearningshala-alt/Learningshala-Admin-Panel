@@ -4,21 +4,46 @@ import { Button } from "../ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
 import PermissionGuard from "../common/PermissionGuard";
+import { usePermissions } from "@/hooks/usePermissions";
 
-export default function UniversityFaqCategoryTable({ categories, onEdit, onDelete }) {
+export default function BlogCategoryTable({ items, onEdit, onDelete }) {
+  const { canRead } = usePermissions();
+
   const columns = [
     {
-      key: "heading",
-      label: "Heading",
-      style: { width: "100%" },
-      cellClassName: "border px-3 py-2 font-medium",
-      headerClassName: "border px-3 py-2 text-left",
-    },
-    {
-      key: "priority",
-      label: "Priority",
+      key: "title",
+      label: "Title",
+      style: { width: "40%" },
       cellClassName: "border px-3 py-2",
       headerClassName: "border px-3 py-2 text-left",
+      render: (row) =>
+        canRead ? (
+          <Button variant="link" onClick={() => onEdit(row)} className="p-0 h-auto font-normal">
+            {row.title}
+          </Button>
+        ) : (
+          <span className="text-gray-700">{row.title}</span>
+        ),
+    },
+    {
+      key: "category_slug",
+      label: "Category Slug",
+      style: { width: "30%" },
+      cellClassName: "border px-3 py-2",
+      headerClassName: "border px-3 py-2 text-left",
+      render: (row) => <span className="text-gray-700">{row.category_slug}</span>,
+    },
+    {
+      key: "created_at",
+      label: "Created Date",
+      render: (row) =>
+        row.created_at ? new Date(row.created_at).toLocaleDateString() : "-",
+    },
+    {
+      key: "updated_at",
+      label: "Updated Date",
+      render: (row) =>
+        row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",
     },
   ];
 
@@ -55,6 +80,5 @@ export default function UniversityFaqCategoryTable({ categories, onEdit, onDelet
     },
   ];
 
-  return <DataTable columns={columns} data={categories} actions={actions} />;
+  return <DataTable columns={columns} data={items} actions={actions} />;
 }
-

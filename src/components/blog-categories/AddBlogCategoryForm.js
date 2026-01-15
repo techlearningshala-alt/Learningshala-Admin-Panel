@@ -7,22 +7,38 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 
-export default function AddUniversityFaqCategoryForm({ item, onCancel, onSuccess }) {
+export default function AddBlogCategoryForm({ item, onCancel, onSuccess }) {
   const {
     register,
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({ defaultValues: item || {} });
+
+  const title = watch("title");
+
+  // Auto-generate slug from title when title changes (only if not editing or slug is empty)
+  useEffect(() => {
+    if (title && !item) {
+      const slug = title
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-");
+      setValue("category_slug", slug);
+    }
+  }, [title, item, setValue]);
 
   // Reset form when item changes
   useEffect(() => {
     if (item) {
-      setValue("heading", item.heading);
-      setValue("priority", item.priority ?? 999);
+      setValue("title", item.title);
+      setValue("category_slug", item.category_slug);
     } else {
-      reset({ priority: 999 });
+      reset();
     }
   }, [item, reset, setValue]);
 
@@ -38,33 +54,32 @@ export default function AddUniversityFaqCategoryForm({ item, onCancel, onSuccess
           Back to List
         </Button>
         <h3 className="text-xl font-bold">
-          {item ? "Edit University FAQ Category" : "Add New University FAQ Category"}
+          {item ? "Edit Blog Category" : "Add New Blog Category"}
         </h3>
       </div>
 
       <form className="space-y-4 max-w-2xl mx-auto">
-        {/* Heading */}
+        {/* Title */}
         <div className="space-y-2">
-          <Label>Heading</Label>
+          <Label>Title <span className="text-red-500">*</span></Label>
           <Input
-            {...register("heading", { required: "Heading is required" })}
-            placeholder="Enter category heading"
+            {...register("title", { required: "Title is required" })}
+            placeholder="Enter category title"
           />
-          {errors.heading && (
-            <p className="text-red-500 text-sm">{errors.heading.message}</p>
+          {errors.title && (
+            <p className="text-red-500 text-sm">{errors.title.message}</p>
           )}
         </div>
 
-        {/* Priority */}
+        {/* Category Slug */}
         <div className="space-y-2">
-          <Label>Priority</Label>
+          <Label>Category Slug</Label>
           <Input
-            type="number"
-            {...register("priority", { required: "Priority is required", valueAsNumber: true })}
-            placeholder="Enter priority (lower number = higher priority)"
+            {...register("category_slug")}
+            placeholder="Auto-generated from title (or enter custom slug)"
           />
-          {errors.priority && (
-            <p className="text-red-500 text-sm">{errors.priority.message}</p>
+          {errors.category_slug && (
+            <p className="text-red-500 text-sm">{errors.category_slug.message}</p>
           )}
         </div>
 
@@ -110,4 +125,3 @@ export default function AddUniversityFaqCategoryForm({ item, onCancel, onSuccess
     </div>
   );
 }
-

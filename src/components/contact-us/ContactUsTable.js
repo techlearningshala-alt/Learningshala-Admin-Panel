@@ -18,13 +18,13 @@ const columns = [
   {
     key: "name",
     label: "Name",
-    style: { minWidth: "200px" },
+    style: { minWidth: "140px" },
     cellClassName: "border px-2 py-1 align-middle font-medium",
   },
   {
     key: "email",
     label: "Email",
-    style: { minWidth: "220px" },
+    style: { minWidth: "150px" },
     cellClassName: defaultCellClass,
     render: (row) => maskEmail(row.email),
   },
@@ -56,7 +56,7 @@ const columns = [
   {
     key: "created_at",
     label: "Created Date",
-    style: { minWidth: "220px" },
+    style: { minWidth: "150px" },
     cellClassName: defaultCellClass,
     render: (row) => {
       if (!row.created_at) return "-";

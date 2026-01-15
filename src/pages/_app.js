@@ -40,6 +40,8 @@ export default function App({ Component, pageProps }) {
     "/website-leads",
     "/course-images",
     "/specialization-images",
+    "/blogs",
+    "/blog-categories",
     "/contact-us",
     "/create-user",
   ];
