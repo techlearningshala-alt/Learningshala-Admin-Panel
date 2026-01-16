@@ -10,6 +10,10 @@ export default function FaqCategoryTable({ categories, onEdit, onDelete }) {
     { key: "id", label: "ID" },
     { key: "heading", label: "Heading" },
     {
+      key: "priority",
+      label: "Priority",
+    },
+    {
       key: "updated_at",
       label: "Updated Date",
       render: (row) =>

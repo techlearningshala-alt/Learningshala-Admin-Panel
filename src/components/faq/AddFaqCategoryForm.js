@@ -20,8 +20,9 @@ export default function AddFaqCategoryForm({ item, onCancel, onSuccess }) {
   useEffect(() => {
     if (item) {
       setValue("heading", item.heading);
+      setValue("priority", item.priority ?? 999);
     } else {
-      reset();
+      reset({ priority: 999 });
     }
   }, [item, reset, setValue]);
 
@@ -51,6 +52,19 @@ export default function AddFaqCategoryForm({ item, onCancel, onSuccess }) {
           />
           {errors.heading && (
             <p className="text-red-500 text-sm">{errors.heading.message}</p>
+          )}
+        </div>
+
+        {/* Priority */}
+        <div className="space-y-2">
+          <Label>Priority</Label>
+          <Input
+            type="number"
+            {...register("priority", { required: "Priority is required", valueAsNumber: true })}
+            placeholder="Enter priority (lower number = higher priority)"
+          />
+          {errors.priority && (
+            <p className="text-red-500 text-sm">{errors.priority.message}</p>
           )}
         </div>
 
