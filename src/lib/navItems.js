@@ -64,14 +64,21 @@ const navItemsData = [
       { name: "Specialization Images", href: "/specialization-images", roles: ["admin","mentor"] },
     ],
   },
-  // {
-  //   name: "Blogs",
-  //   roles: ["admin", "mentor"],
-  //   subItems: [
-  //     { name: "All Blogs", href: "/blogs", roles: ["admin", "mentor"] },
-  //     { name: "Categories", href: "/blog-categories", roles: ["admin", "mentor"] },
-  //   ],
-  // },
+  {
+    name: "Blogs",
+    roles: ["admin", "mentor"],
+    subItems: [
+      { name: "All Blogs", href: "/blogs", roles: ["admin", "mentor"] },
+      { name: "Categories", href: "/blog-categories", roles: ["admin", "mentor"] },
+      // {
+      //   name: "FAQs",
+      //   roles: ["admin", "mentor"],
+      //   subItems: [
+          { name: "FAQs Categories", href: "/blog-faq-categories", roles: ["admin", "mentor"] },
+    //     ],
+    //   },
+    ],
+  },
   { name: "Landing Page Leads", href: "/leads", roles: ["lead"] },
   { name: "Website Leads", href: "/website-leads", roles: ["lead"] },
   { name: "Contact Us", href: "/contact-us", roles: ["lead"] },

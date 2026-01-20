@@ -121,14 +121,18 @@ export default function BlogsPage() {
     setEditingBlog(null);
   };
 
-  const handleFormSuccess = (formData, editingBlog) => {
+  const handleFormSuccess = async (formData, editingBlog) => {
     if (editingBlog) {
-      updateBlogMutation.mutate({ id: editingBlog.id, formData });
+      const result = await updateBlogMutation.mutateAsync({ id: editingBlog.id, formData });
+      setShowForm(false);
+      setEditingBlog(null);
+      return result;
     } else {
-      addBlogMutation.mutate(formData);
+      const result = await addBlogMutation.mutateAsync(formData);
+      setShowForm(false);
+      setEditingBlog(null);
+      return result;
     }
-    setShowForm(false);
-    setEditingBlog(null);
   };
 
   // Show form view

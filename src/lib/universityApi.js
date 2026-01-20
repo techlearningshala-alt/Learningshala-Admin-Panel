@@ -57,6 +57,12 @@ export const toggleUniversityPageCreated = async (id, isPageCreated) => {
   return res.data;
 };
 
+// ✅ Toggle university home page visibility
+export const toggleUniversityMenuVisibility = async (id, menuVisibility) => {
+  const res = await api.patch(`/universities/${id}/toggle-menu-visibility`, { menu_visibility: menuVisibility });
+  return res.data;
+};
+
 // ✅ Search universities (Elasticsearch)
 export const searchUniversitiesApi = async (query, { page = 1, limit = 10 } = {}) => {
   const res = await api.get(`/universities/search`, { params: { q: query, page, limit } });

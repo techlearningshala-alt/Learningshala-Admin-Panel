@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchUniversities, deleteUniversity, toggleUniversityStatus, toggleUniversityPageCreated, fetchApprovals, fetchAllPlacementPartners, fetchAllEmiPartners } from "@/lib/universityApi";
+import { fetchUniversities, deleteUniversity, toggleUniversityStatus, toggleUniversityPageCreated, toggleUniversityMenuVisibility, fetchApprovals, fetchAllPlacementPartners, fetchAllEmiPartners } from "@/lib/universityApi";
 import { fetchUniversityTypes } from "@/lib/api";
 
 import { Button } from "@/components/ui/button";
@@ -85,6 +85,15 @@ export default function UniversitiesPage() {
     onError: (err) => notifyError(err.response?.data?.message || "Page visibility update failed"),
   });
 
+  const toggleMenuVisibilityMutation = useMutation({
+    mutationFn: ({ id, menuVisibility }) => toggleUniversityMenuVisibility(id, menuVisibility),
+    onSuccess: () => {
+      notifySuccess("University home page visibility updated successfully");
+      queryClient.invalidateQueries(["universities"]);
+    },
+    onError: (err) => notifyError(err.response?.data?.message || "Home page visibility update failed"),
+  });
+
   const handleAdd = () => {
     setSelectedUniversity(null);
     setShowForm(true);
@@ -107,6 +116,10 @@ export default function UniversitiesPage() {
 
   const handleTogglePageCreated = (id, isPageCreated) => {
     togglePageCreatedMutation.mutate({ id, isPageCreated });
+  };
+
+  const handleToggleMenuVisibility = (id, menuVisibility) => {
+    toggleMenuVisibilityMutation.mutate({ id, menuVisibility });
   };
 
   const handleFormClose = () => {
@@ -236,6 +249,7 @@ export default function UniversitiesPage() {
           onDelete={handleDelete}
           onToggleStatus={handleToggleStatus}
           onTogglePageCreated={handleTogglePageCreated}
+          onToggleMenuVisibility={handleToggleMenuVisibility}
         />
       )}
 

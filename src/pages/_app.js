@@ -42,6 +42,7 @@ export default function App({ Component, pageProps }) {
     "/specialization-images",
     "/blogs",
     "/blog-categories",
+    "/blog-faq-categories",
     "/contact-us",
     "/create-user",
   ];

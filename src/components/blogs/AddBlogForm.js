@@ -9,7 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import SafeCKEditor from "@/components/CKEditor";
-import { fetchBlogCategories } from "@/lib/api";
+import { fetchBlogCategories, addBlogFaq } from "@/lib/api";
+import BlogFaqInlinePanel from "@/components/blog-faq/InlineFaqPanel";
+import { notifySuccess, notifyError } from "@/lib/notify";
 
 const buildAssetUrl = (value) => {
   if (!value) return null;
@@ -37,6 +39,8 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
   const [authorImageFile, setAuthorImageFile] = useState(null);
   const [previewThumbnail, setPreviewThumbnail] = useState(null);
   const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [stagedFaqs, setStagedFaqs] = useState([]);
+  const blogId = item?.id;
 
   const {
     register,
@@ -96,6 +100,29 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
     }
   }, [item, reset, setValue]);
 
+  const persistStagedFaqs = async (newBlogId) => {
+    if (!stagedFaqs.length || !newBlogId) return;
+
+    for (const faq of stagedFaqs) {
+      try {
+        await addBlogFaq({
+          blog_id: newBlogId,
+          category_id: faq.category_id,
+          title: faq.title,
+          description: faq.description,
+          saveWithDate: faq.saveWithDate ?? true,
+        });
+      } catch (error) {
+        console.error("Failed to persist staged FAQ", error);
+        notifyError("Failed to save staged FAQs. Please try again after saving the blog.");
+        throw error;
+      }
+    }
+
+    setStagedFaqs([]);
+    notifySuccess("Staged FAQs saved successfully.");
+  };
+
   const onSubmit = async (data, saveWithDate = true) => {
     const formData = new FormData();
     
@@ -127,7 +154,30 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
       formData.append("saveWithDate", saveWithDate ? "true" : "false");
     }
 
-    onSuccess(formData, item);
+    // Call onSuccess and handle staged FAQs if blog was created
+    try {
+      const result = await onSuccess(formData, item);
+      
+      // If blog was created (not edited) and there are staged FAQs, save them
+      if (!blogId && stagedFaqs.length && result) {
+        const createdBlogId =
+          result?.data?.id ??
+          result?.data?.data?.id ??
+          result?.data?.data?.insertId ??
+          result?.data?.insertId ??
+          result?.id;
+
+        if (createdBlogId) {
+          try {
+            await persistStagedFaqs(createdBlogId);
+          } catch (error) {
+            console.error("Error persisting staged FAQs:", error);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error saving blog:", error);
+    }
   };
 
   const handleAuthorImageChange = (e) => {
@@ -312,6 +362,16 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
                 />
               </div>
             )}
+          />
+        </div>
+
+        {/* FAQ Section */}
+        <div className="border-t pt-4 mt-6">
+          <BlogFaqInlinePanel
+            blogId={blogId}
+            blogName={watch("title")}
+            stagedFaqs={stagedFaqs}
+            setStagedFaqs={setStagedFaqs}
           />
         </div>
 

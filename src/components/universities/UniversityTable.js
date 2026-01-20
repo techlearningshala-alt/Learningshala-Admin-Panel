@@ -6,7 +6,7 @@ import DataTable from "../table/DataTable";
 import PermissionGuard from "../common/PermissionGuard";
 import { usePermissions } from "@/hooks/usePermissions";
 
-export default function UniversityTable({ items, onEdit, onDelete, onToggleStatus, onTogglePageCreated }) {
+export default function UniversityTable({ items, onEdit, onDelete, onToggleStatus, onTogglePageCreated, onToggleMenuVisibility }) {
   const { canRead, canUpdate } = usePermissions();
 
   const columns = [
@@ -61,15 +61,34 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
         ),
     },
     {
+      key: "is_page_created",
+      label: "Page Created",
+      render: (row) =>
+        canUpdate ? (
+          <Button
+            size="sm"
+            variant={row.is_page_created ? "default" : "outline"}
+            className={row.is_page_created ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
+            onClick={() => onTogglePageCreated?.(row.id, !row.is_page_created)}
+          >
+            {row.is_page_created ? "Yes" : "No"}
+          </Button>
+        ) : (
+          <span className={row.is_page_created ? "text-green-600" : "text-gray-500"}>
+            {row.is_page_created ? "Yes" : "No"}
+          </span>
+        ),
+    },
+    {
       key: "menu_visibility",
-      label: "Visibility",
+      label: "Home Page Visibility",
       render: (row) =>
         canUpdate ? (
           <Button
             size="sm"
             variant={row.menu_visibility ? "default" : "outline"}
             className={row.menu_visibility ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
-            onClick={() => onTogglePageCreated?.(row.id, !row.menu_visibility)}
+            onClick={() => onToggleMenuVisibility?.(row.id, !row.menu_visibility)}
           >
             {row.menu_visibility ? "Visible" : "Hidden"}
           </Button>

@@ -367,6 +367,58 @@ export async function toggleBlogVerified(id, verified) {
   return res.data;
 }
 
+// ===== Blog FAQ APIs =====
+
+export async function fetchBlogFaqs({ page = 1, limit = 10, blog_id, category_id } = {}) {
+  const params = { page, limit };
+  if (blog_id) params.blog_id = blog_id;
+  if (category_id) params.category_id = category_id;
+  const res = await api.get(`/blogs/faqs/`, { params });
+  return res.data;
+}
+
+export async function fetchBlogFaqCategories({ page = 1, limit = 10 } = {}) {
+  const res = await api.get(`/blogs/faqs/categories`, {
+    params: { page, limit },
+  });
+  return res.data;
+}
+
+export async function addBlogFaq(payload) {
+  const res = await api.post(`/blogs/faqs/questions`, payload);
+  return res.data;
+}
+
+export async function updateBlogFaq(id, payload) {
+  const res = await api.put(`/blogs/faqs/questions/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteBlogFaq(id) {
+  const res = await api.delete(`/blogs/faqs/questions/${id}`);
+  return res.data;
+}
+
+export async function fetchBlogFaqsByBlogId(blogId) {
+  const res = await api.get(`/blogs/faqs/blogs/${blogId}/questions`);
+  return res.data;
+}
+
+export async function addBlogFaqCategory(payload) {
+  const res = await api.post(`/blogs/faqs/categories`, payload);
+  return res.data;
+}
+
+export async function updateBlogFaqCategory(id, payload) {
+  const res = await api.put(`/blogs/faqs/categories/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteBlogFaqCategory(id) {
+  const res = await api.delete(`/blogs/faqs/categories/${id}`);
+  return res.data;
+}
+
 // ===== Contact Us APIs =====
 
 // Fetch contact us messages (paginated)
@@ -383,6 +435,14 @@ export async function fetchContactUs({ page = 1, limit = 10, search, fromDate, t
 // Delete a contact us message
 export async function deleteContactUs(id) {
   const res = await api.delete(`/contact-us/${id}`);
+  return res.data;
+}
+
+// ===== Auth/OTP APIs =====
+
+// Verify OTP after login
+export async function verifyOtp(email, otp) {
+  const res = await api.post("/users/verify-otp", { email, otp });
   return res.data;
 }
 

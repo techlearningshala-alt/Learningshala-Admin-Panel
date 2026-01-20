@@ -28,11 +28,12 @@ api.interceptors.response.use(
   (error) => {
     const originalRequest = error.config;
 
-    // Only redirect if not retrying and not the login or /me endpoint
+    // Only redirect if not retrying and not the login, verify-otp, or /me endpoint
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !originalRequest.url.includes("/login") &&
+      !originalRequest.url.includes("/verify-otp") &&
       !originalRequest.url.includes("/users/me")
     ) {
       originalRequest._retry = true;
