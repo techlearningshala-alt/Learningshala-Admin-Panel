@@ -66,43 +66,6 @@ export const AuthProvider = ({ children }) => {
 
   // OTP Login (commented out - restore previous direct login)
   // Login (Step 1: Validate credentials and send OTP)
-  // const login = async (email, password) => {
-  //   // Clear any old tokens before login
-  //   sessionStorage.removeItem("token");
-  //   localStorage.removeItem("token");
-  //   localStorage.removeItem("user");
-  //   
-  //   const res = await api.post("/users/login", { email, password });
-  //   console.log("🔍 Frontend - Login response:", res.data.data);
-  //   
-  //   // After successful email/password validation, redirect to OTP page
-  //   // The backend now returns { message: "OTP sent to your email", email: email }
-  //   // No tokens are returned yet
-  //   return res.data.data; // Return email for OTP verification page
-  // };
-
-  // Verify OTP (Step 2: Verify OTP and complete login)
-  // const verifyOtp = async (email, otp) => {
-  //   const res = await api.post("/users/verify-otp", { email, otp });
-  //   console.log("🔍 Frontend - OTP verification response:", res.data.data);
-  //   const { accessToken, user } = res.data.data;
-  //   console.log("🔍 Frontend - Setting user after OTP verification:", { id: user.id, email: user.email, role: user.role });
-
-  //   // Store token in sessionStorage (tab-specific) to prevent cross-tab interference
-  //   sessionStorage.setItem("token", accessToken);
-  //   localStorage.setItem("user", JSON.stringify(user));
-  //   
-  //   setUser(user);
-  //   
-  //   // Redirect based on user role
-  //   if (user.role === "lead") {
-  //     router.push("/leads");
-  //   } else {
-  //     router.push("/dashboard");
-  //   }
-  // };
-
-  // Previous direct login (restored - OTP temporarily disabled)
   const login = async (email, password) => {
     // Clear any old tokens before login
     sessionStorage.removeItem("token");
@@ -111,13 +74,22 @@ export const AuthProvider = ({ children }) => {
     
     const res = await api.post("/users/login", { email, password });
     console.log("🔍 Frontend - Login response:", res.data.data);
+    
+    // After successful email/password validation, redirect to OTP page
+    // The backend now returns { message: "OTP sent to your email", email: email }
+    // No tokens are returned yet
+    return res.data.data; // Return email for OTP verification page
+  };
+
+  // Verify OTP (Step 2: Verify OTP and complete login)
+  const verifyOtp = async (email, otp) => {
+    const res = await api.post("/users/verify-otp", { email, otp });
+    console.log("🔍 Frontend - OTP verification response:", res.data.data);
     const { accessToken, user } = res.data.data;
-    console.log("🔍 Frontend - Setting user after login:", { id: user.id, email: user.email, role: user.role });
+    console.log("🔍 Frontend - Setting user after OTP verification:", { id: user.id, email: user.email, role: user.role });
 
     // Store token in sessionStorage (tab-specific) to prevent cross-tab interference
     sessionStorage.setItem("token", accessToken);
-    // Don't store in localStorage to avoid cross-tab interference
-    // localStorage.setItem("token", accessToken);
     localStorage.setItem("user", JSON.stringify(user));
     
     setUser(user);
@@ -129,6 +101,34 @@ export const AuthProvider = ({ children }) => {
       router.push("/dashboard");
     }
   };
+
+  // Previous direct login (restored - OTP temporarily disabled)
+  // const login = async (email, password) => {
+  //   // Clear any old tokens before login
+  //   sessionStorage.removeItem("token");
+  //   localStorage.removeItem("token");
+  //   localStorage.removeItem("user");
+    
+  //   const res = await api.post("/users/login", { email, password });
+  //   console.log("🔍 Frontend - Login response:", res.data.data);
+  //   const { accessToken, user } = res.data.data;
+  //   console.log("🔍 Frontend - Setting user after login:", { id: user.id, email: user.email, role: user.role });
+
+  //   // Store token in sessionStorage (tab-specific) to prevent cross-tab interference
+  //   sessionStorage.setItem("token", accessToken);
+  //   // Don't store in localStorage to avoid cross-tab interference
+  //   // localStorage.setItem("token", accessToken);
+  //   localStorage.setItem("user", JSON.stringify(user));
+    
+  //   setUser(user);
+    
+  //   // Redirect based on user role
+  //   if (user.role === "lead") {
+  //     router.push("/leads");
+  //   } else {
+  //     router.push("/dashboard");
+  //   }
+  // };
 
   // Logout
   const logout = async () => {
@@ -145,7 +145,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, verifyOtp, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

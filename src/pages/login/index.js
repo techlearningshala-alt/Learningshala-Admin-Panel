@@ -28,13 +28,9 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      await login(email, password);
-      toast.success("Login successful!");
-      // OTP flow (commented out - restore previous direct login)
-      // const result = await login(email, password);
-      // // After successful email/password validation, redirect to OTP page
-      // toast.success("OTP sent to your email!");
-      // router.push(`/login/verify-otp?email=${encodeURIComponent(email)}`);
+      await login(email, password); // sends OTP only
+      toast.success("OTP sent to your email!");
+      router.push(`/login/verify-otp?email=${encodeURIComponent(email)}`);
     } catch (err) {
       const message =
         err.response?.data?.message || "Login failed. Please try again.";
