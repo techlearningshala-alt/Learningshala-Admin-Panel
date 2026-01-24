@@ -71,13 +71,14 @@ const navItemsData = [
     subItems: [
       { name: "All Blogs", href: "/blogs", roles: ["admin", "mentor"] },
       { name: "Categories", href: "/blog-categories", roles: ["admin", "mentor"] },
+      // Blog FAQ categories removed - FAQs no longer use categories
       // {
       //   name: "FAQs",
       //   roles: ["admin", "mentor"],
       //   subItems: [
-          { name: "FAQs Categories", href: "/blog-faq-categories", roles: ["admin", "mentor"] },
-    //     ],
-    //   },
+      //     { name: "FAQs Categories", href: "/blog-faq-categories", roles: ["admin", "mentor"] },
+      //   ],
+      // },
     ],
   },
   { name: "Landing Page Leads", href: "/leads", roles: ["lead"] },
