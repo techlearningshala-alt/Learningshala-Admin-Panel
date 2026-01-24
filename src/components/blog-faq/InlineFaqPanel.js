@@ -14,8 +14,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  fetchBlogFaqCategories,
-  fetchBlogFaqs,
   addBlogFaq,
   updateBlogFaq,
   deleteBlogFaq,
@@ -57,7 +55,6 @@ const HtmlContent = ({ content }) => {
 };
 
 function FaqForm({
-  categories,
   defaultValues,
   onSubmit,
   onCancel,
@@ -74,7 +71,6 @@ function FaqForm({
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      category_id: defaultValues?.category_id ? String(defaultValues.category_id) : "",
       title: defaultValues?.title ?? "",
       description: defaultValues?.description ?? "",
       saveWithDate: defaultValues?.saveWithDate ?? true,
@@ -83,7 +79,6 @@ function FaqForm({
 
   useEffect(() => {
     reset({
-      category_id: defaultValues?.category_id ? String(defaultValues.category_id) : "",
       title: defaultValues?.title ?? "",
       description: defaultValues?.description ?? "",
       saveWithDate: defaultValues?.saveWithDate ?? true,
@@ -93,7 +88,6 @@ function FaqForm({
   const submitFaq = async (values, addAnother) => {
     const payload = {
       ...values,
-      category_id: Number(values.category_id),
       saveWithDate: Boolean(values.saveWithDate),
     };
     const success = await onSubmit(payload, { addAnother });
@@ -101,7 +95,6 @@ function FaqForm({
 
     if (addAnother) {
       reset({
-        category_id: "",
         title: "",
         description: "",
         saveWithDate: true,
@@ -115,33 +108,9 @@ function FaqForm({
 
   const handleSubmitAndAddAnother = handleSubmit((values) => submitFaq(values, true));
 
-  const renderCategoryOptions = () => (
-    <select
-      className="w-full border rounded px-3 py-2"
-      disabled={disableSubmit}
-      {...register("category_id", { required: "Category is required" })}
-    >
-      <option value="" disabled>
-        Select category
-      </option>
-      {categories.map((cat) => (
-        <option key={cat.id} value={cat.id}>
-          {cat.heading}
-        </option>
-      ))}
-    </select>
-  );
-
   return (
     <div className={containerClassName}>
       <div className="space-y-4">
-        <div className="space-y-2">
-          <Label>Category</Label>
-          {renderCategoryOptions()}
-          {errors.category_id && (
-            <p className="text-sm text-red-500">{errors.category_id.message}</p>
-          )}
-        </div>
 
         <div className="space-y-2">
           <Label>Question</Label>
@@ -230,19 +199,6 @@ export default function BlogFaqInlinePanel({
   const [editingFaq, setEditingFaq] = useState(null);
   
   const isExistingEntity = Boolean(blogId);
-  
-  const { data: categoriesData, isLoading: isLoadingCategories, refetch: refetchCategories } = useQuery({
-    queryKey: ["blog-faq-inline-categories"],
-    queryFn: () => fetchBlogFaqCategories({ page: 1, limit: 100 }),
-  });
-
-  const rawCategories = categoriesData?.data?.data;
-  const categories = useMemo(() => rawCategories || [], [rawCategories]);
-  const categoryMap = useMemo(() => {
-    const map = new Map();
-    categories.forEach((cat) => map.set(cat.id, cat.heading));
-    return map;
-  }, [categories]);
 
   const {
     data: faqsData,
@@ -258,15 +214,12 @@ export default function BlogFaqInlinePanel({
     ? remoteFaqs.map((faq) => ({
         ...faq,
         _isRemote: true,
-        category_label: faq.heading || categoryMap.get(faq.category_id) || "-",
-        category_id: faq.category_id,
         description_preview: stripHtml(faq.description || ""),
       }))
     : (stagedFaqs || []).map((faq) => ({
         ...faq,
         _isRemote: false,
         id: faq.tempId,
-        category_label: faq.category_label || categoryMap.get(faq.category_id) || "-",
         description_preview: stripHtml(faq.description || ""),
       }));
 
@@ -282,14 +235,12 @@ export default function BlogFaqInlinePanel({
 
   const handleSaveFaq = async (values, { addAnother = false } = {}) => {
     const payload = {
-      category_id: values.category_id,
       title: values.title.trim(),
       description: values.description,
       saveWithDate: values.saveWithDate,
     };
 
     const finalPayload = {
-      category_id: Number(payload.category_id),
       title: payload.title,
       description: payload.description,
       saveWithDate: payload.saveWithDate,
@@ -302,7 +253,6 @@ export default function BlogFaqInlinePanel({
             faq.tempId === editingFaq.tempId
               ? {
                   ...finalPayload,
-                  category_label: categoryMap.get(finalPayload.category_id) || "-",
                   tempId: editingFaq.tempId,
                 }
               : faq
@@ -315,7 +265,6 @@ export default function BlogFaqInlinePanel({
           ...prev,
           {
             ...finalPayload,
-            category_label: categoryMap.get(finalPayload.category_id) || "-",
             tempId,
           },
         ]);
@@ -380,19 +329,10 @@ export default function BlogFaqInlinePanel({
 
   const faqColumns = [
     {
-      key: "category_label",
-      label: "Category",
-      width: "12%",
-      style: { width: "12%" },
-      cellClassName: "border px-2 py-1 align-middle text-muted-foreground",
-      contentClassName: "truncate",
-      headerClassName: "border px-2 py-1 text-left",
-    },
-    {
       key: "title",
       label: "Question",
-      width: "28%",
-      style: { width: "28%" },
+      width: "30%",
+      style: { width: "30%" },
       cellClassName: "border px-2 py-1 align-middle font-medium",
       contentClassName: "truncate",
       headerClassName: "border px-2 py-1 text-left",
@@ -400,7 +340,7 @@ export default function BlogFaqInlinePanel({
     {
       key: "description",
       label: "Answer",
-      style: { width: "60%" },
+      style: { width: "70%" },
       cellClassName: "border px-2 py-1 align-middle",
       contentClassName: "break-words whitespace-pre-line",
       headerClassName: "border px-2 py-1 text-left",
@@ -440,13 +380,8 @@ export default function BlogFaqInlinePanel({
   return (
     <div className="space-y-6 mt-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div>
-          {categories.length === 0 && (
-            <p className="mt-2 text-xs text-destructive">No categories found. Please create categories first in the Blog FAQs page.</p>
-          )}
-        </div>
         <div className="flex gap-2">
-          <Button type="button" onClick={() => handleOpenFaqForm(null)} disabled={isLoadingCategories || categories.length === 0}>
+          <Button type="button" onClick={() => handleOpenFaqForm(null)}>
             <Plus className="h-4 w-4 mr-1" /> Add FAQ
           </Button>
         </div>
@@ -492,12 +427,11 @@ export default function BlogFaqInlinePanel({
             </DialogHeader>
             {isFaqFormOpen && (
               <FaqForm
-                categories={categories}
                 defaultValues={editingFaq?.id ? editingFaq : editingFaq?.tempId ? editingFaq : undefined}
                 onSubmit={handleSaveFaq}
                 onCancel={handleCloseFaqForm}
                 submitLabel={editingFaq ? "Update FAQ" : "Save FAQ"}
-                disableSubmit={isLoadingCategories}
+                disableSubmit={false}
                 isEditing={Boolean(editingFaq)}
                 containerClassName="space-y-4"
               />

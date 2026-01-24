@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import SafeCKEditor from "@/components/CKEditor";
-import { fetchBlogCategories, addBlogFaq } from "@/lib/api";
+import { fetchBlogCategories, addBlogFaq, fetchAuthors } from "@/lib/api";
 import BlogFaqInlinePanel from "@/components/blog-faq/InlineFaqPanel";
 import { notifySuccess, notifyError } from "@/lib/notify";
 
@@ -35,8 +35,6 @@ const normalizeApiList = (payload) => {
 };
 
 export default function AddBlogForm({ item, onCancel, onSuccess }) {
-  const [previewAuthorImage, setPreviewAuthorImage] = useState(null);
-  const [authorImageFile, setAuthorImageFile] = useState(null);
   const [previewThumbnail, setPreviewThumbnail] = useState(null);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [stagedFaqs, setStagedFaqs] = useState([]);
@@ -53,11 +51,12 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
   } = useForm({
     defaultValues: item || {
       category_id: "",
-      title: "",
+      h1_tag: "",
+      slug: "",
+      meta_title: "",
+      meta_description: "",
+      author_id: "",
       short_description: "",
-      author_name: "",
-      author_details: "",
-      author_image: null,
       thumbnail: null,
       content: "",
     },
@@ -70,21 +69,25 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
   });
   const categories = normalizeApiList(categoriesData?.data?.data || []);
 
+  // Fetch authors for dropdown
+  const { data: authorsData } = useQuery({
+    queryKey: ["authors"],
+    queryFn: () => fetchAuthors({ page: 1, limit: 1000 }),
+  });
+  const authors = normalizeApiList(authorsData?.data?.data || []);
+
   // Reset form when item changes
   useEffect(() => {
     if (item) {
       setValue("category_id", item.category_id);
+      setValue("h1_tag", item.h1_tag || "");
+      setValue("slug", item.slug || "");
+      setValue("meta_title", item.meta_title || "");
+      setValue("meta_description", item.meta_description || "");
+      setValue("author_id", item.author_id || "");
       setValue("title", item.title || "");
       setValue("short_description", item.short_description || "");
-      setValue("author_name", item.author_name || "");
-      setValue("author_details", item.author_details || "");
       setValue("content", item.content || "");
-      
-      // Set author image preview if exists
-      if (item.author_image) {
-        const imageUrl = buildAssetUrl(item.author_image);
-        setPreviewAuthorImage(imageUrl);
-      }
       
       // Set thumbnail preview if exists
       if (item.thumbnail) {
@@ -93,8 +96,6 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
       }
     } else {
       reset();
-      setPreviewAuthorImage(null);
-      setAuthorImageFile(null);
       setPreviewThumbnail(null);
       setThumbnailFile(null);
     }
@@ -127,19 +128,14 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
     const formData = new FormData();
     
     formData.append("category_id", data.category_id);
+    formData.append("h1_tag", data.h1_tag || "");
+    formData.append("slug", data.slug || "");
+    formData.append("meta_title", data.meta_title || "");
+    formData.append("meta_description", data.meta_description || "");
+    formData.append("author_id", data.author_id || "");
     formData.append("title", data.title);
     formData.append("short_description", data.short_description || "");
-    formData.append("author_name", data.author_name || "");
-    formData.append("author_details", data.author_details || "");
     formData.append("content", data.content || "");
-
-    // Add author image file if new file is selected
-    if (authorImageFile) {
-      formData.append("author_image", authorImageFile);
-    } else if (item && !previewAuthorImage && item.author_image) {
-      // If image was removed in edit mode, send empty string
-      formData.append("author_image", "");
-    }
 
     // Add thumbnail file if new file is selected
     if (thumbnailFile) {
@@ -178,20 +174,6 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
     } catch (error) {
       console.error("Error saving blog:", error);
     }
-  };
-
-  const handleAuthorImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setAuthorImageFile(file);
-      setPreviewAuthorImage(URL.createObjectURL(file));
-    }
-  };
-
-  const handleRemoveAuthorImage = () => {
-    setAuthorImageFile(null);
-    setPreviewAuthorImage(null);
-    setValue("author_image", null);
   };
 
   const handleThumbnailChange = (e) => {
@@ -249,80 +231,33 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
           )}
         </div>
 
-        {/* Title */}
+        {/* H1 Tag */}
         <div className="space-y-2">
-          <Label>Title <span className="text-red-500">*</span></Label>
+          <Label>H1 Tag</Label>
           <Input
-            {...register("title", { required: "Title is required" })}
-            placeholder="Enter blog title"
+            {...register("h1_tag")}
+            placeholder="Enter H1 tag"
           />
-          {errors.title && (
-            <p className="text-red-500 text-sm">{errors.title.message}</p>
+          {errors.h1_tag && (
+            <p className="text-red-500 text-sm">{errors.h1_tag.message}</p>
           )}
         </div>
 
-        {/* Short Description */}
+        {/* Slug */}
         <div className="space-y-2">
-          <Label>Short Description</Label>
-          <Textarea
-            {...register("short_description")}
-            placeholder="Enter short description"
-            rows={4}
-            className="w-full"
-          />
-        </div>
-
-        {/* Author Name */}
-        <div className="space-y-2">
-          <Label>Author Name</Label>
+          <Label>URL/Slug</Label>
           <Input
-            {...register("author_name")}
-            placeholder="Enter author name"
+            {...register("slug")}
+            placeholder="Enter URL-friendly slug"
           />
-        </div>
-
-        {/* Author Details */}
-        <div className="space-y-2">
-          <Label>Author Details</Label>
-          <Textarea
-            {...register("author_details")}
-            placeholder="Enter author details/bio"
-            rows={4}
-            className="w-full"
-          />
-        </div>
-
-        {/* Author Image */}
-        <div className="space-y-2">
-          <Label>Author Image</Label>
-          {previewAuthorImage && (
-            <div className="mb-2 relative inline-block">
-              <img
-                src={previewAuthorImage}
-                alt="Author preview"
-                className="h-24 w-24 object-cover rounded border"
-              />
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                onClick={handleRemoveAuthorImage}
-                className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-              >
-                ×
-              </Button>
-            </div>
+          {errors.slug && (
+            <p className="text-red-500 text-sm">{errors.slug.message}</p>
           )}
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={handleAuthorImageChange}
-          />
         </div>
 
-        {/* Thumbnail */}
+        {/* Banner/Thumbnail */}
         <div className="space-y-2">
-          <Label>Thumbnail</Label>
+          <Label>Banner/Thumbnail</Label>
           {previewThumbnail && (
             <div className="mb-2 relative inline-block">
               <img
@@ -348,9 +283,73 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
           />
         </div>
 
-        {/* Content */}
+        {/* Meta Title */}
         <div className="space-y-2">
-          <Label>Content</Label>
+          <Label>Meta Title</Label>
+          <Input
+            {...register("meta_title")}
+            placeholder="Enter meta title"
+          />
+          {errors.meta_title && (
+            <p className="text-red-500 text-sm">{errors.meta_title.message}</p>
+          )}
+        </div>
+
+        {/* Meta Description */}
+        <div className="space-y-2">
+          <Label>Meta Description</Label>
+          <Textarea
+            {...register("meta_description")}
+            placeholder="Enter meta description"
+            rows={4}
+            className="w-full"
+          />
+          {errors.meta_description && (
+            <p className="text-red-500 text-sm">{errors.meta_description.message}</p>
+          )}
+        </div>
+
+        {/* Author Name (Dropdown) */}
+        <div className="space-y-2">
+          <Label>Author Name</Label>
+          <Controller
+            name="author_id"
+            control={control}
+            render={({ field }) => (
+              <select
+                {...field}
+                className="w-full border rounded px-3 py-2"
+                value={field.value || ""}
+                onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : "")}
+              >
+                <option value="">Select Author</option>
+                {authors.map((author) => (
+                  <option key={author.id} value={author.id}>
+                    {author.author_name}
+                  </option>
+                ))}
+              </select>
+            )}
+          />
+          {errors.author_id && (
+            <p className="text-red-500 text-sm">{errors.author_id.message}</p>
+          )}
+        </div>
+
+        {/* Short Intro */}
+        <div className="space-y-2">
+          <Label>Short Intro</Label>
+          <Textarea
+            {...register("short_description")}
+            placeholder="Enter short description"
+            rows={4}
+            className="w-full"
+          />
+        </div>
+
+        {/* Long Content */}
+        <div className="space-y-2">
+          <Label>Long Content</Label>
           <Controller
             name="content"
             control={control}

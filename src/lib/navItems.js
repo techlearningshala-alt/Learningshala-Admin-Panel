@@ -62,6 +62,7 @@ const navItemsData = [
     subItems: [
       { name: "Course Images", href: "/course-images", roles: ["admin","mentor"] },
       { name: "Specialization Images", href: "/specialization-images", roles: ["admin","mentor"] },
+      { name: "Authors", href: "/authors", roles: ["admin","mentor"] },
     ],
   },
   {

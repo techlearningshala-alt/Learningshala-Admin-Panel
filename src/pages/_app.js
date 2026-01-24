@@ -45,6 +45,7 @@ export default function App({ Component, pageProps }) {
     "/blog-faq-categories",
     "/contact-us",
     "/create-user",
+    "/authors",
   ];
 
   const useCMSLayout = cmsPages.some((path) => router.pathname.startsWith(path));

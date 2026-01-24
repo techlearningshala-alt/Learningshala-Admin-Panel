@@ -216,6 +216,7 @@ export const getLinkedFieldTarget = (fieldKey) => linkedFieldMappings[fieldKey];
 
 /**
  * Recursively apply linked field mappings so display keys inherit values from their targets
+ * Used when loading data from backend (target → display)
  */
 export const applyLinkedFieldMappings = (obj) => {
   if (!obj || typeof obj !== "object") return;
@@ -240,3 +241,43 @@ export const applyLinkedFieldMappings = (obj) => {
   });
 };
 
+/**
+ * Recursively convert display keys to target keys and remove display keys
+ * Used when saving data to backend (display → target, then remove display)
+ */
+export const convertDisplayKeysToTargetKeys = (obj) => {
+  if (!obj || typeof obj !== "object") return;
+
+  // Process arrays first
+  if (Array.isArray(obj)) {
+    obj.forEach((item) => convertDisplayKeysToTargetKeys(item));
+    return;
+  }
+
+  // Process nested objects recursively first
+  Object.values(obj).forEach((value) => {
+    if (Array.isArray(value)) {
+      value.forEach((item) => convertDisplayKeysToTargetKeys(item));
+    } else if (value && typeof value === "object") {
+      convertDisplayKeysToTargetKeys(value);
+    }
+  });
+
+  // Then convert display keys to target keys and remove display keys
+  Object.entries(linkedFieldMappings).forEach(([displayKey, targetKey]) => {
+    if (Object.prototype.hasOwnProperty.call(obj, displayKey)) {
+      const displayVal = obj[displayKey];
+      
+      // Copy display key value to target key (if display key has a value)
+      if (displayVal !== undefined && displayVal !== null && displayVal !== "") {
+        obj[targetKey] = displayVal;
+      } else {
+        // If display key is empty, set target key to null
+        obj[targetKey] = null;
+      }
+      
+      // Remove the display key
+      delete obj[displayKey];
+    }
+  });
+};

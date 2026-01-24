@@ -15,7 +15,7 @@ import { MultiSelect } from "primereact/multiselect";
 
 // ✅ Import reusable components and utilities
 import { SectionsForm } from "./components/SectionRenderer";
-import { deepMergeProps, applyLinkedFieldMappings } from "./utils/formHelpers";
+import { deepMergeProps, applyLinkedFieldMappings, convertDisplayKeysToTargetKeys } from "./utils/formHelpers";
 import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
 import { addUniversityFaq } from "@/lib/api";
 import { processSectionFiles } from "@/utils/fileProcessing";
@@ -46,38 +46,12 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
                 <input type="hidden" {...register(`${bannerField}.existing_banner_image`)} />
                 <input type="hidden" {...register(`${bannerField}.remove_image`)} />
                 {previewBanners[index] && (
-                  <div className="relative inline-block mb-2">
+                  <div className="inline-block mb-2">
                     <img
                       src={previewBanners[index]}
                       alt="Banner Preview"
                       className="h-20 object-contain rounded border"
                     />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const bannerData = watch(`banners.${index}`);
-                        setPreviewBanners((prev) => {
-                          const copy = [...prev];
-                          copy[index] = null;
-                          return copy;
-                        });
-                        // Clear the form value explicitly to null
-                        setValue(`banners.${index}.banner_image`, null, { shouldDirty: true });
-                        setValue(`banners.${index}.existing_banner_image`, "", { shouldDirty: true });
-                        setValue(`banners.${index}.remove_image`, true, { shouldDirty: true });
-                        console.log(`🧪 [BANNERS] Marked for removal`, {
-                          index,
-                          before: bannerData,
-                        });
-                        // Clear the file input
-                        const fileInput = document.querySelector(`input[name="banners.${index}.banner_image"]`);
-                        if (fileInput) fileInput.value = '';
-                      }}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-lg leading-none"
-                      title="Remove image"
-                    >
-                      ×
-                    </button>
                   </div>
                 )}
                 <Input
@@ -512,13 +486,21 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
     reset(formValues);
 
+    // Handle logo state - clear if no logo, set if logo exists
     if (item.university_logo) {
       setExistingLogo(item.university_logo);
       setPreviewLogo(`${process.env.NEXT_PUBLIC_thumbnail_URL}${item.university_logo}`);
+    } else {
+      // Explicitly clear logo states if item has no logo
+      setExistingLogo(null);
+      setPreviewLogo(null);
     }
 
+    // Handle brochure state
     if (item.university_brochure) {
       setExistingBrochure(item.university_brochure);
+    } else {
+      setExistingBrochure(null);
     }
 
     const bannerPreviews = (item.banners || []).map(b => b.banner_image ? `${process.env.NEXT_PUBLIC_thumbnail_URL}${b.banner_image}` : null);
@@ -566,6 +548,16 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     }
 
   }, [item, reset, setValue]);
+
+  // Cleanup blob URLs on unmount or when previewLogo changes
+  useEffect(() => {
+    return () => {
+      // Revoke blob URL when component unmounts or previewLogo changes
+      if (previewLogo && previewLogo.startsWith("blob:")) {
+        URL.revokeObjectURL(previewLogo);
+      }
+    };
+  }, [previewLogo]);
 
   const persistStagedFaqs = async (newUniversityId) => {
     if (!stagedFaqs.length || !newUniversityId) return;
@@ -701,18 +693,17 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     console.log("📤 [FRONTEND] item (edit mode):", item);
     
     if (data.university_logo && data.university_logo[0]) {
+      // New file uploaded
       console.log("📤 [FRONTEND] New logo file uploaded");
       formData.append("university_logo", data.university_logo[0]);
-    } else if (item && item.university_logo && !previewLogo && (data.university_logo === null || !data.university_logo)) {
-      // In edit mode: if there was a logo before, but now previewLogo is null and form value is null, it was removed
+    } else if (item && existingLogo && !previewLogo) {
+      // In edit mode: if there was an existing logo (existingLogo is set) but no preview, it was removed
+      // existingLogo is only set when editing and there was an original logo from the database
       console.log("📤 [FRONTEND] Logo was removed - sending empty string");
-      console.log("📤 [FRONTEND] Original logo from item:", item.university_logo);
-      formData.append("university_logo", "");
-    } else if (existingLogo && !previewLogo) {
-      // Fallback: if existingLogo exists but no preview, it was removed
-      console.log("📤 [FRONTEND] Logo was removed (fallback) - sending empty string");
+      console.log("📤 [FRONTEND] Original logo from database:", existingLogo);
       formData.append("university_logo", "");
     } else {
+      // No change: either new item with no logo, or edit mode with logo unchanged
       console.log("📤 [FRONTEND] No logo change - not appending to formData");
     }
     if (data.university_brochure && data.university_brochure[0]) formData.append("university_brochure", data.university_brochure[0]);
@@ -779,7 +770,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
 
       if (section.props) {
-        applyLinkedFieldMappings(section.props);
+        // Convert display keys to target keys before saving (e.g., "faculty Qualification" → faculty_qualification)
+        convertDisplayKeysToTargetKeys(section.props);
       }
  
     });
@@ -924,31 +916,12 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
           <div className="space-y-2">
             <Label>University Logo</Label>
             {previewLogo && (
-              <div className="relative inline-block">
+              <div className="inline-block">
                 <img
                   src={previewLogo}
                   alt="University logo preview"
                   className="h-20 object-contain rounded border"
                 />
-                <button
-                  type="button"
-                  onClick={() => {
-                    console.log("🗑️ [FRONTEND] Removing university logo");
-                    console.log("🗑️ [FRONTEND] Before removal - existingLogo:", existingLogo);
-                    console.log("🗑️ [FRONTEND] Before removal - previewLogo:", previewLogo);
-                    setPreviewLogo(null);
-                    setValue("university_logo", null);
-                    console.log("🗑️ [FRONTEND] After setValue - form value should be null");
-                    console.log("🗑️ [FRONTEND] existingLogo preserved for removal detection:", existingLogo);
-                    const fileInput = document.querySelector('input[name="university_logo"]');
-                    if (fileInput) fileInput.value = "";
-                    console.log("🗑️ [FRONTEND] File input cleared");
-                  }}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
-                  title="Remove image"
-                >
-                  ×
-                </button>
               </div>
             )}
             <Input
@@ -958,6 +931,12 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
+                  // Clear existingLogo when a new file is selected (we're replacing, not removing)
+                  setExistingLogo(null);
+                  // Revoke previous blob URL if it exists (to prevent memory leaks)
+                  if (previewLogo && previewLogo.startsWith("blob:")) {
+                    URL.revokeObjectURL(previewLogo);
+                  }
                   setPreviewLogo(URL.createObjectURL(file));
                   clearErrors("university_logo");
                 }

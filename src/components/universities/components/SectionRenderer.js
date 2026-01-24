@@ -70,39 +70,12 @@ export const renderPropsInputs = (
             }}
           />
           {previewURL && (
-            <div className="relative inline-block mt-2">
+            <div className="inline-block mt-2">
               <img
                 src={previewURL}
                 alt="preview"
                 className="h-20 object-contain rounded border"
               />
-              <button
-                type="button"
-                onClick={() => {
-                  console.log(`🗑️ [FRONTEND] Removing section image: ${fieldName}`);
-                  console.log(`🗑️ [FRONTEND] Current preview:`, sectionPreviews[fieldName]);
-                  console.log(`🗑️ [FRONTEND] Current value:`, value);
-                  setSectionPreviews((prev) => {
-                    const newPreviews = { ...prev };
-                    delete newPreviews[fieldName];
-                    console.log(`🗑️ [FRONTEND] Updated previews:`, newPreviews);
-                    return newPreviews;
-                  });
-                  // Clear the form value
-                  if (typeof setValue === "function") {
-                    setValue(fieldName, null);
-                    console.log(`🗑️ [FRONTEND] Form value cleared for ${fieldName}`);
-                  }
-                  // Clear the file input
-                  const fileInput = document.querySelector(`input[name="${fieldName}"]`);
-                  if (fileInput) fileInput.value = '';
-                  console.log(`🗑️ [FRONTEND] File input cleared for ${fieldName}`);
-                }}
-                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-lg leading-none"
-                title="Remove image"
-              >
-                ×
-              </button>
             </div>
           )}
         </div>

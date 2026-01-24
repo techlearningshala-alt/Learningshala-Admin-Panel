@@ -2,26 +2,29 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchWebsiteLeads } from "@/lib/api";
+import { fetchWebsiteLeads, exportWebsiteLeadsToExcel } from "@/lib/api";
 import WebsiteLeadTable from "@/components/website-leads/WebsiteLeadTable";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-
-const PAGE_SIZE = 10;
+import Pagination from "@/components/common/Pagination";
+import { Download } from "lucide-react";
+import toast from "react-hot-toast";
+import { downloadFile } from "@/lib/fileDownload";
 
 function WebsiteLeadsPageContent() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["website-leads", page, search, fromDate, toDate],
+    queryKey: ["website-leads", page, rowsPerPage, search, fromDate, toDate],
     queryFn: () =>
       fetchWebsiteLeads({
         page,
-        limit: PAGE_SIZE,
+        limit: rowsPerPage,
         search: search || undefined,
         fromDate: fromDate || undefined,
         toDate: toDate || undefined,
@@ -32,7 +35,26 @@ function WebsiteLeadsPageContent() {
   const result = data?.data || data;
   const leads = result?.data || [];
   const total = result?.total || 0;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const blob = await exportWebsiteLeadsToExcel({
+        search: search || undefined,
+        fromDate: fromDate || undefined,
+        toDate: toDate || undefined,
+      });
+      const filename = `Website_Leads_${new Date().toISOString().split("T")[0]}.xlsx`;
+      downloadFile(blob, filename);
+      toast.success("Excel file downloaded successfully!");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error(error.response?.data?.message || "Failed to export website leads");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className="p-4 space-y-6">
@@ -40,8 +62,20 @@ function WebsiteLeadsPageContent() {
         <div>
           <h3 className="text-xl font-semibold text-blue-900">Filters</h3>
         </div>
-        <div className="text-sm text-blue-900 bg-white px-4 py-2 font-bold rounded-md">
-          Total Website Leads: <span className="text-blue-900 font-bold">{total}</span>
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={handleExport}
+            disabled={isExporting || total === 0}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            {isExporting ? "Exporting..." : "Export to Excel"}
+          </Button>
+          <div className="text-sm text-blue-900 bg-white px-4 py-2 font-bold rounded-md">
+            Total Website Leads: <span className="text-blue-900 font-bold">{total}</span>
+          </div>
         </div>
       </div>
 
@@ -114,29 +148,13 @@ function WebsiteLeadsPageContent() {
         <WebsiteLeadTable data={leads} isLoading={isLoading} />
       </div>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-2">
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={page === 1}
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-          >
-            Prev
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Page {page} of {totalPages}
-          </span>
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={page >= totalPages}
-            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-          >
-            Next
-          </Button>
-        </div>
-      )}
+      <Pagination
+        total={total}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={setPage}
+        onRowsPerPageChange={setRowsPerPage}
+      />
     </div>
   );
 }
