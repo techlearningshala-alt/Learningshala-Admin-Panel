@@ -150,7 +150,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
   const defaultSections = [
     {
       id: "latest-updates",
-      section_key: "latest_updates",
+      section_key: "Latest_Updates",
       title: "Latest Updates",
       component: "UniversityLatestUpdate",
       props: {
@@ -159,7 +159,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     },
     {
       id: "about",
-      section_key: "about_university",
+      section_key: "About_University",
       title: "About University",
       component: "UniversityDesc",
       props: {
@@ -172,7 +172,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     },
     {
       id: "why-choose",
-      section_key: "why_choose",
+      section_key: "Why_Choose",
       title: "Why Choose",
       component: "UniversityWhyChoose",
       props: {
@@ -198,40 +198,53 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       },
     },
     {
-      id: "key-benefits", section_key: "key_highlights", title: "Key Highlights", component: "UniversityKeyBenefits",
+      id: "key-benefits", section_key: "Key_Highlights", title: "Key Highlights", component: "UniversityKeyBenefits",
       props: {
         content: "",
       }
     },
-    { id: "admission-process", section_key: "admission_process", title: "Admission Process", component: "UniversityAdmissionProcess", props: {image:"", content: "" } },
+    { id: "admission-process", section_key: "Admission_Process", title: "Admission Process", component: "UniversityAdmissionProcess", props: {image:"", content: "" } },
     {
-      id: "fees-detail", section_key: "fee_details", title: "Fee Details", component: "UniversityFeeDetail",
+      id: "university-Emi", section_key: "University_Emi", title: "EMI & Financial Support", component: "UniversityEmi",
       props: {
         content: "",
-      }
-    },
-    {
-      id: "placement-detail", section_key: "placement_details", title: "Career & Placement Details", component: "UniversityPlacement",
-      props: {
-        content: "",
-        placementPartners: "Yes"
+        emiPartners: "Yes"
       },
     },
     {
-      id: "scholarship-program", section_key: "scholarships", title: "Scholarship", component: "UniversityScholarship",
+      id: "scholarship-program", section_key: "Scholarships", title: "Scholarship", component: "UniversityScholarship",
       props: {
         content: "",
       }
     },
     {
-      id: "sample-certificate", section_key: "sample_certificate", title: "Sample Certificate", component: "UniversitySampleCertificate",
+      id: "university-lms", section_key: "Learning_Management_SystemLMS", title: "LMS & Study Materials", component: "UniversityLMS",
+      props: {
+        content: ""
+      }
+    },  
+    {
+      id: "university-examination", section_key: "Examination_Pattern", title: "Examination", component: "UniversityExamination",
+      props: {
+        content: "" 
+      }
+    },
+    {
+      id: "sample-certificate", section_key: "Sample_Certificate", title: "Sample Certificate", component: "UniversitySampleCertificate",
       props: {
         content: "",  
         sampleImg: "",
       }
     },
     {
-      id: "university-faculties", section_key: "university_faculties", title: "Faculties", component: "UniversityFaculties",
+      id: "placement-detail", section_key: "Placement_Details", title: "Career & Placement Details", component: "UniversityPlacement",
+      props: {
+        content: "",
+        placementPartners: "Yes"
+      },
+    },
+    {
+      id: "university-faculties", section_key: "University_Faculties", title: "Faculties", component: "UniversityFaculties",
       props: {
         faculties: [
           {
@@ -246,20 +259,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
-      id: "university-Emi", section_key: "university_emi", title: "EMI & Financial Support", component: "UniversityEmi",
-      props: {
-        content: "",
-        emiPartners: "Yes"
-      }
-    },
-    {
-      id: "popular-courses", section_key: "popular_courses", title: "Popular Courses", component: "UniversityCourses",
-      props: {
-        coursesList: "Yes"
-      }
-    },
-    {
-      id: "university-reviews", section_key: "student_ratings", title: "Student Reviews", component: "UniversityReviews",
+      id: "university-reviews", section_key: "Student_Ratings", title: "Student Reviews", component: "UniversityReviews",
       props: {
         allReviews: [
           {
@@ -272,31 +272,31 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
-      id: "Other-Popular-Universities", section_key: "other_popular_universities", title: "Other Popular Universities", component: "UniversityOtherPopularColleges",
+      id: "fees-detail", section_key: "Fee_Details", title: "Fee Details", component: "UniversityFeeDetail",
+      props: {
+        content: "",
+      }
+    },
+    {
+      id: "popular-courses", section_key: "Popular_Courses", title: "Popular Courses", component: "UniversityCourses",
+      props: {
+        coursesList: "Yes"
+      }
+    },
+    {
+      id: "Other-Popular-Universities", section_key: "Other_Popular_Universities", title: "Other Popular Universities", component: "UniversityOtherPopularColleges",
       props: {
         otherUniversityList: "Yes"
       }
     }, 
     {
-      id: "approval-logo", section_key: "approval_logo", title: "Approval Logo", component: "UniversityApprovalLogos",
+      id: "approval-logo", section_key: "Approval_Logo", title: "Approval Logo", component: "UniversityApprovalLogos",
       props: {
         univsersityApprovals: "Yes"
       }
-    }, 
-    {
-      id: "university-lms", section_key: "lms_study_materials", title: "LMS & Study Materials", component: "UniversityLMS",
-      props: {
-        content: ""
-      }
-    },  
-    {
-      id: "university-examination", section_key: "examination", title: "Examination", component: "UniversityExamination",
-      props: {
-        content: "" 
-      }
     },
     {
-      id: "university-faq", section_key: "faqs", title: "Faqs", component: "UniversityFaq",
+      id: "university-faq", section_key: "Faqs", title: "Faqs", component: "UniversityFaq",
       props: {
         faqData: "Yes"
       }
@@ -857,7 +857,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
           <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">University Information</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">University Name</Label>
+              <Label className="text-sm font-medium text-gray-700">University Name (H1 Tag Also)
+              </Label>
               <Input 
                 {...register("university_name", { required: "University name is required" })} 
                 placeholder="Enter university name (H1 Tag)"

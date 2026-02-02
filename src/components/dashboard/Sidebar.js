@@ -108,7 +108,7 @@ export default function Sidebar({ mobile = false, onClose }) {
   return (
     <aside
       className={`${
-        mobile ? "" : "w-[200px] flex-shrink-0 hidden md:flex flex-col"
+        mobile ? "" : "w-[215px] flex-shrink-0 hidden md:flex flex-col"
       } bg-slate-900 text-white shadow-2xl border-r border-slate-800`}
     >
       <Link
