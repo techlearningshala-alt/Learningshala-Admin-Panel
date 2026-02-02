@@ -144,6 +144,26 @@ export const updateAuthor = (id, formData) =>
 
 export const deleteAuthor = (id) => api.delete(`/authors/${id}`);
 
+// ===== Website Banner APIs =====
+export async function fetchWebsiteBanners({ page = 1, limit = 10 }) {
+  const res = await api.get("/website-banners", {
+    params: { page, limit },
+  });
+  return res.data;
+}
+
+export const addWebsiteBanner = (formData) =>
+  api.post("/website-banners", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+export const updateWebsiteBanner = (id, formData) =>
+  api.put(`/website-banners/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+export const deleteWebsiteBanner = (id) => api.delete(`/website-banners/${id}`);
+
 
 // export async function fetchMentors({ page = 1, limit = 10 }) {
 //   const res = await api.get(`/mentors`, {

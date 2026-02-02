@@ -24,11 +24,12 @@ export default function UniversitiesPage() {
 
   // Fetch paginated universities
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["universities", page, universityTypeFilter],
+    queryKey: ["universities", page, universityTypeFilter, search],
     queryFn: () => fetchUniversities({ 
       page, 
       limit: 20, 
-      university_type_id: universityTypeFilter ? parseInt(universityTypeFilter) : undefined 
+      university_type_id: universityTypeFilter ? parseInt(universityTypeFilter) : undefined,
+      search: search || undefined
     }),
     refetchOnMount: true,
     refetchOnWindowFocus: false,
@@ -165,108 +166,134 @@ export default function UniversitiesPage() {
     );
   }
 
-  // Show table view
+  // Show table view - no client-side filtering needed, backend handles it
   const items = data?.data?.data || [];
-  const filteredItems = search
-    ? items.filter((item) => {
-        const term = search.toLowerCase();
-        return item.university_name?.toLowerCase().includes(term);
-      })
-    : items;
-
-  const total = search ? filteredItems.length : (data?.data?.total || 0);
+  const total = data?.data?.total || 0;
   
   return (
-    <div className="p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
-        <div>
-          <h3 className="text-xl font-bold">Universities</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            Total: {total} {search && `(filtered from ${data?.data?.total || items.length})`}
-          </p>
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
-            <div className="relative w-72">
-              <Input
-                placeholder="Search by university name"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pr-8"
-              />
-              {search && (
-                <button
-                  onClick={() => setSearch("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
+    <div className="p-6 bg-gray-50 min-h-screen">
+      {/* Header Section with Gradient Background */}
+      <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-xl shadow-lg p-2 mb-3 text-white">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1 h-6 bg-white rounded-full"></div>
+              <h3 className="text-xl font-bold">Universities</h3>
             </div>
-            <div className="relative">
-              <select
-                value={universityTypeFilter}
-                onChange={(e) => {
-                  setUniversityTypeFilter(e.target.value);
-                  setPage(1); // Reset to first page when filter changes
-                }}
-                className="w-50 border rounded px-4 py-2 pr-8"
-              >
-                <option value="">All University Types</option>
-                {universityTypes.map((type) => (
-                  <option key={type.id} value={type.id}>
-                    {type.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {(universityTypeFilter || search) && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setUniversityTypeFilter("");
-                  setSearch("");
-                  setPage(1);
-                }}
-              >
-                Clear Filters
-              </Button>
-            )}
+            <p className="text-blue-100 text-sm ml-4">
+              Total: <span className="font-semibold text-white">{total}</span> {search && `• Searching: "${search}"`}
+            </p>
           </div>
+          <PermissionGuard permission="create">
+            <Button 
+              onClick={handleAdd}
+              className="bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-md hover:shadow-lg transition-all duration-200 font-semibold px-6 py-2.5"
+            >
+              <Plus className="mr-2 h-3 w-5" /> Add New University
+            </Button>
+          </PermissionGuard>
         </div>
-        <PermissionGuard permission="create">
-          <Button onClick={handleAdd}>
-            <Plus className="mr-1 h-4 w-4" /> Add University
-          </Button>
-        </PermissionGuard>
       </div>
 
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
-        <UniversityTable
-          items={filteredItems}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onToggleStatus={handleToggleStatus}
-          onTogglePageCreated={handleTogglePageCreated}
-          onToggleMenuVisibility={handleToggleMenuVisibility}
-        />
-      )}
-
-      {/* Pagination - Hide when searching or filtering */}
-      {!search && !universityTypeFilter && (
-        <div className="flex justify-center mt-4 gap-2">
-          <Button size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
-            Prev
-          </Button>
-          <span className="px-3 py-1">
-            Page {page} of {data?.data?.pages || 1}
-          </span>
-          <Button size="sm" disabled={page === (data?.data?.pages || 1)} onClick={() => setPage(page + 1)}>
-            Next
-          </Button>
+      {/* Filters Section */}
+      <div className="bg-white rounded-lg shadow-md p-4 mb-6 border border-gray-200">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="relative flex-1 min-w-[280px]">
+            <Input
+              placeholder="Search by university name..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1); // Reset to first page when search changes
+              }}
+              className="pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          <div className="relative">
+            <select
+              value={universityTypeFilter}
+              onChange={(e) => {
+                setUniversityTypeFilter(e.target.value);
+                setPage(1); // Reset to first page when filter changes
+              }}
+              className="border border-gray-300 rounded-md px-4 py-2 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-700 min-w-[200px]"
+            >
+              <option value="">All University Types</option>
+              {universityTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          {(universityTypeFilter || search) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setUniversityTypeFilter("");
+                setSearch("");
+                setPage(1);
+              }}
+              className="border-gray-300 hover:bg-gray-50 hover:border-gray-400"
+            >
+              Clear Filters
+            </Button>
+          )}
         </div>
-      )}
+      </div>
+
+      {/* Table Section */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-gray-600">Loading universities...</span>
+          </div>
+        ) : (
+          <UniversityTable
+            items={items}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onToggleStatus={handleToggleStatus}
+            onTogglePageCreated={handleTogglePageCreated}
+            onToggleMenuVisibility={handleToggleMenuVisibility}
+          />
+        )}
+      </div>
+
+      {/* Pagination - Show for all cases (search works with pagination now) */}
+      <div className="flex justify-center items-center mt-6 gap-3">
+        <Button 
+          size="sm" 
+          disabled={page === 1} 
+          onClick={() => setPage(page - 1)}
+          className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+        >
+          Prev
+        </Button>
+        <div className="bg-white border border-gray-300 rounded-md px-4 py-2 shadow-sm">
+          <span className="text-sm font-medium text-gray-700">
+            Page <span className="text-blue-600 font-semibold">{page}</span> of <span className="text-blue-600 font-semibold">{data?.data?.pages || 1}</span>
+          </span>
+        </div>
+        <Button 
+          size="sm" 
+          disabled={page === (data?.data?.pages || 1)} 
+          onClick={() => setPage(page + 1)}
+          className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 }

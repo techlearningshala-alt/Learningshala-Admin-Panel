@@ -25,13 +25,13 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Welcome Header */}
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-4 text-white shadow-lg">
+          <h2 className="text-6xl font-bold mb-1">
             Welcome back, {user?.name || "User"} 🎉
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="text-blue-100 text-lg">
             Here is what&apos;s happening with your platform today.
           </p>
         </div>
@@ -70,7 +70,10 @@ export default function DashboardPage() {
             {/* Main Statistics Grid - Hidden for lead role */}
             {user?.role !== "lead" && (
               <div>
-                <h3 className="text-xl font-semibold mb-4">Overview Statistics</h3>
+                <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                  <span className="w-1 h-8 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full"></span>
+                  Overview Statistics
+                </h3>
                 <StatisticsGrid
                   statistics={data.statistics}
                   isLoading={isLoading}
@@ -81,7 +84,10 @@ export default function DashboardPage() {
 
             {/* Recent Activity */}
             <div>
-              <h3 className="text-xl font-semibold mb-4">Recent Activity</h3>
+              <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span className="w-1 h-8 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full"></span>
+                Recent Activity
+              </h3>
               <RecentActivity
                 data={data.recentActivity}
                 isLoading={isLoading}

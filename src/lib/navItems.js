@@ -8,7 +8,7 @@ const navItemsData = [
     roles: ["admin", "mentor"],
     subItems: [
       { name: "Dashboard", href: "/dashboard", roles: ["admin", "mentor"] },
-      // { name: "Home Banners", href: "/home-banners", roles: ["admin", "editor"] },
+      { name: "Banners", href: "/website-banners", roles: ["admin", "editor"] },
       { name: "Mentors", href: "/mentors", roles: ["admin", "mentor"] },
       { name: "Media Spotlight", href: "/media-spotlight", roles: ["admin", "editor","mentor"] },
       { name: "Testimonials", href: "/testimonials", roles: ["admin", "editor","mentor"] },

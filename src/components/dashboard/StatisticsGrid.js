@@ -19,10 +19,21 @@ import {
 export default function StatisticsGrid({ statistics, isLoading, userRole }) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <div key={i} className="h-32 bg-gray-200 rounded-lg animate-pulse" />
-        ))}
+      <div className="flex flex-col lg:flex-row gap-6 items-stretch">
+        <div className="flex-[3.5] w-full lg:w-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+              <div key={i} className="h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl shadow-md animate-pulse" />
+            ))}
+          </div>
+        </div>
+        <div className="flex-1 w-full lg:w-auto lg:max-w-sm">
+          <div className="grid grid-cols-1 gap-6">
+            {[1, 2].map((i) => (
+              <div key={i} className="h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl shadow-md animate-pulse" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

@@ -37,20 +37,20 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
         return (
           <div
             key={banner.id}
-            className="relative p-4 border rounded-lg bg-gray-30 shadow-sm"
+            className="relative p-5 border-2 border-gray-200 rounded-lg bg-gradient-to-br from-gray-50 to-white shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="grid grid-cols-2 gap-4">
               {/* Banner Image */}
               <div className="space-y-2">
-                <Label>Banner Image</Label>
+                <Label className="text-sm font-medium text-gray-700">Banner Image</Label>
                 <input type="hidden" {...register(`${bannerField}.existing_banner_image`)} />
                 <input type="hidden" {...register(`${bannerField}.remove_image`)} />
                 {previewBanners[index] && (
-                  <div className="inline-block mb-2">
+                  <div className="inline-block mb-2 p-2 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                     <img
                       src={previewBanners[index]}
                       alt="Banner Preview"
-                      className="h-20 object-contain rounded border"
+                      className="h-24 object-contain rounded"
                     />
                   </div>
                 )}
@@ -74,19 +74,28 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
                       console.log(`🧪 [BANNERS] New file selected`, { index, name: file.name });
                     }
                   }}
+                  className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 />
               </div>
 
               {/* Video ID */}
               <div className="space-y-2">
-                <Label>Video ID</Label>
-                <Input {...register(`${bannerField}.video_id`)} />
+                <Label className="text-sm font-medium text-gray-700">Video ID</Label>
+                <Input 
+                  {...register(`${bannerField}.video_id`)} 
+                  placeholder="Enter video ID"
+                  className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                />
               </div>
 
               {/* Video Title */}
               <div className="space-y-2 col-span-2">
-                <Label>Video Title</Label>
-                <Input {...register(`${bannerField}.video_title`)} />
+                <Label className="text-sm font-medium text-gray-700">Video Title</Label>
+                <Input 
+                  {...register(`${bannerField}.video_title`)} 
+                  placeholder="Enter video title"
+                  className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                />
               </div>
             </div>
 
@@ -202,14 +211,14 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
-      id: "placement-detail", section_key: "placement_details", title: "Placements Details", component: "UniversityPlacement",
+      id: "placement-detail", section_key: "placement_details", title: "Career & Placement Details", component: "UniversityPlacement",
       props: {
         content: "",
         placementPartners: "Yes"
       },
     },
     {
-      id: "scholarship-program", section_key: "scholarships", title: "Scholarships Program", component: "UniversityScholarship",
+      id: "scholarship-program", section_key: "scholarships", title: "Scholarship", component: "UniversityScholarship",
       props: {
         content: "",
       }
@@ -222,7 +231,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
-      id: "university-faculties", section_key: "university_faculties", title: "University Faculties", component: "UniversityFaculties",
+      id: "university-faculties", section_key: "university_faculties", title: "Faculties", component: "UniversityFaculties",
       props: {
         faculties: [
           {
@@ -237,7 +246,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
-      id: "university-Emi", section_key: "university_emi", title: "University Emi", component: "UniversityEmi",
+      id: "university-Emi", section_key: "university_emi", title: "EMI & Financial Support", component: "UniversityEmi",
       props: {
         content: "",
         emiPartners: "Yes"
@@ -250,7 +259,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
-      id: "university-reviews", section_key: "student_ratings", title: "Student Ratings", component: "UniversityReviews",
+      id: "university-reviews", section_key: "student_ratings", title: "Student Reviews", component: "UniversityReviews",
       props: {
         allReviews: [
           {
@@ -275,13 +284,13 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     }, 
     {
-      id: "university-lms", section_key: "lms_study_materials", title: "Learning Management System(LMS)", component: "UniversityLMS",
+      id: "university-lms", section_key: "lms_study_materials", title: "LMS & Study Materials", component: "UniversityLMS",
       props: {
         content: ""
       }
     },  
     {
-      id: "university-examination", section_key: "examination", title: "Examination Pattern", component: "UniversityExamination",
+      id: "university-examination", section_key: "examination", title: "Examination", component: "UniversityExamination",
       props: {
         content: "" 
       }
@@ -437,12 +446,14 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
     // Merge database sections with defaultSections template
     // Match by component name since DB uses numeric IDs
+    // ✅ ALWAYS preserve section_key from defaultSections (never change it)
     const mergedSections = defaultSections.map((defaultSection, sectionIndex) => {
       const dbSection = item.sections?.find(s => s.component === defaultSection.component);
       if (dbSection && dbSection.props) {
         // FAQ is now simple Yes/No toggle - no special handling needed
         const merged = {
           id: dbSection.id, // Use database ID
+          section_key: defaultSection.section_key, // ✅ ALWAYS use section_key from defaultSections
           title: defaultSection.title,
           component: defaultSection.component,
           props: deepMergeProps(defaultSection.props, dbSection.props),
@@ -453,6 +464,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         return merged;
       }
       const clonedDefault = structuredClone(defaultSection);
+      // ✅ Ensure section_key is preserved from defaultSection
       if (clonedDefault?.props) {
         applyLinkedFieldMappings(clonedDefault.props);
       }
@@ -752,7 +764,16 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     const sectionsCopy = structuredClone(data.sections || []);
     
     // ✅ Automatically set hidden fields to "Yes"
-    sectionsCopy.forEach((section) => {
+    // ✅ ALWAYS ensure section_key comes from defaultSections (never generate from title)
+    sectionsCopy.forEach((section, index) => {
+      // Match section with defaultSections by component to get the correct section_key
+      const defaultSection = defaultSections.find(ds => ds.component === section.component) || defaultSections[index];
+      
+      // ✅ ALWAYS use section_key from defaultSections (preserve it, never change)
+      if (defaultSection && defaultSection.section_key) {
+        section.section_key = defaultSection.section_key;
+      }
+      
       if (section.id === "Other-Popular-Universities" && section.props) {
         section.props.otherUniversityList = "Yes";
       }
@@ -784,19 +805,32 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
   };
 
   return (
-    <div className="p-4">
-      <div className="relative flex justify-center items-center mb-6">
-        <Button variant="ghost" size="sm" onClick={onCancel} className="absolute left-0">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to List
-        </Button>
-        <h1 className="text-2xl font-bold">{item ? "Edit University" : "Add New University"}</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30">
+      {/* Header Section */}
+      <div className="max-w-4xl mx-auto bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white rounded-lg shadow-lg mb-4">
+        <div className="max-w-4xl mx-auto px-6 py-2.5">
+          <div className="relative flex justify-center items-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onCancel} 
+              className="absolute left-0 text-white hover:bg-white/20 hover:text-white"
+            >
+              <ArrowLeft className="mr-2 h-2 w-2" />
+              Back to List
+            </Button>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-8 bg-white rounded-full"></div>
+              <h3 className="text-3xl font-bold">{item ? "Edit University" : "Add New University"}</h3>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <form className="space-y-4 max-w-4xl mx-auto">
+      <form className="space-y-6 max-w-4xl mx-auto px-6 pb-24">
         {/* University Type Dropdown - At the top */}
-        <div className="space-y-2">
-          <Label>University Type</Label>
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <Label className="text-base font-semibold text-gray-700 mb-3 block">University Type</Label>
           <Controller
             name="university_type_id"
             control={control}
@@ -805,7 +839,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 {...field}
                 value={field.value ? String(field.value) : ""}
                 onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border border-gray-300 rounded-md px-4 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors bg-white text-gray-900"
               >
                 <option value="">Select University Type</option>
                 {universityTypes.map((type) => (
@@ -819,147 +853,175 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         </div>
 
         {/* University Info & Logo */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <Label>University Name</Label>
-            <Input {...register("university_name", { required: "University name is required" })} placeholder="Enter university name (H1 Tag)" />
-            {errors.university_name && <p className="text-red-500 text-sm">{errors.university_name.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label>University Slug</Label>
-            <Input {...register("university_slug", { required: "University slug is required" })} placeholder="Enter university slug" />
-            {errors.university_slug && <p className="text-red-500 text-sm">{errors.university_slug.message}</p>}
-          </div>
-          <div className="space-y-2 col-span-1 md:col-span-2">
-            <Label>Meta Title</Label>
-            <Input
-              {...register("meta_title")}
-              placeholder="SEO Meta Title (max 60 character)"
-            />
-          </div>
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">University Information</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">University Name</Label>
+              <Input 
+                {...register("university_name", { required: "University name is required" })} 
+                placeholder="Enter university name (H1 Tag)"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
+              {errors.university_name && <p className="text-red-500 text-sm mt-1">{errors.university_name.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">University Slug</Label>
+              <Input 
+                {...register("university_slug", { required: "University slug is required" })} 
+                placeholder="Enter university slug"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
+              {errors.university_slug && <p className="text-red-500 text-sm mt-1">{errors.university_slug.message}</p>}
+            </div>
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700">Meta Title</Label>
+              <Input
+                {...register("meta_title")}
+                placeholder="SEO Meta Title (max 60 character)"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
 
-          <div className="space-y-2 col-span-1 md:col-span-2">
-            <Label>Meta Description</Label>
-            <textarea
-              {...register("meta_description")}
-              placeholder="SEO Meta Des (max 160 character)"
-              className="w-full border rounded px-3 py-2 h-17"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Location</Label>
-            <Input {...register("university_location")} placeholder="Enter university location" />
-          </div>
-          <div className="space-y-2" >
-            <Label>Author Name</Label>
-            <Input {...register("author_name")} placeholder="Enter author name" />
-          </div>
-          <div className="space-y-2">
-            <Label>Approvals</Label>
-
-            <Controller
-              name="approval_ids"
-              control={control}
-              defaultValue={[]}
-              rules={{ required: "At least one approval is required" }}
-              render={({ field }) => {
-                return (
-                  <MultiSelect
-                    value={field.value || []}
-                    onChange={(e) => field.onChange(e.value)}
-                    options={approvals}
-                    optionLabel="title"
-                    optionValue="id"
-                    placeholder="Select approvals"
-                    filter
-                    display="chip"
-                    maxSelectedLabels={-1}
-                    className="w-full"
-                    panelClassName="max-h-60"
-                  />
-                );
-              }}
-            />
-
-
-            {errors.approval_ids && (
-              <p className="text-red-500 text-sm">{errors.approval_ids.message}</p>
-            )}
-            {selectedApprovalsDisplay.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {selectedApprovalsDisplay.map((approval) => (
-                  <div
-                    key={approval.id}
-                    className="group flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm shadow-sm"
-                  >
-                    <span className="font-medium">{approval.title}</span>
-                    <button
-                      type="button"
-                      className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
-                      onClick={() => {
-                        const next = (watchApprovalIds || []).filter((id) => Number(id) !== Number(approval.id));
-                        setValue("approval_ids", next, { shouldValidate: true, shouldDirty: true });
-                      }}
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700">Meta Description</Label>
+              <textarea
+                {...register("meta_description")}
+                placeholder="SEO Meta Des (max 160 character)"
+                className="w-full border border-gray-300 rounded-md px-4 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors resize-none"
+                rows={3}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Location</Label>
+              <Input 
+                {...register("university_location")} 
+                placeholder="Enter university location"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Author Name</Label>
+              <Input 
+                {...register("author_name")} 
+                placeholder="Enter author name"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700">Approvals</Label>
+              <Controller
+                name="approval_ids"
+                control={control}
+                defaultValue={[]}
+                rules={{ required: "At least one approval is required" }}
+                render={({ field }) => {
+                  return (
+                    <MultiSelect
+                      value={field.value || []}
+                      onChange={(e) => field.onChange(e.value)}
+                      options={approvals}
+                      optionLabel="title"
+                      optionValue="id"
+                      placeholder="Select approvals"
+                      filter
+                      display="chip"
+                      maxSelectedLabels={-1}
+                      className="w-full"
+                      panelClassName="max-h-60"
+                    />
+                  );
+                }}
+              />
+              {errors.approval_ids && (
+                <p className="text-red-500 text-sm mt-1">{errors.approval_ids.message}</p>
+              )}
+              {selectedApprovalsDisplay.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {selectedApprovalsDisplay.map((approval) => (
+                    <div
+                      key={approval.id}
+                      className="group flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm shadow-sm"
                     >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+                      <span className="font-medium text-blue-700">{approval.title}</span>
+                      <button
+                        type="button"
+                        className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-200 text-blue-700 transition hover:bg-red-500 hover:text-white"
+                        onClick={() => {
+                          const next = (watchApprovalIds || []).filter((id) => Number(id) !== Number(approval.id));
+                          setValue("approval_ids", next, { shouldValidate: true, shouldDirty: true });
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-
         </div>
 
         {/* University Logo & Brochure */}
-        <div className="grid grid-cols-2 gap-6 border-t pt-4 mt-6">
-          <div className="space-y-2">
-            <Label>University Logo</Label>
-            {previewLogo && (
-              <div className="inline-block">
-                <img
-                  src={previewLogo}
-                  alt="University logo preview"
-                  className="h-20 object-contain rounded border"
-                />
-              </div>
-            )}
-            <Input
-              type="file"
-              accept="image/*"
-              {...register("university_logo")}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  // Clear existingLogo when a new file is selected (we're replacing, not removing)
-                  setExistingLogo(null);
-                  // Revoke previous blob URL if it exists (to prevent memory leaks)
-                  if (previewLogo && previewLogo.startsWith("blob:")) {
-                    URL.revokeObjectURL(previewLogo);
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Media & Documents</h3>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <Label className="text-sm font-medium text-gray-700">University Logo</Label>
+              {previewLogo && (
+                <div className="inline-block p-2 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                  <img
+                    src={previewLogo}
+                    alt="University logo preview"
+                    className="h-24 object-contain rounded"
+                  />
+                </div>
+              )}
+              <Input
+                type="file"
+                accept="image/*"
+                {...register("university_logo")}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    // Clear existingLogo when a new file is selected (we're replacing, not removing)
+                    setExistingLogo(null);
+                    // Revoke previous blob URL if it exists (to prevent memory leaks)
+                    if (previewLogo && previewLogo.startsWith("blob:")) {
+                      URL.revokeObjectURL(previewLogo);
+                    }
+                    setPreviewLogo(URL.createObjectURL(file));
+                    clearErrors("university_logo");
                   }
-                  setPreviewLogo(URL.createObjectURL(file));
-                  clearErrors("university_logo");
-                }
-              }}
-            />
-            {errors.university_logo && errors.university_logo.message && (
-              <p className="text-red-500 text-sm">{errors.university_logo.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>Brochure</Label>
-            {existingBrochure && (
-              <p className="text-sm text-muted-foreground break-all">
-                Current: {existingBrochure}
-              </p>
-            )}
-            <Input type="file" accept="application/pdf" {...register("university_brochure")} />
+                }}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
+              {errors.university_logo && errors.university_logo.message && (
+                <p className="text-red-500 text-sm mt-1">{errors.university_logo.message}</p>
+              )}
+            </div>
+            <div className="space-y-3">
+              <Label className="text-sm font-medium text-gray-700">Brochure</Label>
+              {existingBrochure && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <p className="text-sm text-blue-700 break-all font-medium">
+                    Current: {existingBrochure}
+                  </p>
+                </div>
+              )}
+              <Input 
+                type="file" 
+                accept="application/pdf" 
+                {...register("university_brochure")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
           </div>
         </div>
 
         {/* Banner Info */}
-        <div className="border-t pt-4 mt-6">
-          <h3 className="text-lg font-semibold">Banner Information</h3>
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Banner Information</h3>
           <BannerSection
             control={control}
             register={register}
@@ -976,8 +1038,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
 
         {/* Sections */}
-        <div className="border-t pt-4 mt-6">
-          <h3 className="text-lg font-semibold">Sections</h3>
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Sections</h3>
           <SectionsForm
             sections={watch("sections") || []}
             control={control}
@@ -998,8 +1060,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
               if (isPlacementSection) {
                 return (
-                  <div className="border rounded-md p-4">
-                    <Label className="block mb-2 text-base font-semibold">Placement/Hiring Partners</Label>
+                  <div className="border-2 border-blue-100 rounded-lg p-5 bg-gradient-to-br from-blue-50/50 to-white shadow-sm">
+                    <Label className="block mb-3 text-base font-semibold text-gray-800">Placement/Hiring Partners</Label>
                     <div className="space-y-2">
                       <Controller
                         name="placement_partner_ids"
@@ -1050,8 +1112,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
               if (isEmiSection) {
                 return (
-                  <div className="border rounded-md p-4">
-                    <Label className="block mb-2 text-base font-semibold">EMI/Financing Partners</Label>
+                  <div className="border-2 border-purple-100 rounded-lg p-5 bg-gradient-to-br from-purple-50/50 to-white shadow-sm">
+                    <Label className="block mb-3 text-base font-semibold text-gray-800">EMI/Financing Partners</Label>
                     <div className="space-y-2">
                       <Controller
                         name="emi_partner_ids"
@@ -1105,7 +1167,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
           />
         </div>
 
-        <div className="border-t pt-4 mt-6">
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">FAQs</h3>
           <div className="flex items-center justify-between">
             {!item?.id}
           </div>
@@ -1123,11 +1186,11 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       
       {/* Fixed Action Buttons */}
       {item ? (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t z-50 shadow-lg md:left-[200px]">
-          <div className="flex gap-2 p-4 max-w-4xl mx-auto">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-2xl md:left-[200px]">
+          <div className="flex gap-3 p-4 max-w-4xl mx-auto">
             <Button
               type="button"
-              className="flex-1"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
               disabled={isSubmitting || mutation.isLoading}
               onClick={handleSubmit((data) => onSubmit(data, true))}
             >
@@ -1135,7 +1198,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             </Button>
             <Button
               type="button"
-              className="flex-1"
+              className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all"
               disabled={isSubmitting || mutation.isLoading}
               onClick={handleSubmit((data) => onSubmit(data, false))}
             >
@@ -1145,17 +1208,18 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
               type="button"
               variant="outline"
               onClick={onCancel}
+              className="border-gray-300 hover:bg-gray-50"
             >
               Cancel
             </Button>
           </div>
         </div>
       ) : (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t z-50 shadow-lg md:left-[200px]">
-          <div className="flex gap-2 p-4 max-w-4xl mx-auto">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-2xl md:left-[200px]">
+          <div className="flex gap-3 p-4 max-w-4xl mx-auto">
             <Button
               type="button"
-              className="flex-1 bg-green-700"
+              className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-purple-600 hover:to-purple-600 text-white shadow-md hover:shadow-lg transition-all font-semibold"
               disabled={isSubmitting || mutation.isLoading}
               onClick={handleSubmit((data) => onSubmit(data, true))}
             >
@@ -1165,6 +1229,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
               type="button"
               variant="outline"
               onClick={onCancel}
+              className="border-gray-300 hover:bg-gray-50"
             >
               Cancel
             </Button>
