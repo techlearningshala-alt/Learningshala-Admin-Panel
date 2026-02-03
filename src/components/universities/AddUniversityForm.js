@@ -212,7 +212,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       },
     },
     {
-      id: "scholarship-program", section_key: "Scholarships", title: "Scholarship", component: "UniversityScholarship",
+      id: "scholarship-program", section_key: "Scholarships_Program", title: "Scholarship", component: "UniversityScholarship",
       props: {
         content: "",
       }
@@ -237,7 +237,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
-      id: "placement-detail", section_key: "Placement_Details", title: "Career & Placement Details", component: "UniversityPlacement",
+      id: "placement-detail", section_key: "Placements_Details", title: "Career & Placement Details", component: "UniversityPlacement",
       props: {
         content: "",
         placementPartners: "Yes"
