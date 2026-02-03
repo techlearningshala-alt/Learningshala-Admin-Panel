@@ -7,6 +7,8 @@ import { Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 import CkEditor from "@/components/CKEditor";
 import { DynamicArrayField } from "./DynamicArrayField";
 // FAQ functionality removed - now handled separately
@@ -70,12 +72,41 @@ export const renderPropsInputs = (
             }}
           />
           {previewURL && (
-            <div className="inline-block mt-2">
+            <div className="relative inline-block mt-2">
               <img
                 src={previewURL}
                 alt="preview"
                 className="h-20 object-contain rounded border"
               />
+              <Button
+                type="button"
+                size="sm"
+                variant="destructive"
+                className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center shadow-md hover:shadow-lg z-10"
+                onClick={() => {
+                  // Clear the preview
+                  setSectionPreviews((prev) => {
+                    const newPreviews = { ...prev };
+                    // Revoke blob URL if it exists (for new uploads)
+                    if (prev[fieldName] && prev[fieldName].startsWith("blob:")) {
+                      URL.revokeObjectURL(prev[fieldName]);
+                    }
+                    delete newPreviews[fieldName];
+                    return newPreviews;
+                  });
+                  // Clear the file input
+                  const fileInput = document.querySelector(`input[name="${fieldName}"]`);
+                  if (fileInput) {
+                    fileInput.value = "";
+                  }
+                  // Set the field value to empty string to indicate removal
+                  // This works for both new uploads and existing images from DB
+                  setValue(fieldName, "", { shouldDirty: true, shouldValidate: false });
+                }}
+                title="Remove image"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
           )}
         </div>
