@@ -19,6 +19,7 @@ import { deepMergeProps, applyLinkedFieldMappings, convertDisplayKeysToTargetKey
 import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
 import { addUniversityFaq } from "@/lib/api";
 import { processSectionFiles } from "@/utils/fileProcessing";
+import FormActionButtons from "@/components/common/FormActionButtons";
 
 // Banner Section Component (separate component to avoid hooks in IIFE)
 function BannerSection({ control, register, previewBanners, setPreviewBanners, setValue, watch, clearErrors }) {
@@ -1185,58 +1186,14 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         <div className="h-20"></div> {/* Spacer for fixed buttons */}
       </form>
       
-      {/* Fixed Action Buttons */}
-      {item ? (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-2xl md:left-[200px]">
-          <div className="flex gap-3 p-4 max-w-4xl mx-auto">
-            <Button
-              type="button"
-              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
-              disabled={isSubmitting || mutation.isLoading}
-              onClick={handleSubmit((data) => onSubmit(data, true))}
-            >
-              Save with Date
-            </Button>
-            <Button
-              type="button"
-              className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all"
-              disabled={isSubmitting || mutation.isLoading}
-              onClick={handleSubmit((data) => onSubmit(data, false))}
-            >
-              Save without Date
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              className="border-gray-300 hover:bg-gray-50"
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-2xl md:left-[200px]">
-          <div className="flex gap-3 p-4 max-w-4xl mx-auto">
-            <Button
-              type="button"
-              className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-purple-600 hover:to-purple-600 text-white shadow-md hover:shadow-lg transition-all font-semibold"
-              disabled={isSubmitting || mutation.isLoading}
-              onClick={handleSubmit((data) => onSubmit(data, true))}
-            >
-              {mutation.isLoading ? "Saving..." : "Save University"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              className="border-gray-300 hover:bg-gray-50"
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      )}
+      <FormActionButtons
+        isEdit={!!item}
+        isSubmitting={isSubmitting}
+        isLoading={mutation.isLoading}
+        onSave={(saveWithDate) => handleSubmit((data) => onSubmit(data, saveWithDate))()}
+        onCancel={onCancel}
+        saveButtonText="Save University"
+      />
     </div>
   );
 }

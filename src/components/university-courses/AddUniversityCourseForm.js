@@ -18,12 +18,12 @@ import { notifySuccess, notifyError } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Trash, Plus, Check } from "lucide-react";
 import { Dropdown } from "primereact/dropdown";
 import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
 import { SectionsForm } from "@/components/universities/components/SectionRenderer";
 import { processSectionFiles } from "@/utils/fileProcessing";
+import FormActionButtons from "@/components/common/FormActionButtons";
 
 // Helper function to convert title to section_key format with underscores
 const generateSectionKey = (title) => {
@@ -358,7 +358,6 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
   const [feeKeyLookup, setFeeKeyLookup] = useState({});
   const [feeLabelLookup, setFeeLabelLookup] = useState({});
   const [banners, setBanners] = useState([]);
-  const [saveWithoutDate, setSaveWithoutDate] = useState(false);
   const [stagedFaqs, setStagedFaqs] = useState([]);
   const [sectionPreviews, setSectionPreviews] = useState({});
 
@@ -679,10 +678,6 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     }
   }, [course, applyCourseData, courseId]);
 
-  useEffect(() => {
-    // Reset saveWithoutDate checkbox when switching between add/edit modes
-    setSaveWithoutDate(false);
-  }, [isEdit]);
 
   useEffect(() => {
     if (!course && !courseId) {
@@ -811,7 +806,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     },
   });
 
-  const submitCourse = (data) => {
+  const submitCourse = (data, saveWithDate = true) => {
     // Validate course thumbnail when adding new
     if (!isEdit) {
       const hasThumbnail = data.course_thumbnail && data.course_thumbnail.trim() !== "";
@@ -964,18 +959,14 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     }
 
     if (isEdit) {
-      // Convert saveWithoutDate to saveWithDate (inverted logic)
-      // If checkbox is checked (saveWithoutDate = true), then saveWithDate = false
-      // If checkbox is unchecked (saveWithoutDate = false), then saveWithDate = true
-      const saveWithDate = !saveWithoutDate;
       formData.append("saveWithDate", saveWithDate ? "true" : "false");
     }
 
     mutation.mutate(formData);
   };
 
-  const handleSave = () => {
-    handleSubmit((formValues) => submitCourse(formValues))();
+  const handleSave = (saveWithDate = true) => {
+    handleSubmit((formValues) => submitCourse(formValues, saveWithDate))();
   };
 
   const addBanner = () => {
@@ -1020,133 +1011,159 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
   };
 
   return (
-    <div className="p-4">
-      <div className="relative flex justify-center items-center mb-6">
-        <Button variant="ghost" size="sm" onClick={onCancel} className="absolute left-0">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to List
-        </Button>
-        <h1 className="text-2xl font-bold">
-          {isEdit ? "Edit University Course" : "Add University Course"}
-        </h1>
-      </div>
-      <div className="space-y-4 max-w-3xl mx-auto">
-        <form
-          className="space-y-4"
-          encType="multipart/form-data"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSave();
-          }}
-        >
-          <div>
-            <Label>University</Label>
-            <input
-              type="hidden"
-              {...register("university_id", { required: "University is required" })}
-            />
-            {isLoadingUniversities ? (
-              <p className="text-sm text-muted-foreground">Loading universities...</p>
-            ) : (
-              <select
-                className="w-full border rounded px-3 py-2"
-                value={watch("university_id") || ""}
-                onChange={(e) =>
-                  setValue("university_id", e.target.value, {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  })
-                }
-              >
-                <option value="">Select university</option>
-                {universities.map((u) => (
-                  <option key={u.id} value={String(u.id)}>
-                    {u.university_name || u.name || u.title}
-                  </option>
-                ))}
-              </select>
-            )}
-            {errors.university_id && (
-              <p className="text-xs text-red-500">{errors.university_id.message}</p>
-            )}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30">
+      {/* Header Section */}
+      <div className="max-w-4xl mx-auto bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white rounded-lg shadow-lg mb-4">
+        <div className="max-w-4xl mx-auto px-6 py-2.5">
+          <div className="relative flex justify-center items-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onCancel} 
+              className="absolute left-0 text-white hover:bg-white/20 hover:text-white"
+            >
+              <ArrowLeft className="mr-2 h-2 w-2" />
+              Back to List
+            </Button>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-8 bg-white rounded-full"></div>
+              <h3 className="text-3xl font-bold">{isEdit ? "Edit University Course" : "Add New University Course"}</h3>
+            </div>
           </div>
+        </div>
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form 
+        className="space-y-6 max-w-4xl mx-auto px-6 pb-24"
+        encType="multipart/form-data"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSave();
+        }}
+      >
+        {/* University Selection */}
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <Label className="text-base font-semibold text-gray-700 mb-3 block">University</Label>
+          <input
+            type="hidden"
+            {...register("university_id", { required: "University is required" })}
+          />
+          {isLoadingUniversities ? (
+            <p className="text-sm text-muted-foreground">Loading universities...</p>
+          ) : (
+            <select
+              className="w-full border border-gray-300 rounded-md px-4 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors bg-white text-gray-900"
+              value={watch("university_id") || ""}
+              onChange={(e) =>
+                setValue("university_id", e.target.value, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }
+            >
+              <option value="">Select university</option>
+              {universities.map((u) => (
+                <option key={u.id} value={String(u.id)}>
+                  {u.university_name || u.name || u.title}
+                </option>
+              ))}
+            </select>
+          )}
+          {errors.university_id && (
+            <p className="text-sm text-red-500 mt-1">{errors.university_id.message}</p>
+          )}
+        </div>
+
+        {/* Course Information */}
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Course Information</h3>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Course Name</Label>
+              <Label className="text-sm font-medium text-gray-700">Course Name</Label>
               <Input
                 {...register("name", { required: "Name is required" })}
                 placeholder="e.g. MBA"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               />
               {errors.name && (
-                <p className="text-xs text-red-500">{errors.name.message}</p>
+                <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label>Course Slug</Label>
-              <Input {...register("slug", { required: "Course slug is required" })} placeholder="Enter course slug" />
+              <Label className="text-sm font-medium text-gray-700">Course Slug</Label>
+              <Input 
+                {...register("slug", { required: "Course slug is required" })} 
+                placeholder="Enter course slug"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
               {errors.slug && (
-                <p className="text-xs text-red-500">{errors.slug.message}</p>
+                <p className="text-sm text-red-500 mt-1">{errors.slug.message}</p>
               )}
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>H1 Tag</Label>
-            <Input
-              {...register("h1Tag", { required: "H1 Tag is required" })}
-              placeholder="SEO H1 tag"
-            />
-            {errors.h1Tag && (
-              <p className="text-sm text-red-500">{errors.h1Tag.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>Meta Title</Label>
-            <Input
-              {...register("meta_title")}
-              placeholder="SEO Meta Title (max 60 character)"
-            />
-            {errors.meta_title && (
-              <p className="text-sm text-red-500">{errors.meta_title.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>Meta Description</Label>
-            <textarea
-              {...register("meta_description", { 
-              })}
-              placeholder="SEO Meta Des (max 160 character)"
-              className="w-full border rounded px-3 py-2 h-17"
-            />
-            {errors.meta_description && (
-              <p className="text-sm text-red-500">{errors.meta_description.message}</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Label</Label>
-              <Input {...register("label")} placeholder="Short label" />
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700">H1 Tag</Label>
+              <Input
+                {...register("h1Tag", { required: "H1 Tag is required" })}
+                placeholder="SEO H1 tag"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
+              {errors.h1Tag && (
+                <p className="text-sm text-red-500 mt-1">{errors.h1Tag.message}</p>
+              )}
+            </div>
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700">Meta Title</Label>
+              <Input
+                {...register("meta_title")}
+                placeholder="SEO Meta Title (max 60 character)"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
+              {errors.meta_title && (
+                <p className="text-sm text-red-500 mt-1">{errors.meta_title.message}</p>
+              )}
+            </div>
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700">Meta Description</Label>
+              <textarea
+                {...register("meta_description")}
+                placeholder="SEO Meta Des (max 160 character)"
+                className="w-full border border-gray-300 rounded-md px-4 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors resize-none"
+                rows={3}
+              />
+              {errors.meta_description && (
+                <p className="text-sm text-red-500 mt-1">{errors.meta_description.message}</p>
+              )}
             </div>
             <div className="space-y-2">
-              <Label>Author Name</Label>
-              <Input {...register("author_name")} placeholder="Instructor / author" />
+              <Label className="text-sm font-medium text-gray-700">Label</Label>
+              <Input 
+                {...register("label")} 
+                placeholder="Short label"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Course Duration (Years/Months)</Label>
-              <Input {...register("duration", { required: "Course duration is required" })} placeholder="e.g. 2 Years" />
+              <Label className="text-sm font-medium text-gray-700">Author Name</Label>
+              <Input 
+                {...register("author_name")} 
+                placeholder="Instructor / author"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Course Duration (Years/Months)</Label>
+              <Input 
+                {...register("duration", { required: "Course duration is required" })} 
+                placeholder="e.g. 2 Years"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              />
               {errors.duration && (
-                <p className="text-xs text-red-500">{errors.duration.message}</p>
+                <p className="text-sm text-red-500 mt-1">{errors.duration.message}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label>EMI Duration (In Months)</Label>
+              <Label className="text-sm font-medium text-gray-700">EMI Duration (In Months)</Label>
               <Input 
                 type="number" 
                 {...register("emi_duration", {
@@ -1157,14 +1174,19 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                     return Number.isInteger(numValue) || "Must be an integer";
                   }
                 })} 
-                placeholder="e.g. 24" 
+                placeholder="e.g. 24"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               />
             </div>
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Course Thumbnail</Label>
+        {/* Media & Documents */}
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Media & Documents</h3>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <Label className="text-sm font-medium text-gray-700">Course Thumbnail</Label>
               <Controller
                 name="course_thumbnail"
                 control={control}
@@ -1330,9 +1352,9 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                 }}
               />
             </div>
-            <div className="space-y-2">
-              <Label>Upload Syllabus (Max 4MB)
-              </Label>
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <Label className="text-sm font-medium text-gray-700">Upload Syllabus (Max 4MB)</Label>
               <Input
                 type="file"
                 accept=".pdf,.doc,.docx"
@@ -1347,6 +1369,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                     setSyllabusFileName("");
                   }
                 }}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               />
               {(syllabusFileName || existingSyllabus) && (
                 <div className="mt-2 flex items-center gap-2">
@@ -1373,10 +1396,9 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                   </Button>
                 </div>
               )}
-            </div>
-            <div className="space-y-2">
-              <Label>Upload Brochure (Max 4MB)
-              </Label>
+              </div>
+              <div className="space-y-3">
+                <Label className="text-sm font-medium text-gray-700">Upload Brochure (Max 4MB)</Label>
               <Input
                 type="file"
                 accept=".pdf,.doc,.docx"
@@ -1392,6 +1414,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                     setBrochureFile(null);
                   }
                 }}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               />
               {(brochureFileName || existingBrochure) && !brochureRemoved && (
                 <div className="mt-2 flex items-center gap-2">
@@ -1428,12 +1451,15 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                   </Button>
                 </div>
               )}
+              </div>
             </div>
           </div>
+        </div>
 
-          <div className="border rounded-md p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Fee Types</h3>
+        {/* Fee Types */}
+          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-800">Fee Types</h3>
               {isLoadingFeeTypes && (
                 <span className="text-sm text-muted-foreground">Loading...</span>
               )}
@@ -1458,7 +1484,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                   }
                   return (
                     <div key={sanitizedKey} className="space-y-2">
-                      <Label htmlFor={fieldId}>{label}</Label>
+                      <Label htmlFor={fieldId} className="text-sm font-medium text-gray-700">{label}</Label>
                       <Input
                         id={fieldId}
                         type="number"
@@ -1466,10 +1492,10 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                         // min="0"
                         placeholder={`Enter ${label} amount`}
                         {...register(`fee_type_values.${sanitizedKey}`, validationRules)}
-                        className="spin-none"
+                        className="spin-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                       />
                       {errors?.fee_type_values?.[sanitizedKey] && (
-                        <p className="text-xs text-red-500">
+                        <p className="text-sm text-red-500 mt-1">
                           {errors.fee_type_values[sanitizedKey]?.message}
                         </p>
                       )}
@@ -1480,12 +1506,11 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
             )}
           </div>
 
-          <div className="border rounded-md p-4 space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold">Banner Information</h3>
-            </div>
+          {/* Banner Information */}
+          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Banner Information</h3>
             {banners.map((banner, index) => (
-              <div key={banner.banner_key} className="border rounded-md p-4 space-y-4">
+              <div key={banner.banner_key} className="relative p-5 border-2 border-gray-200 rounded-lg bg-gradient-to-br from-gray-50 to-white shadow-sm hover:shadow-md transition-shadow mb-4">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium">Banner {index + 1}</h4>
                   {banners.length > 1 && (
@@ -1499,10 +1524,9 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                     </Button>
                   )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Course Banner  (size: 650×480px)
-                    </Label>
+                    <Label className="text-sm font-medium text-gray-700">Course Banner (size: 650×480px)</Label>
                     <Input
                       type="file"
                       accept="image/*"
@@ -1516,6 +1540,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                           });
                         }
                       }}
+                      className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                     />
                     {(banner.previewBanner || banner.existingBanner) && !banner.bannerRemoved && (
                       <div className="mt-2 space-y-2">
@@ -1547,18 +1572,22 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label>Video ID</Label>
+                    <Label className="text-sm font-medium text-gray-700">Video ID</Label>
                     <Input
                       value={banner.video_id}
                       onChange={(e) => updateBanner(index, { video_id: e.target.value })}
                       placeholder="YouTube / Vimeo video ID"
+                      className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                     />
-                    <Label className="mt-2 block">Video Title</Label>
-                    <Input
-                      value={banner.video_title}
-                      onChange={(e) => updateBanner(index, { video_title: e.target.value })}
-                      placeholder="Video title"
-                    />
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-gray-700">Video Title</Label>
+                      <Input
+                        value={banner.video_title}
+                        onChange={(e) => updateBanner(index, { video_title: e.target.value })}
+                        placeholder="Video title"
+                        className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1572,8 +1601,8 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
           </div>
 
           {/* Sections */}
-          <div className="border-t pt-4 mt-6">
-            <h3 className="text-lg font-semibold">Sections</h3>
+          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Sections</h3>
             <SectionsForm
               sections={watch("sections") || []}
               control={control}
@@ -1585,51 +1614,30 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               templates={defaultSections}
             />
           </div>
-        </form>
 
-        <div className="border-t pt-4 mt-6 pb-24">
-          <UniversityFaqInlinePanel
-            courseId={courseId}
-            courseName={watch("name")}
-            stagedFaqs={stagedFaqs}
-            setStagedFaqs={setStagedFaqs}
-            type="course"
-          />
-        </div>
-
-        <div className="fixed bottom-0 left-0 md:left-[200px] right-0 bg-background border-t shadow-lg z-50">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <div className="flex justify-end gap-2">
-              {isEdit && (
-                <div className="flex items-center gap-2 mr-2">
-                  <Checkbox
-                    id="save-without-date"
-                    checked={saveWithoutDate}
-                    onChange={(event) => setSaveWithoutDate(event.target.checked)}
-                  />
-                  <Label htmlFor="save-without-date" className="cursor-pointer">
-                    Save without Date
-                  </Label>
-                </div>
-              )}
-              <Button type="button" variant="outline" onClick={onCancel} disabled={mutation.isLoading}>
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                onClick={handleSave}
-                disabled={mutation.isLoading || isSubmitting}
-              >
-                {mutation.isLoading
-                  ? "Saving..."
-                  : isEdit
-                  ? "Save"
-                  : "Create Course"}
-              </Button>
-            </div>
+          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">FAQs</h3>
+            <UniversityFaqInlinePanel
+              courseId={courseId}
+              courseName={watch("name")}
+              stagedFaqs={stagedFaqs}
+              setStagedFaqs={setStagedFaqs}
+              type="course"
+            />
           </div>
-        </div>
-      </div>
+
+          {/* Action Buttons */}
+          <div className="h-20"></div> {/* Spacer for fixed buttons */}
+        </form>
+      
+      <FormActionButtons
+        isEdit={isEdit}
+        isSubmitting={isSubmitting}
+        isLoading={mutation.isLoading}
+        onSave={handleSave}
+        onCancel={onCancel}
+        saveButtonText="Save Course"
+      />
     </div>
   );
 }

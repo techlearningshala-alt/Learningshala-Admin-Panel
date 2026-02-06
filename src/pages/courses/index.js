@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchCourses,
@@ -13,9 +13,11 @@ import { Plus } from "lucide-react";
 import AddCourseForm from "@/components/courses/AddCourseForm";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import CourseTable from "@/components/courses/CourseTable";
-import { Input } from "@/components/ui/input";
 import PermissionGuard from "@/components/common/PermissionGuard";
-import { usePermissions } from "@/hooks/usePermissions";
+import FiltersSection from "@/components/common/FiltersSection";
+import TableContainer from "@/components/common/TableContainer";
+import PaginationControls from "@/components/common/PaginationControls";
+import { useHeader } from "@/context/HeaderContext";
 
 export default function CoursesPage() {
   const limit = 20;
@@ -24,6 +26,7 @@ export default function CoursesPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
+  const { setActionButton, setTotalCount } = useHeader();
 
   // ✅ Fetch all courses
   const { data, isLoading } = useQuery({
@@ -93,6 +96,37 @@ export default function CoursesPage() {
     queryClient.invalidateQueries(["courses"]);
   };
 
+  // Calculate total and items (before any early returns)
+  const total = data?.data?.total || 0;
+  const items = data?.data?.data || [];
+
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={handleAdd}
+            className="bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-md hover:shadow-lg transition-all duration-200 font-semibold px-6 py-2.5"
+          >
+            <Plus className="mr-2 h-3 w-5" /> Add New Course
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
+
   // Show form view
   if (showForm) {
     return (
@@ -104,9 +138,6 @@ export default function CoursesPage() {
     );
   }
 
-  // Show table view
-  const total = data?.data?.total || 0;
-  const items = data?.data?.data || [];
   const filteredItems = search
     ? items.filter((item) => {
         const term = search.toLowerCase();
@@ -119,30 +150,19 @@ export default function CoursesPage() {
     : items;
   
   return (
-    <div className="p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
-        <div className="flex flex-col gap-1">
-          <h3 className="text-xl font-bold">Courses</h3>
-          <p className="text-sm text-muted-foreground">Total: {total}</p>
-          <div className="flex items-center gap-2">
-            <Input
-              placeholder="Search by name, domain, or slug"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-72"
-            />
-          </div>
-        </div>
-        <PermissionGuard permission="create">
-          <Button onClick={handleAdd}>
-            <Plus className="mr-1 h-4 w-4" /> Add Course
-          </Button>
-        </PermissionGuard>
-      </div>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <FiltersSection
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search by name, domain, or slug..."
+      />
 
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
+      <TableContainer
+        isLoading={isLoading}
+        isEmpty={!isLoading && filteredItems.length === 0}
+        loadingText="Loading courses..."
+        emptyText="No courses found."
+      >
         <CourseTable
           items={filteredItems}
           page={page}
@@ -154,21 +174,15 @@ export default function CoursesPage() {
             toggleMenuVisibilityMutation.mutate({ id, value })
           }
         />
-      )}
+      </TableContainer>
 
-      {/* Pagination */}
+      {/* Pagination - Only show when not searching (client-side filtering) */}
       {!search && (
-        <div className="flex justify-center mt-4 gap-2">
-          <Button size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
-            Prev
-          </Button>
-          <span className="px-3 py-1">
-            Page {page} of {data?.data?.pages || 1}
-          </span>
-          <Button size="sm" disabled={page >= (data?.data?.pages || 0)} onClick={() => setPage(page + 1)}>
-            Next
-          </Button>
-        </div>
+        <PaginationControls
+          currentPage={page}
+          totalPages={data?.data?.pages || 1}
+          onPageChange={setPage}
+        />
       )}
     </div>
   );

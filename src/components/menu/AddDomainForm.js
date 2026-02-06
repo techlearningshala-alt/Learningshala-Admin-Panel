@@ -67,6 +67,7 @@ export default function AddDomainForm({ item, onCancel, onSuccess }) {
       const shouldSaveWithDate = item ? !saveWithoutDate : true;
       const formData = {
         ...data,
+        label: data.label || "",
         priority: Number(data.priority),
         is_active: Boolean(data.is_active),
         menu_visibility: Boolean(data.menu_visibility),
@@ -93,6 +94,15 @@ export default function AddDomainForm({ item, onCancel, onSuccess }) {
           <Label>Name</Label>
           <Input {...register("name", { required: "Name is required" })} placeholder="Enter domain name" />
           {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+        </div>
+
+        {/* Label */}
+        <div className="space-y-2">
+          <Label>Label</Label>
+          <Input
+            {...register("label")}
+            placeholder="Short label (optional, e.g. 'Top', 'Popular')"
+          />
         </div>
 
         {/* Description */}

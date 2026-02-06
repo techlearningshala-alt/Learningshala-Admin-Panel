@@ -86,7 +86,7 @@ export default function UniversityCourseSpecializationTable({
       key: "name",
       label: "Specialization Name",
       style: { minWidth: "150px", wordBreak: "break-word", overflowWrap: "break-word" },
-      cellClassName: "border px-2 py-1",
+      cellClassName: "px-2 py-1",
       contentClassName: "break-words whitespace-normal w-full",
       render: (row) =>
         canRead ? (
@@ -100,29 +100,29 @@ export default function UniversityCourseSpecializationTable({
     {
       key: "course_name",
       label: "Course Name",
-      style: { width: "11%" },
+      style: { minWidth: "11%" },
     },
     {
       key: "university_name",
       label: "University Name",
-      style: { width: "18%" },
+      style: { minWidth: "150px" },
     },
     {
       key: "full_fee",
       label: "Full Fee",
-      style: { minWidth: "85px" },
+      style: { minWidth: "115px" },
       render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "full_fees")),
     },
-    {
+    { 
       key: "sem_fee",
       label: "Sem Fee",
-      style: { minWidth: "75px" },
+      style: { minWidth: "100px" },
       render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "Semester Fee")),
     },
     {
       key: "emi_monthly",
       label: "EMI (Monthly)",
-      style: {minWidth: "45px" },
+      style: {minWidth: "50px" },
       render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "EMI Monthly")),
     },
     {
@@ -147,7 +147,7 @@ export default function UniversityCourseSpecializationTable({
       key: "updated_at",
       label: "Updated Date",
       style: {minWidth: "90px" },
-      cellClassName: "border px-2 py-1 align-middle whitespace-nowrap",
+      cellClassName: "px-2 py-1 align-middle whitespace-nowrap",
       render: (row) =>
         row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",
     },
@@ -160,7 +160,8 @@ export default function UniversityCourseSpecializationTable({
         <Button
           size="sm"
           variant={row.is_active ? "default" : "outline"}
-          className={row.is_active ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
+          className={row.is_active ? "bg-gradient-to-r from-green-400 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-0 shadow-sm" 
+            : "bg-red-100 text-red-700 hover:bg-red-200 border-red-300"}
           onClick={() => onToggleStatus?.(row.id, !row.is_active)}
         >
           {row.is_active ? "Active" : "Inactive"}
@@ -180,7 +181,8 @@ export default function UniversityCourseSpecializationTable({
         <Button
           size="sm"
           variant={row.is_page_created ? "default" : "outline"}
-          className={row.is_page_created ? "" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
+          className={row.is_page_created ? "bg-gradient-to-r from-blue-400 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 shadow-sm" 
+            : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
           onClick={() => onTogglePageCreated?.(row.id, !row.is_page_created)}
         >
           {row.is_page_created ? "Yes" : "No"}

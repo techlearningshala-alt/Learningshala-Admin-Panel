@@ -17,10 +17,10 @@ import {
 } from "@/lib/universityApi";
 import CourseFaqInlinePanel from "@/components/course-faq/InlineFaqPanel";
 import { notifySuccess, notifyError } from "@/lib/notify";
+import FormActionButtons from "@/components/common/FormActionButtons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import SafeCKEditor from "@/components/CKEditor";
 import { ArrowLeft, Plus, Trash } from "lucide-react";
@@ -119,7 +119,6 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
   const [ebookRemoved, setEbookRemoved] = useState(false);
   const [sections, setSections] = useState(buildDefaultSections());
   const [banners, setBanners] = useState([createNewBanner()]);
-  const [saveWithoutDate, setSaveWithoutDate] = useState(false);
   const [selectedPlacementPartners, setSelectedPlacementPartners] = useState([]);
   const [selectedEmiPartners, setSelectedEmiPartners] = useState([]);
   const ebookInputRef = useRef(null);
@@ -349,7 +348,6 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
         setEbookFile(null);
         setEbookFileName("");
         setEbookRemoved(false);
-        setSaveWithoutDate(false);
         return;
       }
 
@@ -389,7 +387,6 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
       setEbookFile(null);
       setEbookFileName("");
       setEbookRemoved(false);
-      setSaveWithoutDate(false);
 
       // Partners (arrays)
       setSelectedPlacementPartners(
@@ -480,8 +477,8 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
             await persistStagedFaqs(createdCourseId);
           } catch (error) {
             console.error("Error while persisting staged FAQs", error);
-          }
-        } else {
+      }
+    } else {
           notifyError("Could not detect the new course ID to save staged FAQs. Please add FAQs after saving.");
         }
       }
@@ -548,15 +545,15 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
   };
 
   const handleThumbnailRemoval = () => {
-    setPreviewThumbnail(null);
+      setPreviewThumbnail(null);
     setThumbnailRemoved(true);
-    setExistingThumbnail(null);
+      setExistingThumbnail(null);
     setValue("thumbnail", null);
     const fileInput = document.querySelector('input[name="thumbnail"]');
     if (fileInput) fileInput.value = "";
   };
 
-  const submitCourse = (values) => {
+  const submitCourse = (values, saveWithDate = true) => {
     // Validate banner (at least one banner image required when adding new)
     if (!item) {
       const hasBannerImage = banners.some((banner) => {
@@ -589,10 +586,10 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
       clearErrors("course_overview");
     }
 
-    const formData = new FormData();
+      const formData = new FormData();
     const appendIfPresent = (key, value) => {
       if (value === undefined || value === null) return;
-      formData.append(key, value);
+            formData.append(key, value);
     };
 
     appendIfPresent("domain_id", values.domain_id);
@@ -678,8 +675,9 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
     });
 
     formData.append("banners", JSON.stringify(bannersPayload));
-    const shouldSaveWithDate = item ? !saveWithoutDate : true;
-    formData.append("saveWithDate", shouldSaveWithDate ? "true" : "false");
+    if (item) {
+      formData.append("saveWithDate", saveWithDate ? "true" : "false");
+    }
 
     formData.append("placement_partner_ids", JSON.stringify(selectedPlacementPartners));
     formData.append("emi_partner_ids", JSON.stringify(selectedEmiPartners));
@@ -687,7 +685,9 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
     mutation.mutate(formData);
   };
 
-  const handleSave = () => handleSubmit(submitCourse)();
+  const handleSave = (saveWithDate = true) => {
+    handleSubmit((formValues) => submitCourse(formValues, saveWithDate))();
+  };
 
   return (
     <div className="p-4">
@@ -709,35 +709,35 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
       <form className="space-y-6">
         <section className="border rounded-lg p-4 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Domain</Label>
+        <div className="space-y-2">
+          <Label>Domain</Label>
               {isLoadingDomains ? (
                 <p className="text-sm text-muted-foreground">Loading domains...</p>
               ) : (
-                <select
+          <select
                   className="w-full border rounded px-3 py-2"
-                  {...register("domain_id", { required: "Domain is required" })}
-                >
-                  <option value="">Select Domain</option>
+            {...register("domain_id", { required: "Domain is required" })}
+          >
+            <option value="">Select Domain</option>
                   {domains.map((domain) => (
                     <option key={domain.id} value={domain.id}>
                       {domain.name}
-                    </option>
-                  ))}
-                </select>
+              </option>
+            ))}
+          </select>
               )}
-              {errors.domain_id && (
+          {errors.domain_id && (
                 <p className="text-xs text-red-500">{errors.domain_id.message}</p>
-              )}
-            </div>
+          )}
+        </div>
 
-            <div className="space-y-2">
+        <div className="space-y-2">
               <Label>Course Name</Label>
-              <Input
+          <Input
                 placeholder="e.g. MBA"
                 {...register("name", { required: "Course name is required" })}
-              />
-              {errors.name && (
+          />
+          {errors.name && (
                 <p className="text-xs text-red-500">{errors.name.message}</p>
               )}
             </div>
@@ -747,10 +747,10 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
               <Input placeholder="Enter course slug" {...register("slug", { required: "Course slug is required" })} />
               {errors.slug && (
                 <p className="text-xs text-red-500">{errors.slug.message}</p>
-              )}
-            </div>
+          )}
+        </div>
 
-            <div className="space-y-2">
+        <div className="space-y-2">
               <Label>Course Heading (H1 Tag)</Label>
               <Input
                 placeholder="Primary headline"
@@ -763,7 +763,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
 
             <div className="space-y-2 col-span-1 md:col-span-2">
               <Label>Meta Title</Label>
-              <Input
+          <Input
                 className="w-full"
                 placeholder="SEO Meta Title (max 60 character)"
                 {...register("meta_title")}
@@ -776,8 +776,8 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
                 placeholder="SEO Meta Description (max 160 character)"
                 {...register("meta_description")}
                 className="w-full border rounded px-3 py-2 h-17"
-              />
-            </div>
+          />
+        </div>
 
             <div className="space-y-2">
               <Label>Duration</Label>
@@ -803,15 +803,15 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label>Priority</Label>
-              <Input
-                type="number"
+        <div className="space-y-2">
+          <Label>Priority</Label>
+          <Input
+            type="number"
                 inputMode="numeric"
                 placeholder="Lower number → higher priority"
                 {...register("priority", { required: "Priority is required" })}
-              />
-              {errors.priority && (
+          />
+          {errors.priority && (
                 <p className="text-xs text-red-500">{errors.priority.message}</p>
               )}
             </div>
@@ -821,18 +821,18 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
               <Input placeholder="Editor / Subject matter expert" {...register("author_name", { required: "Author name is required" })} />
               {errors.author_name && (
                 <p className="text-xs text-red-500">{errors.author_name.message}</p>
-              )}
-            </div>
+          )}
+        </div>
 
             
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
+        <div className="space-y-2">
               <Label>Upload Course Icon (Max 20kb)</Label>
-              {previewThumbnail && (
+          {previewThumbnail && (
                 <div className="space-y-2">
-                  <img
-                    src={previewThumbnail}
+            <img
+              src={previewThumbnail}
                     alt="Course icon"
                     className="h-24 w-24 object-contain rounded border"
                   />
@@ -846,10 +846,10 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
                     Remove
                   </Button>
                 </div>
-              )}
-              <Input
-                type="file"
-                accept="image/*"
+          )}
+          <Input
+            type="file"
+            accept="image/*"
                 {...register("thumbnail", {
                   validate: (value) => {
                     const hasFile = value && value.length > 0;
@@ -869,8 +869,8 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
                     return true;
                   },
                 })}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
+            onChange={(e) => {
+              const file = e.target.files?.[0];
                   if (file) {
                     const maxSize = 20 * 1024; // 20kb in bytes
                     if (file.size > maxSize) {
@@ -883,9 +883,9 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
                     setThumbnailRemoved(false);
                     clearErrors("thumbnail");
                   }
-                }}
-              />
-              {errors.thumbnail && (
+            }}
+          />
+          {errors.thumbnail && (
                 <p className="text-xs text-red-500">{errors.thumbnail.message}</p>
               )}
             </div>
@@ -957,8 +957,8 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
             <h4 className="text-lg font-semibold">Banner Information *</h4>
             {errors.banners && (
               <p className="text-xs text-red-500 mt-1">{errors.banners.message}</p>
-            )}
-          </div>
+          )}
+        </div>
 
           {banners.map((banner, index) => (
             <div
@@ -977,7 +977,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
                     <Trash className="h-4 w-4" />
                   </Button>
                 )}
-              </div>
+        </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -1029,7 +1029,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
                       Remove Image
                     </Button>
                   )}
-                </div>
+        </div>
 
                 <div className="space-y-2">
                   <Label>Video ID</Label>
@@ -1124,15 +1124,15 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
                     }}
                   />
                   {(section.imagePreview || section.existingImage) && (
-                    <Button
-                      type="button"
+            <Button
+              type="button"
                       size="sm"
                       variant="outline"
                       onClick={() => removeSectionImage(index)}
                     >
                       <Trash className="h-4 w-4 mr-1" />
                       Remove Image
-                    </Button>
+            </Button>
                   )}
                   {section.imageRemoved && (
                     <p className="text-xs text-muted-foreground">
@@ -1242,38 +1242,18 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
           />
         </div>
 
-        <div className="fixed bottom-0 left-0 md:left-[200px] right-0 bg-background border-t shadow-lg z-50">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <div className="flex flex-wrap items-center justify-end gap-3">
-              {item && (
-                <label className="flex items-center gap-2 text-sm">
-                  <Checkbox
-                    id="save-without-date"
-                    checked={saveWithoutDate}
-                    onChange={(event) => setSaveWithoutDate(event.target.checked)}
-                  />
-                  Save without Date
-                </label>
-              )}
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isSubmitting || mutation.isLoading}
-                onClick={onCancel}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                onClick={handleSave}
-                disabled={isSubmitting || mutation.isLoading}
-              >
-                {mutation.isLoading ? "Saving..." : item ? "Save" : "Create Course"}
-              </Button>
-            </div>
-          </div>
-        </div>
+        {/* Action Buttons */}
+        <div className="h-20"></div> {/* Spacer for fixed buttons */}
       </form>
+      
+      <FormActionButtons
+        isEdit={!!item}
+        isSubmitting={isSubmitting}
+        isLoading={mutation.isLoading}
+        onSave={handleSave}
+        onCancel={onCancel}
+        saveButtonText="Save Course"
+      />
     </div>
   );
 }

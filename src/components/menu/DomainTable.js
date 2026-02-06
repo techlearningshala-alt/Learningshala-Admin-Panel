@@ -31,6 +31,7 @@ export default function DomainTable({ items, onEdit, onDelete, page = 1, limit =
         ),
     },
     { key: "description", label: "Description" },
+    { key: "label", label: "Label" },
     { key: "priority", label: "Priority" },
     {
       key: "is_active",

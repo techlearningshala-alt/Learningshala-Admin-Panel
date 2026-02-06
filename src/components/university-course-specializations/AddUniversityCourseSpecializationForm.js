@@ -16,13 +16,13 @@ import { notifySuccess, notifyError } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Trash, Plus, Check } from "lucide-react";
 import { Dropdown } from "primereact/dropdown";
 import { fetchAllSpecializationImages } from "@/lib/menuApi";
 import { SectionsForm } from "@/components/universities/components/SectionRenderer";
 import { processSectionFiles } from "@/utils/fileProcessing";
 import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
+import FormActionButtons from "@/components/common/FormActionButtons";
 import {
   addUniversityCourseSpecializationFaq,
 } from "@/lib/universityApi";
@@ -370,7 +370,6 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
   const [feeKeyLookup, setFeeKeyLookup] = useState({});
   const [feeLabelLookup, setFeeLabelLookup] = useState({});
   const [banners, setBanners] = useState([]);
-  const [saveWithoutDate, setSaveWithoutDate] = useState(false);
   const [stagedFaqs, setStagedFaqs] = useState([]);
   const [sectionPreviews, setSectionPreviews] = useState({});
   const [selectedUniversity, setSelectedUniversity] = useState("");
@@ -763,10 +762,6 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
   }, [specialization, specializationId, applySpecializationData]);
 
   useEffect(() => {
-    setSaveWithoutDate(false);
-  }, [isEdit]);
-
-  useEffect(() => {
     if (!specialization && !specializationId) {
       if (Object.keys(feeTypeDefaults).length) {
         const current = getValues("fee_type_values") || {};
@@ -892,7 +887,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
     },
   });
 
-  const submitSpecialization = (data) => {
+  const submitSpecialization = (data, saveWithDate = true) => {
     // Validate specialization thumbnail when adding new
     if (!isEdit) {
       const hasThumbnail = data.course_thumbnail && data.course_thumbnail.trim() !== "";
@@ -1029,15 +1024,14 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
     }
 
     if (isEdit) {
-      const saveWithDate = !saveWithoutDate;
       formData.append("saveWithDate", saveWithDate ? "true" : "false");
     }
 
     mutation.mutate(formData);
   };
 
-  const handleSave = () => {
-    handleSubmit((formValues) => submitSpecialization(formValues))();
+  const handleSave = (saveWithDate = true) => {
+    handleSubmit((formValues) => submitSpecialization(formValues, saveWithDate))();
   };
 
   const addBanner = () => {
@@ -1719,50 +1713,29 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
               templates={defaultSections}
             />
           </div>
-        </form>
 
-        <div className="border-t pt-4 mt-6 pb-24">
-          <UniversityFaqInlinePanel
-            specializationId={specializationId}
-            specializationName={watch("name")}
-            stagedFaqs={stagedFaqs}
-            setStagedFaqs={setStagedFaqs}
-            type="specialization"
-          />
-        </div>
-
-        <div className="fixed bottom-0 left-0 md:left-[200px] right-0 bg-background border-t shadow-lg z-50">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <div className="flex justify-end gap-2">
-              {isEdit && (
-                <div className="flex items-center gap-2 mr-2">
-                  <Checkbox
-                    id="save-without-date"
-                    checked={saveWithoutDate}
-                    onChange={(event) => setSaveWithoutDate(event.target.checked)}
-                  />
-                  <Label htmlFor="save-without-date" className="cursor-pointer">
-                    Save without Date
-                  </Label>
-                </div>
-              )}
-              <Button type="button" variant="outline" onClick={onCancel} disabled={mutation.isLoading}>
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                onClick={handleSave}
-                disabled={mutation.isLoading || isSubmitting}
-              >
-                {mutation.isLoading
-                  ? "Saving..."
-                  : isEdit
-                  ? "Save"
-                  : "Create Specialization"}
-              </Button>
-            </div>
+          <div className="border-t pt-4 mt-6 pb-24">
+            <UniversityFaqInlinePanel
+              specializationId={specializationId}
+              specializationName={watch("name")}
+              stagedFaqs={stagedFaqs}
+              setStagedFaqs={setStagedFaqs}
+              type="specialization"
+            />
           </div>
-        </div>
+
+          {/* Action Buttons */}
+          <div className="h-20"></div> {/* Spacer for fixed buttons */}
+        </form>
+      
+      <FormActionButtons
+        isEdit={isEdit}
+        isSubmitting={isSubmitting}
+        isLoading={mutation.isLoading}
+        onSave={handleSave}
+        onCancel={onCancel}
+        saveButtonText="Save Specialization"
+      />
       </div>
     </div>
   );

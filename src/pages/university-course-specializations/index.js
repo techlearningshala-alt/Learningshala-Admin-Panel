@@ -13,9 +13,11 @@ import { notifySuccess, notifyError } from "@/lib/notify";
 import UniversityCourseSpecializationTable from "@/components/university-course-specializations/UniversityCourseSpecializationTable";
 import AddUniversityCourseSpecializationForm from "@/components/university-course-specializations/AddUniversityCourseSpecializationForm";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
+import PageHeader from "@/components/common/PageHeader";
+import FiltersSection from "@/components/common/FiltersSection";
+import TableContainer from "@/components/common/TableContainer";
+import PaginationControls from "@/components/common/PaginationControls";
 import PermissionGuard from "@/components/common/PermissionGuard";
 
 const PAGE_SIZE = 25;
@@ -132,73 +134,62 @@ export default function UniversityCourseSpecializationsPage() {
   }
 
   return (
-    <div className="p-4 space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h3 className="text-xl font-bold">University Course Specializations</h3>
-          <p className="text-sm text-muted-foreground mt-1">Total: {total}</p>
-        </div>
-        <PermissionGuard permission="create">
-          <Button onClick={() => openForm()}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Specialization
-          </Button>
-        </PermissionGuard>
-      </div>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <PageHeader
+        title="University Course Specializations"
+        total={total}
+        search={search}
+        actionButton={
+          <PermissionGuard permission="create">
+            <Button 
+              onClick={() => openForm()}
+              className="bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-md hover:shadow-lg transition-all duration-200 font-semibold px-6 py-2.5"
+            >
+              <Plus className="mr-2 h-3 w-5" /> Add New Specialization
+            </Button>
+          </PermissionGuard>
+        }
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="specialization-search">Search</Label>
-          <Input
-            id="specialization-search"
-            placeholder="Search by specialization name"
-            value={search}
+      <FiltersSection
+        search={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
+        searchPlaceholder="Search by specialization name..."
+        showClearButton={!!(selectedUniversity || search)}
+        onClearFilters={() => {
+          setSelectedUniversity("");
+          setSearch("");
+          setPage(1);
+        }}
+      >
+        <div className="relative">
+          <select
+            value={selectedUniversity}
             onChange={(e) => {
-              setSearch(e.target.value);
+              setSelectedUniversity(e.target.value);
               setPage(1);
             }}
-          />
+            className="border border-gray-300 rounded-md px-4 py-2 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-700 min-w-[200px]"
+          >
+            <option value="">All Universities</option>
+            {universities.map((uni) => (
+              <option key={uni.id} value={uni.id}>
+                {uni.university_name || uni.name || uni.title}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="filter-university">Filter by University</Label>
-          <div className="flex items-center gap-2">
-            <select
-              id="filter-university"
-              className="w-full border rounded p-2"
-              value={selectedUniversity}
-              onChange={(e) => {
-                const value = e.target.value;
-                setSelectedUniversity(value);
-                setPage(1);
-              }}
-            >
-              <option value="">All Universities</option>
-              {universities.map((uni) => (
-                <option key={uni.id} value={uni.id}>
-                  {uni.university_name || uni.name || uni.title}
-                </option>
-              ))}
-            </select>
-            {selectedUniversity && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedUniversity("");
-                  setPage(1);
-                }}
-              >
-                Clear
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
+      </FiltersSection>
 
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : specializations.length ? (
+      <TableContainer
+        isLoading={isLoading}
+        isEmpty={!isLoading && specializations.length === 0}
+        loadingText="Loading specializations..."
+        emptyText="No specializations found."
+      >
         <UniversityCourseSpecializationTable
           data={specializations}
           onEdit={openForm}
@@ -206,33 +197,13 @@ export default function UniversityCourseSpecializationsPage() {
           onToggleStatus={handleToggleStatus}
           onTogglePageCreated={handleTogglePageCreated}
         />
-      ) : (
-        <p className="text-sm text-muted-foreground">No specializations found.</p>
-      )}
+      </TableContainer>
 
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 pt-4">
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={page === 1}
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-          >
-            Prev
-          </Button>
-          <span className="text-sm">
-            Page {page} of {totalPages}
-          </span>
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={page >= totalPages}
-            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-          >
-            Next
-          </Button>
-        </div>
-      )}
+      <PaginationControls
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

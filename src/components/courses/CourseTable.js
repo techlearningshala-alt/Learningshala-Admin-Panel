@@ -47,8 +47,8 @@ export default function CourseTable({
             variant={row.menu_visibility ? "default" : "outline"}
             className={
               row.menu_visibility
-                ? ""
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
+                ? "bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-600 hover:to-pink-700 text-white border-0 shadow-sm"
+                : "bg-red-100 text-red-700 hover:bg-red-200 border-red-300"
             }
             onClick={() => onToggleMenuVisibility?.(row.id, !row.menu_visibility)}
           >
@@ -70,8 +70,8 @@ export default function CourseTable({
             variant={row.is_active ? "default" : "outline"}
             className={
               row.is_active
-                ? ""
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
+                ? "bg-gradient-to-r from-green-400 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-0 shadow-sm"
+                : "bg-red-100 text-red-700 hover:bg-red-200 border-red-300"
             }
             onClick={() => onToggleActive?.(row.id, !row.is_active)}
           >
@@ -101,8 +101,8 @@ export default function CourseTable({
     {
       key: (props) => (
         <PermissionGuard permission="update">
-          <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
-            <Pencil className=" h-4 w-4" />
+          <Button size="sm" variant="ghost" type="button" onClick={() => onEdit(props.row)}>
+            <Pencil className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600" />
           </Button>
         </PermissionGuard>
       ),
@@ -112,7 +112,9 @@ export default function CourseTable({
         <PermissionGuard permission="delete">
           <Button
             size="sm"
-            variant="destructive"
+            variant="ghost"
+            type="button"
+            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
             onClick={() => onDelete(props.row.id)}
           >
             <Trash className="h-4 w-4" />

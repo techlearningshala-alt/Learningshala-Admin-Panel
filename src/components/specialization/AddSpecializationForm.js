@@ -19,11 +19,11 @@ import { notifySuccess, notifyError } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import SafeCKEditor from "@/components/CKEditor";
 import { ArrowLeft, Plus, Trash } from "lucide-react";
 import { MultiSelect } from "primereact/multiselect";
+import FormActionButtons from "@/components/common/FormActionButtons";
 
 const SECTION_TEMPLATES = [
   { id: "course-overview", section_key: "course_overview", title: "Course Overview" },
@@ -116,7 +116,6 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
   const [ebookRemoved, setEbookRemoved] = useState(false);
   const [sections, setSections] = useState(buildDefaultSections());
   const [banners, setBanners] = useState([createNewBanner()]);
-  const [saveWithoutDate, setSaveWithoutDate] = useState(false);
   const [stagedFaqs, setStagedFaqs] = useState([]);
   const [selectedPlacementPartners, setSelectedPlacementPartners] = useState([]);
   const ebookInputRef = useRef(null);
@@ -303,7 +302,6 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
         setEbookFile(null);
         setEbookFileName("");
         setEbookRemoved(false);
-        setSaveWithoutDate(false);
         return;
       }
 
@@ -343,7 +341,6 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
       setEbookFile(null);
       setEbookFileName("");
       setEbookRemoved(false);
-      setSaveWithoutDate(false);
 
       // Partners (arrays)
       setSelectedPlacementPartners(
@@ -524,7 +521,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
     if (fileInput) fileInput.value = "";
   };
 
-  const submitSpecialization = (values) => {
+  const submitSpecialization = (values, saveWithDate = true) => {
     // Validate banner (at least one banner image required - applies to both add and edit)
     const hasBannerImage = banners.some((banner) => {
       const hasNewImage = banner.file;
@@ -643,15 +640,18 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
     });
 
     formData.append("banners", JSON.stringify(bannersPayload));
-    const shouldSaveWithDate = item ? !saveWithoutDate : true;
-    formData.append("saveWithDate", shouldSaveWithDate ? "true" : "false");
+    if (item) {
+      formData.append("saveWithDate", saveWithDate ? "true" : "false");
+    }
 
     formData.append("placement_partner_ids", JSON.stringify(selectedPlacementPartners));
 
     mutation.mutate(formData);
   };
 
-  const handleSave = () => handleSubmit(submitSpecialization)();
+  const handleSave = (saveWithDate = true) => {
+    handleSubmit((formValues) => submitSpecialization(formValues, saveWithDate))();
+  };
 
   return (
     <div className="p-4">
@@ -1178,38 +1178,18 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
           />
         </div>
 
-        <div className="fixed bottom-0 left-0 md:left-[200px] right-0 bg-background border-t shadow-lg z-50">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <div className="flex flex-wrap items-center justify-end gap-3">
-              {item && (
-                <label className="flex items-center gap-2 text-sm">
-                  <Checkbox
-                    id="save-without-date"
-                    checked={saveWithoutDate}
-                    onChange={(event) => setSaveWithoutDate(event.target.checked)}
-                  />
-                  Save without Date
-                </label>
-              )}
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isSubmitting || mutation.isLoading}
-                onClick={onCancel}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                onClick={handleSave}
-                disabled={isSubmitting || mutation.isLoading}
-              >
-                {mutation.isLoading ? "Saving..." : item ? "Save" : "Create Specialization"}
-              </Button>
-            </div>
-          </div>
-        </div>
+        {/* Action Buttons Spacer */}
+        <div className="h-20"></div>
       </form>
+      
+      <FormActionButtons
+        isEdit={isEdit}
+        isSubmitting={isSubmitting}
+        isLoading={mutation.isLoading}
+        onSave={handleSave}
+        onCancel={onCancel}
+        saveButtonText="Save Specialization"
+      />
     </div>
   );
 }

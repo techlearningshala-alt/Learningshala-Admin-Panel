@@ -6,7 +6,7 @@ import DataTable from "../table/DataTable";
 import PermissionGuard from "../common/PermissionGuard";
 import { usePermissions } from "@/hooks/usePermissions";
 
-export default function UniversityTable({ items, onEdit, onDelete, onToggleStatus, onTogglePageCreated, onToggleMenuVisibility }) {
+export default function UniversityTable({ items, onEdit, onDelete, onToggleStatus, onTogglePageCreated, onToggleMenuVisibility, onToggleProvideEmi }) {
   const { canRead, canUpdate } = usePermissions();
 
   const columns = [
@@ -137,19 +137,26 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
         ),
     },
     {
-      key: "university_logo",
-      label: "Logo",
+      key: "provide_emi",
+      label: "Provide EMI",
       render: (row) =>
-        row.university_logo ? (
-          <div className="flex items-center justify-center">
-            <img 
-              src={`${process.env.NEXT_PUBLIC_thumbnail_URL}${row.university_logo}`} 
-              className="h-12 w-12 object-contain rounded-lg border border-gray-200 shadow-sm bg-white p-1" 
-              alt={row.university_name}
-            />
-          </div>
+        canUpdate ? (
+          <Button
+            size="sm"
+            variant={row.provide_emi ? "default" : "outline"}
+            className={
+              row.provide_emi 
+                ? "bg-gradient-to-r from-blue-400 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 shadow-sm" 
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
+            }
+            onClick={() => onToggleProvideEmi?.(row.id, !row.provide_emi)}
+          >
+            {row.provide_emi ? "Yes" : "No"}
+          </Button>
         ) : (
-          <span className="text-gray-400 text-xs">No logo</span>
+          <span className={row.provide_emi ? "text-green-600" : "text-gray-500"}>
+            {row.provide_emi ? "Yes" : "No"}
+          </span>
         ),
     },
     {
@@ -186,10 +193,11 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
       key: (props) => (
         <PermissionGuard permission="delete">
           <Button
-            size="sm"
-            variant="outline"
+             size="sm"
+             variant="ghost"
+             type="button"
+             className="h-8 w-8 p-0 text-destructive hover:text-destructive"
             onClick={() => onDelete(props.row.id)}
-            className="hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all"
           >
             <Trash className="h-4 w-4" />
           </Button>

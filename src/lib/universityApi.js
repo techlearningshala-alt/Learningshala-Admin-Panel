@@ -66,6 +66,12 @@ export const toggleUniversityMenuVisibility = async (id, menuVisibility) => {
   return res.data;
 };
 
+// ✅ Toggle university provide EMI
+export const toggleUniversityProvideEmi = async (id, provideEmi) => {
+  const res = await api.patch(`/universities/${id}/toggle-provide-emi`, { provide_emi: provideEmi });
+  return res.data;
+};
+
 // ✅ Search universities (Elasticsearch)
 export const searchUniversitiesApi = async (query, { page = 1, limit = 10 } = {}) => {
   const res = await api.get(`/universities/search`, { params: { q: query, page, limit } });

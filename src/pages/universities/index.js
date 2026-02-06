@@ -2,16 +2,19 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchUniversities, deleteUniversity, toggleUniversityStatus, toggleUniversityPageCreated, toggleUniversityMenuVisibility, fetchApprovals, fetchAllPlacementPartners, fetchAllEmiPartners } from "@/lib/universityApi";
+import { fetchUniversities, deleteUniversity, toggleUniversityStatus, toggleUniversityPageCreated, toggleUniversityMenuVisibility, toggleUniversityProvideEmi, fetchApprovals, fetchAllPlacementPartners, fetchAllEmiPartners } from "@/lib/universityApi";
 import { fetchUniversityTypes } from "@/lib/api";
 
 import { Button } from "@/components/ui/button";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import UniversityTable from "@/components/universities/UniversityTable";
 import AddUniversityForm from "@/components/universities/AddUniversityForm";
 import { notifySuccess, notifyError } from "@/lib/notify";
-import { Input } from "@/components/ui/input";
 import PermissionGuard from "@/components/common/PermissionGuard";
+import PageHeader from "@/components/common/PageHeader";
+import FiltersSection from "@/components/common/FiltersSection";
+import TableContainer from "@/components/common/TableContainer";
+import PaginationControls from "@/components/common/PaginationControls";
 
 export default function UniversitiesPage() {
   const [selectedUniversity, setSelectedUniversity] = useState(null);
@@ -95,6 +98,15 @@ export default function UniversitiesPage() {
     onError: (err) => notifyError(err.response?.data?.message || "Home page visibility update failed"),
   });
 
+  const toggleProvideEmiMutation = useMutation({
+    mutationFn: ({ id, provideEmi }) => toggleUniversityProvideEmi(id, provideEmi),
+    onSuccess: () => {
+      notifySuccess("University provide EMI status updated successfully");
+      queryClient.invalidateQueries(["universities"]);
+    },
+    onError: (err) => notifyError(err.response?.data?.message || "Provide EMI update failed"),
+  });
+
   const handleAdd = () => {
     setSelectedUniversity(null);
     setShowForm(true);
@@ -121,6 +133,10 @@ export default function UniversitiesPage() {
 
   const handleToggleMenuVisibility = (id, menuVisibility) => {
     toggleMenuVisibilityMutation.mutate({ id, menuVisibility });
+  };
+
+  const handleToggleProvideEmi = (id, provideEmi) => {
+    toggleProvideEmiMutation.mutate({ id, provideEmi });
   };
 
   const handleFormClose = () => {
@@ -172,18 +188,11 @@ export default function UniversitiesPage() {
   
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Header Section with Gradient Background */}
-      <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-xl shadow-lg p-2 mb-3 text-white">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-1 h-6 bg-white rounded-full"></div>
-              <h3 className="text-xl font-bold">Universities</h3>
-            </div>
-            <p className="text-blue-100 text-sm ml-4">
-              Total: <span className="font-semibold text-white">{total}</span> {search && `• Searching: "${search}"`}
-            </p>
-          </div>
+      <PageHeader
+        title="Universities"
+        total={total}
+        search={search}
+        actionButton={
           <PermissionGuard permission="create">
             <Button 
               onClick={handleAdd}
@@ -192,108 +201,64 @@ export default function UniversitiesPage() {
               <Plus className="mr-2 h-3 w-5" /> Add New University
             </Button>
           </PermissionGuard>
-        </div>
-      </div>
+        }
+      />
 
-      {/* Filters Section */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6 border border-gray-200">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="relative flex-1 min-w-[280px]">
-            <Input
-              placeholder="Search by university name..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1); // Reset to first page when search changes
-              }}
-              className="pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+      <FiltersSection
+        search={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
+        searchPlaceholder="Search by university name..."
+        showClearButton={!!(universityTypeFilter || search)}
+        onClearFilters={() => {
+          setUniversityTypeFilter("");
+          setSearch("");
+          setPage(1);
+        }}
+      >
+        <div className="relative">
+          <select
+            value={universityTypeFilter}
+            onChange={(e) => {
+              setUniversityTypeFilter(e.target.value);
+              setPage(1);
+            }}
+            className="border border-gray-300 rounded-md px-4 py-2 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-700 min-w-[200px]"
+          >
+            <option value="">All University Types</option>
+            {universityTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </FiltersSection>
+
+      <TableContainer
+        isLoading={isLoading}
+        isEmpty={!isLoading && items.length === 0}
+        loadingText="Loading universities..."
+        emptyText="No universities found."
+      >
+            <UniversityTable
+              items={items}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onToggleStatus={handleToggleStatus}
+              onTogglePageCreated={handleTogglePageCreated}
+              onToggleMenuVisibility={handleToggleMenuVisibility}
+              onToggleProvideEmi={handleToggleProvideEmi}
             />
-            {search && (
-              <button
-                onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-          <div className="relative">
-            <select
-              value={universityTypeFilter}
-              onChange={(e) => {
-                setUniversityTypeFilter(e.target.value);
-                setPage(1); // Reset to first page when filter changes
-              }}
-              className="border border-gray-300 rounded-md px-4 py-2 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-700 min-w-[200px]"
-            >
-              <option value="">All University Types</option>
-              {universityTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          {(universityTypeFilter || search) && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setUniversityTypeFilter("");
-                setSearch("");
-                setPage(1);
-              }}
-              className="border-gray-300 hover:bg-gray-50 hover:border-gray-400"
-            >
-              Clear Filters
-            </Button>
-          )}
-        </div>
-      </div>
+      </TableContainer>
 
-      {/* Table Section */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-3 text-gray-600">Loading universities...</span>
-          </div>
-        ) : (
-          <UniversityTable
-            items={items}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onToggleStatus={handleToggleStatus}
-            onTogglePageCreated={handleTogglePageCreated}
-            onToggleMenuVisibility={handleToggleMenuVisibility}
-          />
-        )}
-      </div>
-
-      {/* Pagination - Show for all cases (search works with pagination now) */}
-      <div className="flex justify-center items-center mt-6 gap-3">
-        <Button 
-          size="sm" 
-          disabled={page === 1} 
-          onClick={() => setPage(page - 1)}
-          className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-        >
-          Prev
-        </Button>
-        <div className="bg-white border border-gray-300 rounded-md px-4 py-2 shadow-sm">
-          <span className="text-sm font-medium text-gray-700">
-            Page <span className="text-blue-600 font-semibold">{page}</span> of <span className="text-blue-600 font-semibold">{data?.data?.pages || 1}</span>
-          </span>
-        </div>
-        <Button 
-          size="sm" 
-          disabled={page === (data?.data?.pages || 1)} 
-          onClick={() => setPage(page + 1)}
-          className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-        >
-          Next
-        </Button>
-      </div>
+      <PaginationControls
+        currentPage={page}
+        totalPages={data?.data?.pages || 1}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

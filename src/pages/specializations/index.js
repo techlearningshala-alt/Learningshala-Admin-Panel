@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchSpecialization,
@@ -10,12 +10,15 @@ import {
   findAllCourseName,
 } from "@/lib/menuApi";
 import { Button } from "@/components/ui/button";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import AddSpecializationForm from "@/components/specialization/AddSpecializationForm";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import SpecializationTable from "@/components/specialization/SpecializationTable";
-import { Input } from "@/components/ui/input";
 import PermissionGuard from "@/components/common/PermissionGuard";
+import FiltersSection from "@/components/common/FiltersSection";
+import TableContainer from "@/components/common/TableContainer";
+import PaginationControls from "@/components/common/PaginationControls";
+import { useHeader } from "@/context/HeaderContext";
 
 export default function SpecializationsPage() {
   const limit = 25;
@@ -25,6 +28,7 @@ export default function SpecializationsPage() {
   const [search, setSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState("");
   const queryClient = useQueryClient();
+  const { setActionButton, setTotalCount } = useHeader();
 
   // ✅ Fetch all specializations
   const { data, isLoading } = useQuery({
@@ -107,6 +111,37 @@ export default function SpecializationsPage() {
     queryClient.invalidateQueries(["specialization"]);
   };
 
+  // Calculate total and items (before any early returns)
+  const total = data?.data?.total || 0;
+  const items = data?.data?.data || [];
+
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={handleAdd}
+            className="bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-md hover:shadow-lg transition-all duration-200 font-semibold px-6 py-2.5"
+          >
+            <Plus className="mr-2 h-3 w-5" /> Add Specialization
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
+
   // Show form view
   if (showForm) {
     return (
@@ -118,61 +153,49 @@ export default function SpecializationsPage() {
     );
   }
 
-  // Show table view
-  const total = data?.data?.total || 0;
-  const items = data?.data?.data || [];
+  const hasFilters = !!search || !!courseFilter;
+  const totalPages = data?.data?.pages || 1;
   
   return (
-    <div className="p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
-        <div className="flex flex-col gap-1">
-          <h3 className="text-xl font-bold">Specializations</h3>
-          <p className="text-sm text-muted-foreground">Total: {total}</p>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Input
-              placeholder="Search by name"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-72"
-            />
-            <select
-              value={courseFilter}
-              onChange={(e) => setCourseFilter(e.target.value)}
-              className="border rounded px-3 py-2 w-72"
-            >
-              <option value="">All Courses</option>
-              {courses.map((course) => (
-                <option key={course.id} value={course.id}>
-                  {course.name}
-                </option>
-              ))}
-            </select>
-            {(search || courseFilter) && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSearch("");
-                  setCourseFilter("");
-                }}
-                className="flex items-center gap-1"
-              >
-                <X className="h-4 w-4" />
-                Clear Filters
-              </Button>
-            )}
-          </div>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <FiltersSection
+        search={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
+        searchPlaceholder="Search by name..."
+        showClearButton={hasFilters}
+        onClearFilters={() => {
+          setSearch("");
+          setCourseFilter("");
+          setPage(1);
+        }}
+      >
+        <div className="relative">
+          <select
+            value={courseFilter}
+            onChange={(e) => {
+              setCourseFilter(e.target.value);
+              setPage(1);
+            }}
+            className="border border-gray-300 rounded-md px-4 py-2 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-700 min-w-[200px]"
+          >
+            <option value="">All Courses</option>
+            {courses.map((course) => (
+              <option key={course.id} value={course.id}>
+                {course.name}
+              </option>
+            ))}
+          </select>
         </div>
-        <PermissionGuard permission="create">
-          <Button onClick={handleAdd}>
-            <Plus className="mr-1 h-4 w-4" /> Add Specialization
-          </Button>
-        </PermissionGuard>
-      </div>
+      </FiltersSection>
 
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
+      <TableContainer
+        isLoading={isLoading}
+        isEmpty={!isLoading && items.length === 0}
+        emptyMessage="No specializations found."
+      >
         <SpecializationTable
           items={items}
           onEdit={handleEdit}
@@ -184,21 +207,15 @@ export default function SpecializationsPage() {
           currentPage={search || courseFilter ? 1 : page}
           limit={limit}
         />
-      )}
+      </TableContainer>
 
-      {/* Pagination */}
+      {/* Pagination - Only show when not searching/filtering */}
       {!search && !courseFilter && (
-        <div className="flex justify-center mt-4 gap-2">
-          <Button size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
-            Prev
-          </Button>
-          <span className="px-3 py-1">
-            Page {page} of {data?.data?.pages || 1}
-          </span>
-          <Button size="sm" disabled={page >= (data?.data?.pages || 0)} onClick={() => setPage(page + 1)}>
-            Next
-          </Button>
-        </div>
+        <PaginationControls
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       )}
     </div>
   );

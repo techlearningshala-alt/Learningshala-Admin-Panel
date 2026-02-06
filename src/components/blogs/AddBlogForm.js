@@ -398,7 +398,7 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
             </Button>
           </div>
         ) : (
-          <div className="flex gap-2">
+          <div className="flex gap-2 fix-position bottom-0 left-0 right-0">
             <Button
               type="button"
               className="flex-1"
