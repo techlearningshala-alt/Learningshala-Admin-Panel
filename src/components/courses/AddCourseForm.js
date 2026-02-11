@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import SafeCKEditor from "@/components/CKEditor";
-import { ArrowLeft, Plus, Trash } from "lucide-react";
+import { ArrowLeft, Plus, Trash, Info } from "lucide-react";
 import { MultiSelect } from "primereact/multiselect";
 
 const SECTION_TEMPLATES = [
@@ -98,6 +98,10 @@ const defaultFormValues = {
   meta_title: "",
   meta_description: "",
   duration: "",
+  duration_unit: "",
+  duration_schema_value: "",
+  eligibility: "",
+  eligibility_info: "",
   label: "",
   priority: "",
   author_name: "",
@@ -360,6 +364,32 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
         meta_title: source.meta_title || "",
         meta_description: source.meta_description || "",
         duration: source.course_duration ?? source.duration ?? "",
+        duration_unit: source.duration_for_schema 
+          ? (() => {
+              try {
+                const parsed = typeof source.duration_for_schema === 'string' 
+                  ? JSON.parse(source.duration_for_schema) 
+                  : source.duration_for_schema;
+                return parsed.month ? "months" : (parsed.year ? "years" : "");
+              } catch {
+                return "";
+              }
+            })()
+          : (source.duration_unit || ""),
+        duration_schema_value: source.duration_for_schema 
+          ? (() => {
+              try {
+                const parsed = typeof source.duration_for_schema === 'string' 
+                  ? JSON.parse(source.duration_for_schema) 
+                  : source.duration_for_schema;
+                return parsed.month || parsed.year || "";
+              } catch {
+                return "";
+              }
+            })()
+          : "",
+        eligibility: source.eligibility || "",
+        eligibility_info: source.eligibility_info || "",
         label: source.label || "",
         priority: source.priority ?? "",
         author_name: source.author_name ?? "",
@@ -599,6 +629,25 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
     appendIfPresent("meta_title", values.meta_title);
     appendIfPresent("meta_description", values.meta_description);
     appendIfPresent("course_duration", values.duration || "");
+    
+    // Format duration_for_schema as JSON object
+    if (values.duration_unit && values.duration_schema_value) {
+      const durationForSchema = {
+        month: values.duration_unit === "months" ? values.duration_schema_value : "",
+        year: values.duration_unit === "years" ? values.duration_schema_value : "",
+      };
+      formData.append("duration_for_schema", JSON.stringify(durationForSchema));
+    } else if (values.duration_unit || values.duration_schema_value) {
+      // If only one is set, still create the object
+      const durationForSchema = {
+        month: values.duration_unit === "months" ? (values.duration_schema_value || "") : "",
+        year: values.duration_unit === "years" ? (values.duration_schema_value || "") : "",
+      };
+      formData.append("duration_for_schema", JSON.stringify(durationForSchema));
+    }
+    
+    appendIfPresent("eligibility", values.eligibility);
+    appendIfPresent("eligibility_info", values.eligibility_info);
     appendIfPresent("label", values.label);
     appendIfPresent("priority", values.priority);
     appendIfPresent("author_name", values.author_name);
@@ -780,7 +829,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
         </div>
 
             <div className="space-y-2">
-              <Label>Duration</Label>
+              <Label>Duration (For Website)</Label>
               <Input
                 placeholder="Enter duration"
                 {...register("duration", {
@@ -790,6 +839,90 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
               {errors.duration && (
                 <p className="text-xs text-red-500">{errors.duration.message}</p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Duration (For Schema Only)</Label>
+              <Controller
+                name="duration_unit"
+                control={control}
+                render={({ field }) => (
+                  <div className="space-y-3">
+                    <div className="flex gap-6">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          id="duration_months"
+                          value="months"
+                          checked={field.value === "months"}
+                          onChange={() => {
+                            field.onChange("months");
+                            setValue("duration_schema_value", ""); // Clear value when switching
+                          }}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <Label htmlFor="duration_months" className="font-normal cursor-pointer">
+                          In Months
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          id="duration_years"
+                          value="years"
+                          checked={field.value === "years"}
+                          onChange={() => {
+                            field.onChange("years");
+                            setValue("duration_schema_value", ""); // Clear value when switching
+                          }}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <Label htmlFor="duration_years" className="font-normal cursor-pointer">
+                          In Years
+                        </Label>
+                      </div>
+                    </div>
+                    {field.value && (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder={`Enter duration in ${field.value}`}
+                          {...register("duration_schema_value", {
+                            required: field.value ? `Duration value is required` : false,
+                          })}
+                          className="w-32"
+                        />
+                        <span className="text-sm text-gray-600">{field.value}</span>
+                        {errors.duration_schema_value && (
+                          <p className="text-xs text-red-500">{errors.duration_schema_value.message}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <Label>Eligibility</Label>
+              <Textarea
+                placeholder="Enter eligibility criteria"
+                {...register("eligibility")}
+                className="min-h-[100px]"
+              />
+            </div>
+
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <div className="flex items-center gap-2">
+                <Label>Eligibility (i button)</Label>
+                <Info className="h-4 w-4 text-gray-400" />
+              </div>
+              <Textarea
+                placeholder="Enter eligibility information"
+                {...register("eligibility_info")}
+                className="min-h-[100px]"
+              />
             </div>
 
             <div className="space-y-2">

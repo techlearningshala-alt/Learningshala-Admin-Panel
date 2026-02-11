@@ -10,7 +10,7 @@ import { notifySuccess, notifyError } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { MultiSelect } from "primereact/multiselect";
 
 // ✅ Import reusable components and utilities
@@ -145,6 +145,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
   const [previewBanners, setPreviewBanners] = useState([]);
   const [existingLogo, setExistingLogo] = useState(null);
   const [existingBrochure, setExistingBrochure] = useState(null);
+  const [brochureRemoved, setBrochureRemoved] = useState(false);
   const [sectionPreviews, setSectionPreviews] = useState({});
   const [stagedFaqs, setStagedFaqs] = useState([]);
 
@@ -388,6 +389,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         university_logo: null,
         university_location: "",
         university_brochure: null,
+        brochureRemoved: false,
         author_name: "",
         banners: [{ banner_image: null, video_id: "", video_title: "", existing_banner_image: "", remove_image: false }],
         sections: defaultSections,
@@ -399,6 +401,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       setPreviewBanners([]);
       setExistingLogo(null);
       setExistingBrochure(null);
+      setBrochureRemoved(false);
       setSectionPreviews({});
       return;
     }
@@ -512,8 +515,10 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     // Handle brochure state
     if (item.university_brochure) {
       setExistingBrochure(item.university_brochure);
+      setBrochureRemoved(false);
     } else {
       setExistingBrochure(null);
+      setBrochureRemoved(false);
     }
 
     const bannerPreviews = (item.banners || []).map(b => b.banner_image ? `${process.env.NEXT_PUBLIC_thumbnail_URL}${b.banner_image}` : null);
@@ -719,7 +724,15 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       // No change: either new item with no logo, or edit mode with logo unchanged
       console.log("📤 [FRONTEND] No logo change - not appending to formData");
     }
-    if (data.university_brochure && data.university_brochure[0]) formData.append("university_brochure", data.university_brochure[0]);
+    // Handle brochure file
+    if (brochureRemoved && existingBrochure) {
+      formData.append("university_brochure", "__REMOVE__");
+    } else if (data.university_brochure && data.university_brochure[0]) {
+      formData.append("university_brochure", data.university_brochure[0]);
+    } else if (existingBrochure && !brochureRemoved) {
+      // Keep existing file
+      formData.append("university_brochure", existingBrochure);
+    }
     // 🔹 Banners (supports multiple)
     const banners = data.banners.map((banner, index) => {
       const bannerData = { ...banner };
@@ -1004,17 +1017,44 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             </div>
             <div className="space-y-3">
               <Label className="text-sm font-medium text-gray-700">Brochure</Label>
-              {existingBrochure && (
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                  <p className="text-sm text-blue-700 break-all font-medium">
-                    Current: {existingBrochure}
+              {existingBrochure && !brochureRemoved && (
+                <div className="relative p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <p className="text-sm text-blue-700 break-all font-medium pr-8">
+                    Current: {existingBrochure.split('/').pop()}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBrochureRemoved(true);
+                      setValue("university_brochure", null);
+                      const input = document.querySelector('input[name="university_brochure"]');
+                      if (input) input.value = "";
+                    }}
+                    className="absolute top-2 right-2 p-1 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors"
+                    title="Remove brochure"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+              {brochureRemoved && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-sm text-red-700 font-medium">
+                    Brochure will be removed on save
                   </p>
                 </div>
               )}
               <Input 
                 type="file" 
                 accept="application/pdf" 
+                name="university_brochure"
                 {...register("university_brochure")}
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    setBrochureRemoved(false);
+                  }
+                  register("university_brochure").onChange(e);
+                }}
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               />
             </div>
