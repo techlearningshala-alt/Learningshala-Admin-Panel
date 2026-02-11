@@ -105,6 +105,7 @@ const defaultFormValues = {
   label: "",
   priority: "",
   author_name: "",
+   emi_facility: false,
   learning_mode: "",
   podcast_embed: "",
   course_intro: "",
@@ -393,6 +394,10 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
         label: source.label || "",
         priority: source.priority ?? "",
         author_name: source.author_name ?? "",
+        emi_facility:
+          typeof source.emi_facility === "boolean"
+            ? source.emi_facility
+            : Boolean(source.emi_facility),
         learning_mode: source.learning_mode ?? "",
         podcast_embed: source.podcast_embed ?? "",
         course_intro: source.course_intro ?? source.description ?? "",
@@ -651,6 +656,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
     appendIfPresent("label", values.label);
     appendIfPresent("priority", values.priority);
     appendIfPresent("author_name", values.author_name);
+    appendIfPresent("emi_facility", values.emi_facility);
     appendIfPresent("learning_mode", values.learning_mode);
     appendIfPresent("podcast_embed", values.podcast_embed);
     appendIfPresent("course_intro", values.course_intro);
@@ -841,14 +847,14 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="flex items-center gap-6">
               <Label>Duration (For Schema Only)</Label>
               <Controller
                 name="duration_unit"
                 control={control}
                 render={({ field }) => (
                   <div className="space-y-3">
-                    <div className="flex gap-6">
+                    <div className="inline-flex gap-6">
                       <div className="flex items-center space-x-2">
                         <input
                           type="radio"
@@ -904,16 +910,16 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
               />
             </div>
 
-            <div className="space-y-2 col-span-1 md:col-span-2">
-              <Label>Eligibility</Label>
+            <div className="space-y-2">
+              <Label>Eligibility (In Short)</Label>
               <Textarea
                 placeholder="Enter eligibility criteria"
                 {...register("eligibility")}
-                className="min-h-[100px]"
+                className="w-full border rounded px-3 py-2 h-17"
               />
             </div>
 
-            <div className="space-y-2 col-span-1 md:col-span-2">
+            <div className="space-y-2 ">
               <div className="flex items-center gap-2">
                 <Label>Eligibility (i button)</Label>
                 <Info className="h-4 w-4 text-gray-400" />
@@ -921,19 +927,8 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
               <Textarea
                 placeholder="Enter eligibility information"
                 {...register("eligibility_info")}
-                className="min-h-[100px]"
+                className="w-full border rounded px-3 py-2 h-17"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Label (Menu Text)</Label>
-              <Input
-                placeholder="Short label for menu"
-                {...register("label")}
-              />
-              {errors.label && (
-                <p className="text-xs text-red-500">{errors.label.message}</p>
-              )}
             </div>
 
         <div className="space-y-2">
@@ -948,16 +943,60 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
                 <p className="text-xs text-red-500">{errors.priority.message}</p>
               )}
             </div>
-
+            <div className="space-y-2">
+              <Label>Label (Menu Text)</Label>
+              <Input
+                placeholder="Short label for menu"
+                {...register("label")}
+              />
+              {errors.label && (
+                <p className="text-xs text-red-500">{errors.label.message}</p>
+              )}
+            </div>
             <div className="space-y-2">
               <Label>Author Name</Label>
-              <Input placeholder="Editor / Subject matter expert" {...register("author_name", { required: "Author name is required" })} />
+              <Input
+                placeholder="Editor / Subject matter expert"
+                {...register("author_name", { required: "Author name is required" })}
+              />
               {errors.author_name && (
                 <p className="text-xs text-red-500">{errors.author_name.message}</p>
-          )}
-        </div>
+              )}
+            </div>
 
-            
+
+            <div className="space-y-2">
+              <Label>Learning Mode</Label>
+              <Input
+                placeholder="Ex. Online, Distance, Hybrid"
+                {...register("learning_mode")}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>EMI Facility</Label>
+              <div className="flex items-center gap-6">
+                <label className="inline-flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="yes"
+                    checked={watch("emi_facility") === true}
+                    onChange={() => setValue("emi_facility", true, { shouldDirty: true })}
+                    className="h-4 w-4 text-blue-600"
+                  />
+                  <span className="text-sm">Yes</span>
+                </label>
+                <label className="inline-flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="no"
+                    checked={watch("emi_facility") === false}
+                    onChange={() => setValue("emi_facility", false, { shouldDirty: true })}
+                    className="h-4 w-4 text-blue-600"
+                  />
+                  <span className="text-sm">No</span>
+                </label>
+              </div>
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -1079,10 +1118,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
               {...register("podcast_embed")}
             />
           </div>
-          <div className="space-y-2">
-              <Label>Learning Mode</Label>
-              <Input placeholder="Ex. Online, Distance, Hybrid" {...register("learning_mode")} />
-            </div>
+          
         </section>
 
         <section className="border rounded-lg p-4 space-y-4">

@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import SafeCKEditor from "@/components/CKEditor";
-import { ArrowLeft, Plus, Trash } from "lucide-react";
+import { ArrowLeft, Plus, Trash, Info } from "lucide-react";
 import { MultiSelect } from "primereact/multiselect";
 import FormActionButtons from "@/components/common/FormActionButtons";
 
@@ -97,12 +97,17 @@ const defaultFormValues = {
   meta_title: "",
   meta_description: "",
   duration: "",
+  duration_unit: "",
+  duration_schema_value: "",
+  eligibility: "",
+  eligibility_info: "",
   label: "",
   priority: "",
   author_name: "",
   learning_mode: "",
   podcast_embed: "",
   specialization_intro: "",
+  emi_facility: false,
 };
 
 export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
@@ -564,9 +569,29 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
     appendIfPresent("meta_title", values.meta_title);
     appendIfPresent("meta_description", values.meta_description);
     appendIfPresent("course_duration", values.duration || "");
+    
+    // Format duration_for_schema as JSON object
+    if (values.duration_unit && values.duration_schema_value) {
+      const durationForSchema = {
+        month: values.duration_unit === "months" ? values.duration_schema_value : "",
+        year: values.duration_unit === "years" ? values.duration_schema_value : "",
+      };
+      formData.append("duration_for_schema", JSON.stringify(durationForSchema));
+    } else if (values.duration_unit || values.duration_schema_value) {
+      // If only one is set, still create the object
+      const durationForSchema = {
+        month: values.duration_unit === "months" ? (values.duration_schema_value || "") : "",
+        year: values.duration_unit === "years" ? (values.duration_schema_value || "") : "",
+      };
+      formData.append("duration_for_schema", JSON.stringify(durationForSchema));
+    }
+    
+    appendIfPresent("eligibility", values.eligibility);
+    appendIfPresent("eligibility_info", values.eligibility_info);
     appendIfPresent("label", values.label);
     appendIfPresent("priority", values.priority);
     appendIfPresent("author_name", values.author_name);
+    appendIfPresent("emi_facility", values.emi_facility ? "true" : "false");
     appendIfPresent("learning_mode", values.learning_mode);
     appendIfPresent("podcast_embed", values.podcast_embed);
     appendIfPresent("specialization_intro", values.specialization_intro);
@@ -788,7 +813,140 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
               )}
             </div>
 
-            
+            <div className="space-y-2">
+              <Label>Learning Mode</Label>
+              <Input
+                placeholder="Ex. Online, Distance, Hybrid"
+                {...register("learning_mode")}
+              />
+            </div>
+
+            <div className="flex items-center gap-6 space-y-2">
+              <Label>Duration (For Schema Only)</Label>
+              <Controller
+                name="duration_unit"
+                control={control}
+                render={({ field }) => (
+                  <div className="space-y-3">
+                    <div className="inline-flex gap-6">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          id="duration_months"
+                          value="months"
+                          checked={field.value === "months"}
+                          onChange={() => {
+                            field.onChange("months");
+                            setValue("duration_schema_value", ""); // Clear value when switching
+                          }}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <Label htmlFor="duration_months" className="font-normal cursor-pointer">
+                          In Months
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          id="duration_years"
+                          value="years"
+                          checked={field.value === "years"}
+                          onChange={() => {
+                            field.onChange("years");
+                            setValue("duration_schema_value", ""); // Clear value when switching
+                          }}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <Label htmlFor="duration_years" className="font-normal cursor-pointer">
+                          In Years
+                        </Label>
+                      </div>
+                    </div>
+                    {field.value && (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder={`Enter duration in ${field.value}`}
+                          {...register("duration_schema_value", {
+                            required: field.value ? `Duration value is required` : false,
+                          })}
+                          className="w-32"
+                        />
+                        <span className="text-sm text-gray-600">{field.value}</span>
+                        {errors.duration_schema_value && (
+                          <p className="text-xs text-red-500">{errors.duration_schema_value.message}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2 ">
+              <Label>Eligibility</Label>
+              <Textarea
+                placeholder="Enter eligibility criteria"
+                {...register("eligibility")}
+                className="w-full border rounded px-3 py-2 h-17"
+              />
+            </div>
+
+            <div className="space-y-2 ">
+              <div className="flex items-center gap-2">
+                <Label>Eligibility (i button)</Label>
+                <Info className="h-4 w-4 text-gray-400" />
+              </div>
+              <Textarea
+                placeholder="Enter eligibility information"
+                {...register("eligibility_info")}
+                className="w-full border rounded px-3 py-2 h-17"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>EMI Facility</Label>
+              <Controller
+                name="emi_facility"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex gap-6">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="emi_yes"
+                        value="true"
+                        checked={field.value === true}
+                        onChange={() => field.onChange(true)}
+                        className="h-4 w-4 text-blue-600"
+                      />
+                      <Label htmlFor="emi_yes" className="font-normal cursor-pointer">
+                        Yes
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="emi_no"
+                        value="false"
+                        checked={field.value === false}
+                        onChange={() => field.onChange(false)}
+                        className="h-4 w-4 text-blue-600"
+                      />
+                      <Label htmlFor="emi_no" className="font-normal cursor-pointer">
+                        No
+                      </Label>
+                    </div>
+                    
+                  </div>
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Learning Mode</Label>
+              <Input placeholder="Ex. Online, Distance, Hybrid" {...register("learning_mode")} />
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -904,10 +1062,6 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
               {...register("podcast_embed")}
             />
           </div>
-          <div className="space-y-2">
-              <Label>Learning Mode</Label>
-              <Input placeholder="Ex. Online, Distance, Hybrid" {...register("learning_mode")} />
-            </div>
         </section>
 
         <section className="border rounded-lg p-4 space-y-4">
