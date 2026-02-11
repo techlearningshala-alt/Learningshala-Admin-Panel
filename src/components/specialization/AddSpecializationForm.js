@@ -319,13 +319,40 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
         meta_title: source.meta_title || "",
         meta_description: source.meta_description || "",
         duration: source.course_duration ?? source.duration ?? "",
-        label: source.label || "",
-        priority: source.priority ?? "",
-        author_name: source.author_name ?? "",
-        learning_mode: source.learning_mode ?? "",
-        podcast_embed: source.podcast_embed ?? "",
-        specialization_intro: source.specialization_intro ?? source.description ?? "",
-      };
+        duration_unit: source.duration_for_schema 
+        ? (() => {
+            try {
+              const parsed = typeof source.duration_for_schema === 'string' 
+                ? JSON.parse(source.duration_for_schema) 
+                : source.duration_for_schema;
+              return parsed.month ? "months" : (parsed.year ? "years" : "");
+            } catch {
+              return "";
+            }
+          })()
+        : "",
+      duration_schema_value: source.duration_for_schema 
+        ? (() => {
+            try {
+              const parsed = typeof source.duration_for_schema === 'string' 
+                ? JSON.parse(source.duration_for_schema) 
+                : source.duration_for_schema;
+              return parsed.month || parsed.year || "";
+            } catch {
+              return "";
+            }
+          })()
+        : "",
+      eligibility: source.eligibility || "",
+      eligibility_info: source.eligibility_info || "",
+      label: source.label || "",
+      priority: source.priority ?? "",
+      author_name: source.author_name ?? "",
+      learning_mode: source.learning_mode ?? "",
+      podcast_embed: source.podcast_embed ?? "",
+      specialization_intro: source.specialization_intro ?? source.description ?? "",
+      emi_facility: source.emi_facility === undefined || source.emi_facility === null ? false : Boolean(source.emi_facility),
+    };
 
       reset(hydratedValues);
       setSections(hydrateSections(source));
@@ -828,7 +855,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
                 control={control}
                 render={({ field }) => (
                   <div className="space-y-3">
-                    <div className="inline-flex gap-6">
+                    <div className="flex gap-6">
                       <div className="flex items-center space-x-2">
                         <input
                           type="radio"
@@ -943,10 +970,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
                 )}
               />
             </div>
-            <div className="space-y-2">
-              <Label>Learning Mode</Label>
-              <Input placeholder="Ex. Online, Distance, Hybrid" {...register("learning_mode")} />
-            </div>
+            
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
