@@ -7,7 +7,7 @@ export default function RedirectionTable({ redirections, onEdit, onDelete }) {
   if (!redirections || redirections.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
-        No redirections found. Click "Add New Redirection" to create one.
+        No redirections found. Click &quot;Add New Redirection&quot; to create one.
       </div>
     );
   }
