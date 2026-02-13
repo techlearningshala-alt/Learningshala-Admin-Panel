@@ -107,8 +107,8 @@ export default function CoursesPage() {
         <PermissionGuard permission="create">
           <Button 
             onClick={handleAdd}
-            className="bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-md hover:shadow-lg transition-all duration-200 font-semibold px-6 py-2.5"
-          >
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+            >
             <Plus className="mr-2 h-3 w-5" /> Add New Course
           </Button>
         </PermissionGuard>

@@ -48,6 +48,7 @@ export default function App({ Component, pageProps }) {
     "/authors",
     "/website-banners",
     "/mobile-banners",
+    "/redirections",
   ];
 
   const useCMSLayout = cmsPages.some((path) => router.pathname.startsWith(path));
