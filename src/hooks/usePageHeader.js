@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -24,7 +24,9 @@ export function usePageHeader({ buttonText, onClick, total, showForm, buttonClas
     onClickRef.current = onClick;
   }, [onClick]);
 
-  useEffect(() => {
+  // Use useLayoutEffect to run synchronously before browser paints
+  // This ensures the button appears immediately, even in production
+  useLayoutEffect(() => {
     if (!showForm) {
       const defaultClassName = "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white";
       const actionBtn = (
