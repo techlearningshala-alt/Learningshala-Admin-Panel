@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -112,8 +112,11 @@ export default function CoursesPage() {
   const items = data?.data?.data || [];
 
   // Set action button and total count in header (must be before early return)
-  // Use useLayoutEffect to run synchronously before paint, ensuring button appears immediately
-  useLayoutEffect(() => {
+  // Use useEffect with immediate execution to ensure it works in both local and production
+  useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     if (!showForm) {
       const actionBtn = (
         <PermissionGuard permission="create">
