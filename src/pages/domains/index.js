@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchDomains, deleteDomain } from "@/lib/menuApi";
@@ -80,7 +80,8 @@ export default function DomainsPage() {
   const total = data?.data?.total || 0;
 
   // Set action button and total count in header (must be before early return)
-  useEffect(() => {
+  // Use useLayoutEffect to run synchronously before paint, ensuring button appears immediately
+  useLayoutEffect(() => {
     if (!showForm) {
       const actionBtn = (
         <PermissionGuard permission="create">

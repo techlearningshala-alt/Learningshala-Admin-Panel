@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchUniversities, deleteUniversity, toggleUniversityStatus, toggleUniversityPageCreated, toggleUniversityMenuVisibility, toggleUniversityProvideEmi, fetchApprovals, fetchAllPlacementPartners, fetchAllEmiPartners } from "@/lib/universityApi";
 import { fetchUniversityTypes } from "@/lib/api";
@@ -173,7 +173,8 @@ export default function UniversitiesPage() {
   const total = data?.data?.total || 0;
 
   // Set action button and total count in header (must be before early return)
-  useEffect(() => {
+  // Use useLayoutEffect to run synchronously before paint, ensuring button appears immediately
+  useLayoutEffect(() => {
     if (!showForm) {
       const actionBtn = (
         <PermissionGuard permission="create">

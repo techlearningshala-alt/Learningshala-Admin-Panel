@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useLayoutEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchUniversityCourseSpecializations,
@@ -102,7 +102,8 @@ export default function UniversityCourseSpecializationsPage() {
   };
 
   // Set action button and total count in header (must be before early return)
-  useEffect(() => {
+  // Use useLayoutEffect to run synchronously before paint, ensuring button appears immediately
+  useLayoutEffect(() => {
     if (!showForm) {
       const actionBtn = (
         <PermissionGuard permission="create">

@@ -28,18 +28,8 @@ export default function Layout({ children }) {
     return Sidebar.getPageTitle(pathname);
   }, [pathname]);
 
-  // Clear action button and total count when route changes
-  useEffect(() => {
-    // Clear immediately when pathname changes
-    setActionButton(null);
-    setTotalCount(null);
-    
-    // Also clear on unmount
-    return () => {
-      setActionButton(null);
-      setTotalCount(null);
-    };
-  }, [pathname, setActionButton, setTotalCount]);
+  // Don't clear header state on route change - let each page manage its own state
+  // This avoids race conditions where Layout clears after page sets the button
 
   return (
     <>
