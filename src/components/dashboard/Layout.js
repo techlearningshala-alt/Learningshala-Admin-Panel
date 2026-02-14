@@ -30,6 +30,11 @@ export default function Layout({ children }) {
 
   // Clear action button and total count when route changes
   useEffect(() => {
+    // Clear immediately when pathname changes
+    setActionButton(null);
+    setTotalCount(null);
+    
+    // Also clear on unmount
     return () => {
       setActionButton(null);
       setTotalCount(null);
@@ -66,7 +71,7 @@ export default function Layout({ children }) {
             </div>
           </header>
 
-          <main className="p-6 min-w-[800px]">{children}</main>
+          <main className="min-w-[800px]">{children}</main>
         </div>
       </div>
 

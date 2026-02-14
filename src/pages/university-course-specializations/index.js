@@ -12,13 +12,11 @@ import {
 import { notifySuccess, notifyError } from "@/lib/notify";
 import UniversityCourseSpecializationTable from "@/components/university-course-specializations/UniversityCourseSpecializationTable";
 import AddUniversityCourseSpecializationForm from "@/components/university-course-specializations/AddUniversityCourseSpecializationForm";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import PageHeader from "@/components/common/PageHeader";
 import FiltersSection from "@/components/common/FiltersSection";
 import TableContainer from "@/components/common/TableContainer";
 import PaginationControls from "@/components/common/PaginationControls";
 import PermissionGuard from "@/components/common/PermissionGuard";
+import { usePageHeader } from "@/hooks/usePageHeader";
 
 const PAGE_SIZE = 25;
 
@@ -100,6 +98,15 @@ export default function UniversityCourseSpecializationsPage() {
     setShowForm(true);
   };
 
+  // Set action button and total count in header
+  usePageHeader({
+    buttonText: "Add New Specialization",
+    onClick: () => openForm(),
+    total,
+    showForm,
+    buttonClassName: "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-600 text-white py-0.5 px-3 rounded-md shadow-md",
+  });
+
   const closeForm = () => {
     setShowForm(false);
     setEditingSpecialization(null);
@@ -134,23 +141,7 @@ export default function UniversityCourseSpecializationsPage() {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <PageHeader
-        title="University Course Specializations"
-        total={total}
-        search={search}
-        actionButton={
-          <PermissionGuard permission="create">
-            <Button 
-              onClick={() => openForm()}
-              className="bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-md hover:shadow-lg transition-all duration-200 font-semibold px-6 py-2.5"
-            >
-              <Plus className="mr-2 h-3 w-5" /> Add New Specialization
-            </Button>
-          </PermissionGuard>
-        }
-      />
-
+    <div className="p-1 bg-gray-100 min-h-screen">
       <FiltersSection
         search={search}
         onSearchChange={(value) => {
@@ -172,7 +163,7 @@ export default function UniversityCourseSpecializationsPage() {
               setSelectedUniversity(e.target.value);
               setPage(1);
             }}
-            className="border border-gray-300 rounded-md px-4 py-2 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-700 min-w-[200px]"
+            className="border border-gray-300 rounded-md px-4 py-0.5 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-700 min-w-[200px]"
           >
             <option value="">All Universities</option>
             {universities.map((uni) => (

@@ -5,16 +5,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchUniversities, deleteUniversity, toggleUniversityStatus, toggleUniversityPageCreated, toggleUniversityMenuVisibility, toggleUniversityProvideEmi, fetchApprovals, fetchAllPlacementPartners, fetchAllEmiPartners } from "@/lib/universityApi";
 import { fetchUniversityTypes } from "@/lib/api";
 
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import UniversityTable from "@/components/universities/UniversityTable";
 import AddUniversityForm from "@/components/universities/AddUniversityForm";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import PermissionGuard from "@/components/common/PermissionGuard";
-import PageHeader from "@/components/common/PageHeader";
 import FiltersSection from "@/components/common/FiltersSection";
 import TableContainer from "@/components/common/TableContainer";
 import PaginationControls from "@/components/common/PaginationControls";
+import { usePageHeader } from "@/hooks/usePageHeader";
 
 export default function UniversitiesPage() {
   const [selectedUniversity, setSelectedUniversity] = useState(null);
@@ -167,6 +165,18 @@ export default function UniversitiesPage() {
     }
   };
 
+  // Calculate total and items (before any early returns)
+  const items = data?.data?.data || [];
+  const total = data?.data?.total || 0;
+
+  // Set action button and total count in header
+  usePageHeader({
+    buttonText: "Add New University",
+    onClick: handleAdd,
+    total,
+    showForm,
+  });
+
   // Show form view
   if (showForm) {
     return (
@@ -183,27 +193,8 @@ export default function UniversitiesPage() {
   }
 
   // Show table view - no client-side filtering needed, backend handles it
-  const items = data?.data?.data || [];
-  const total = data?.data?.total || 0;
-  
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <PageHeader
-        title="Universities"
-        total={total}
-        search={search}
-        actionButton={
-          <PermissionGuard permission="create">
-            <Button 
-              onClick={handleAdd}
-              className="bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-md hover:shadow-lg transition-all duration-200 font-semibold px-6 py-2.5"
-            >
-              <Plus className="mr-2 h-3 w-5" /> Add New University
-            </Button>
-          </PermissionGuard>
-        }
-      />
-
+    <div className="p-1 bg-gray-100 min-h-screen">
       <FiltersSection
         search={search}
         onSearchChange={(value) => {
@@ -225,7 +216,7 @@ export default function UniversitiesPage() {
               setUniversityTypeFilter(e.target.value);
               setPage(1);
             }}
-            className="border border-gray-300 rounded-md px-4 py-2 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-700 min-w-[200px]"
+            className="border border-gray-300 rounded-md px-4 py-0.5 pr-8 focus:border-blue-500 focus:ring-blue-500  text-gray-700 min-w-[200px]"
           >
             <option value="">All University Types</option>
             {universityTypes.map((type) => (

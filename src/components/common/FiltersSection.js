@@ -24,7 +24,7 @@ export default function FiltersSection({
   onClearFilters,
 }) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 mb-6 border border-gray-200">
+    <div className="bg-white rounded-lg shadow-md p-2 mb-3 border border-gray-200">
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[280px]">
           <Input

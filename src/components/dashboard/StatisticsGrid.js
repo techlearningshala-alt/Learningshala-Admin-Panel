@@ -124,10 +124,10 @@ export default function StatisticsGrid({ statistics, isLoading, userRole }) {
   ];
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 items-stretch">
+    <div className="flex flex-col lg:flex-row gap-4 items-stretch">
       {/* First div: University and Degree data (2 rows × 3 columns) */}
       <div className="flex-[3.5] w-full lg:w-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {universityDegreeStats.map((stat, index) => (
             <StatCard
               key={index}
@@ -142,7 +142,7 @@ export default function StatisticsGrid({ statistics, isLoading, userRole }) {
 
       {/* Second div: Other data (single column, parallel, same height) */}
       <div className="flex-1 w-full lg:w-auto lg:max-w-sm">
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 gap-4">
           {otherStats.map((stat, index) => (
             <StatCard
               key={index}

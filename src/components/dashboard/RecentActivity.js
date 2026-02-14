@@ -189,9 +189,9 @@ export default function RecentActivity({ data, isLoading, userRole }) {
       {/* Recent Universities - Visible to all except lead */}
       {!isLead && data?.recentUniversities?.length > 0 && (
         <Card>
-          <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b">
-            <CardTitle className="flex items-center justify-between text-lg font-semibold">
-              <span className="text-gray-800">Recent Universities</span>
+          <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b h-15">
+            <CardTitle className="flex items-center justify-between text-lg font-semibold  py-2">
+              <span className="text-gray-800 py-2">Recent Universities</span>
               <Link
                 href="/universities"
                 className="text-sm text-orange-600 hover:text-orange-700 font-medium hover:underline transition-colors"
@@ -201,11 +201,11 @@ export default function RecentActivity({ data, isLoading, userRole }) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {data.recentUniversities.slice(0, 5).map((university) => (
                 <div
                   key={university.id}
-                  className="p-4 border border-gray-200 rounded-lg hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 transition-all duration-200 hover:shadow-md hover:border-orange-200 cursor-pointer"
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 transition-all duration-200 hover:shadow-md hover:border-orange-200 cursor-pointer mb-2"
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
@@ -225,9 +225,9 @@ export default function RecentActivity({ data, isLoading, userRole }) {
       {/* Recent Courses - Visible to all except lead */}
       {!isLead && data?.recentCourses?.length > 0 && (
         <Card>
-          <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50 border-b">
-            <CardTitle className="flex items-center justify-between text-lg font-semibold">
-              <span className="text-gray-800">Recent Courses</span>
+          <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50 border-b h-15">
+            <CardTitle className="flex items-center justify-between text-lg font-semibold py-2">
+              <span className="text-gray-800 py-2">Recent Courses</span>
               <Link
                 href="/university-courses"
                 className="text-sm text-indigo-600 hover:text-indigo-700 font-medium hover:underline transition-colors"
@@ -237,7 +237,7 @@ export default function RecentActivity({ data, isLoading, userRole }) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {data.recentCourses.slice(0, 5).map((course) => (
                 <div
                   key={course.id}

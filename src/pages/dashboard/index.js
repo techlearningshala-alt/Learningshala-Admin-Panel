@@ -25,9 +25,9 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-4 p-3">
         {/* Welcome Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-4 text-white shadow-lg">
+        <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-xl px-5 py-3 text-white shadow-lg ">
           <h2 className="text-6xl font-bold mb-1">
             Welcome back, {user?.name || "User"} 🎉
           </h2>
@@ -70,7 +70,7 @@ export default function DashboardPage() {
             {/* Main Statistics Grid - Hidden for lead role */}
             {user?.role !== "lead" && (
               <div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                   <span className="w-1 h-8 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full"></span>
                   Overview Statistics
                 </h3>
@@ -84,7 +84,7 @@ export default function DashboardPage() {
 
             {/* Recent Activity */}
             <div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <span className="w-1 h-8 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full"></span>
                 Recent Activity
               </h3>

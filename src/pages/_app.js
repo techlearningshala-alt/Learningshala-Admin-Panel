@@ -63,10 +63,10 @@ export default function App({ Component, pageProps }) {
         <AuthProvider>
           {useCMSLayout ? (
             <CMSLayout>
-              <Component {...pageProps} />
+              <Component key={router.pathname} {...pageProps} />
             </CMSLayout>
           ) : (
-            <Component {...pageProps} />
+            <Component key={router.pathname} {...pageProps} />
           )}
           <Toaster position="top-right" reverseOrder={false} />
         </AuthProvider>

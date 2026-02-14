@@ -157,7 +157,7 @@ export default function SpecializationsPage() {
   const totalPages = data?.data?.pages || 1;
   
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen">
       <FiltersSection
         search={search}
         onSearchChange={(value) => {
@@ -179,7 +179,7 @@ export default function SpecializationsPage() {
               setCourseFilter(e.target.value);
               setPage(1);
             }}
-            className="border border-gray-300 rounded-md px-4 py-2 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-700 min-w-[200px]"
+            className="border border-gray-300 rounded-md px-4 py-1 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-700 min-w-[200px]"
           >
             <option value="">All Courses</option>
             {courses.map((course) => (
