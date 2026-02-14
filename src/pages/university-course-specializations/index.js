@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchUniversityCourseSpecializations,
@@ -10,13 +10,15 @@ import {
   toggleUniversityCourseSpecializationPageCreated,
 } from "@/lib/universityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import UniversityCourseSpecializationTable from "@/components/university-course-specializations/UniversityCourseSpecializationTable";
 import AddUniversityCourseSpecializationForm from "@/components/university-course-specializations/AddUniversityCourseSpecializationForm";
 import FiltersSection from "@/components/common/FiltersSection";
 import TableContainer from "@/components/common/TableContainer";
 import PaginationControls from "@/components/common/PaginationControls";
 import PermissionGuard from "@/components/common/PermissionGuard";
-import { usePageHeader } from "@/hooks/usePageHeader";
+import { useHeader } from "@/context/HeaderContext";
 
 const PAGE_SIZE = 25;
 
@@ -30,6 +32,7 @@ const normalizeApiList = (payload) => {
 
 export default function UniversityCourseSpecializationsPage() {
   const queryClient = useQueryClient();
+  const { setActionButton, setTotalCount } = useHeader();
   const [showForm, setShowForm] = useState(false);
   const [editingSpecialization, setEditingSpecialization] = useState(null);
   const [page, setPage] = useState(1);
@@ -98,14 +101,32 @@ export default function UniversityCourseSpecializationsPage() {
     setShowForm(true);
   };
 
-  // Set action button and total count in header
-  usePageHeader({
-    buttonText: "Add New Specialization",
-    onClick: () => openForm(),
-    total,
-    showForm,
-    buttonClassName: "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-600 text-white py-0.5 px-3 rounded-md shadow-md",
-  });
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={() => openForm()}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-600 text-white py-0.5 px-3 rounded-md shadow-md"
+            >
+            <Plus className="mr-2 h-3 w-5" /> Add New Specialization
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
 
   const closeForm = () => {
     setShowForm(false);

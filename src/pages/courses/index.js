@@ -9,6 +9,8 @@ import {
   toggleCourseStatus,
   toggleCourseMenuVisibility,
 } from "@/lib/menuApi";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import AddCourseForm from "@/components/courses/AddCourseForm";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import CourseTable from "@/components/courses/CourseTable";
@@ -16,7 +18,7 @@ import PermissionGuard from "@/components/common/PermissionGuard";
 import FiltersSection from "@/components/common/FiltersSection";
 import TableContainer from "@/components/common/TableContainer";
 import PaginationControls from "@/components/common/PaginationControls";
-import { usePageHeader } from "@/hooks/usePageHeader";
+import { useHeader } from "@/context/HeaderContext";
 
 export default function CoursesPage() {
   const limit = 20;
@@ -26,6 +28,7 @@ export default function CoursesPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
+  const { setActionButton, setTotalCount } = useHeader();
 
   // Reset state when route changes
   useEffect(() => {
@@ -108,13 +111,32 @@ export default function CoursesPage() {
   const total = data?.data?.total || 0;
   const items = data?.data?.data || [];
 
-  // Set action button and total count in header
-  usePageHeader({
-    buttonText: "Add New Course",
-    onClick: handleAdd,
-    total,
-    showForm,
-  });
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={handleAdd}
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+            >
+            <Plus className="mr-2 h-3 w-5" /> Add New Course
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
 
   // Show form view
   if (showForm) {

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchUniversities, deleteUniversity, toggleUniversityStatus, toggleUniversityPageCreated, toggleUniversityMenuVisibility, toggleUniversityProvideEmi, fetchApprovals, fetchAllPlacementPartners, fetchAllEmiPartners } from "@/lib/universityApi";
 import { fetchUniversityTypes } from "@/lib/api";
 
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import UniversityTable from "@/components/universities/UniversityTable";
 import AddUniversityForm from "@/components/universities/AddUniversityForm";
 import { notifySuccess, notifyError } from "@/lib/notify";
@@ -12,7 +14,7 @@ import PermissionGuard from "@/components/common/PermissionGuard";
 import FiltersSection from "@/components/common/FiltersSection";
 import TableContainer from "@/components/common/TableContainer";
 import PaginationControls from "@/components/common/PaginationControls";
-import { usePageHeader } from "@/hooks/usePageHeader";
+import { useHeader } from "@/context/HeaderContext";
 
 export default function UniversitiesPage() {
   const [selectedUniversity, setSelectedUniversity] = useState(null);
@@ -22,6 +24,7 @@ export default function UniversitiesPage() {
   const [universityTypeFilter, setUniversityTypeFilter] = useState("");
 
   const queryClient = useQueryClient();
+  const { setActionButton, setTotalCount } = useHeader();
 
   // Fetch paginated universities
   const { data, isLoading, refetch } = useQuery({
@@ -169,13 +172,32 @@ export default function UniversitiesPage() {
   const items = data?.data?.data || [];
   const total = data?.data?.total || 0;
 
-  // Set action button and total count in header
-  usePageHeader({
-    buttonText: "Add New University",
-    onClick: handleAdd,
-    total,
-    showForm,
-  });
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={handleAdd}
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+            >
+            <Plus className="mr-2 h-3 w-5" /> Add New University
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
 
   // Show form view
   if (showForm) {

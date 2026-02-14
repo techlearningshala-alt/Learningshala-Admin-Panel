@@ -1,6 +1,6 @@
  "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchUniversityCourses,
@@ -10,13 +10,15 @@ import {
   toggleUniversityCoursePageCreated,
 } from "@/lib/universityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import UniversityCourseTable from "@/components/university-courses/UniversityCourseTable";
 import AddUniversityCourseForm from "@/components/university-courses/AddUniversityCourseForm";
 import PermissionGuard from "@/components/common/PermissionGuard";
 import FiltersSection from "@/components/common/FiltersSection";
 import TableContainer from "@/components/common/TableContainer";
 import PaginationControls from "@/components/common/PaginationControls";
-import { usePageHeader } from "@/hooks/usePageHeader";
+import { useHeader } from "@/context/HeaderContext";
 
 const PAGE_SIZE = 20;
 
@@ -30,6 +32,7 @@ const normalizeApiList = (payload) => {
 
 export default function UniversityCoursesPage() {
   const queryClient = useQueryClient();
+  const { setActionButton, setTotalCount } = useHeader();
   const [showForm, setShowForm] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
   const [page, setPage] = useState(1);
@@ -98,14 +101,32 @@ export default function UniversityCoursesPage() {
     setShowForm(true);
   };
 
-  // Set action button and total count in header
-  usePageHeader({
-    buttonText: "Add New Course",
-    onClick: () => openForm(),
-    total,
-    showForm,
-    buttonClassName: "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white",
-  });
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={() => openForm()}
+            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white"
+            >
+            <Plus className="mr-2 h-3 w-5" /> Add New Course
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
 
   const closeForm = () => {
     setShowForm(false);
