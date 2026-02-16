@@ -75,7 +75,7 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
                       console.log(`🧪 [BANNERS] New file selected`, { index, name: file.name });
                     }
                   }}
-                  className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8 "
                 />
               </div>
 
@@ -85,7 +85,7 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
                 <Input 
                   {...register(`${bannerField}.video_id`)} 
                   placeholder="Enter video ID"
-                  className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8 "
                 />
               </div>
 
@@ -95,7 +95,7 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
                 <Input 
                   {...register(`${bannerField}.video_title`)} 
                   placeholder="Enter video title"
-                  className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8 "
                 />
               </div>
             </div>
@@ -821,8 +821,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30">
       {/* Header Section */}
-      <div className="max-w-6xl mx-auto bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white rounded-lg shadow-lg mb-4">
-        <div className="max-w-4xl mx-auto px-6 py-2.5">
+      <div className="max-w-6xl mx-auto bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white rounded-lg shadow-lg mb-4 mt-2">
+        <div className="max-w-6xl mx-auto px-6 py-2.5">
           <div className="relative flex justify-center items-center">
             <Button 
               variant="ghost" 
@@ -841,10 +841,10 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         </div>
       </div>
 
-      <form className="space-y-6 max-w-6xl mx-auto px-6 pb-24">
+      <form className="space-y-3 max-w-6xl mx-auto px-6 pb-24">
         {/* University Type Dropdown - At the top */}
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <Label className="text-base font-semibold text-gray-700 mb-3 block">University Type</Label>
+        <div className="bg-white rounded-lg shadow-md p-3 border border-gray-200">
+          <Label className="text-base font-semibold text-gray-700 mb-1 block">University Type</Label>
           <Controller
             name="university_type_id"
             control={control}
@@ -867,7 +867,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         </div>
 
         {/* University Info & Logo */}
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+        <div className="bg-white rounded-lg shadow-md p-3 border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">University Information</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -978,8 +978,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         </div>
 
         {/* University Logo & Brochure */}
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Media & Documents</h3>
+        <div className="bg-white rounded-lg shadow-md p-3 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-1 pb-2 border-b border-gray-200">Media & Documents</h3>
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-3">
               <Label className="text-sm font-medium text-gray-700">University Logo</Label>
@@ -1009,7 +1009,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                     clearErrors("university_logo");
                   }
                 }}
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
               {errors.university_logo && errors.university_logo.message && (
                 <p className="text-red-500 text-sm mt-1">{errors.university_logo.message}</p>
@@ -1055,14 +1055,14 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                   }
                   register("university_brochure").onChange(e);
                 }}
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8 "
               />
             </div>
           </div>
         </div>
 
         {/* Banner Info */}
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+        <div className="bg-white rounded-lg shadow-md p-3 border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Banner Information</h3>
           <BannerSection
             control={control}
@@ -1080,7 +1080,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
 
         {/* Sections */}
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+        <div className="bg-white rounded-lg shadow-md p-3 border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Sections</h3>
           <SectionsForm
             sections={watch("sections") || []}

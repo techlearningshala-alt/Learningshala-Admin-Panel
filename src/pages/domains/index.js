@@ -90,7 +90,7 @@ export default function DomainsPage() {
         <PermissionGuard permission="create">
           <Button 
             onClick={handleAdd}
-            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white"
             >
             <Plus className="mr-2 h-3 w-5" /> Add New Domain
           </Button>

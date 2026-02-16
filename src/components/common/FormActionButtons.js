@@ -24,8 +24,8 @@ export default function FormActionButtons({
 }) {
   if (isEdit) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-2xl md:left-[200px]">
-        <div className="flex gap-3 p-4 max-w-4xl mx-auto">
+      <div className="fixed bottom-0 left-[215px] right-0 bg-white border-t border-gray-200 z-50 shadow-2xl ">
+        <div className="flex gap-3 p-4 max-w-6xl mx-auto">
           <Button
             type="button"
             className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
@@ -56,8 +56,8 @@ export default function FormActionButtons({
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-2xl md:left-[200px]">
-      <div className="flex gap-3 p-4 max-w-4xl mx-auto">
+    <div className="fixed bottom-0 left-[215px] right-0 bg-white border-t border-gray-200 z-50 shadow-2xl ">
+      <div className="flex gap-3 p-4 max-w-5xl mx-auto">
         <Button
           type="button"
           className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-purple-600 hover:to-purple-600 text-white shadow-md hover:shadow-lg transition-all font-semibold"

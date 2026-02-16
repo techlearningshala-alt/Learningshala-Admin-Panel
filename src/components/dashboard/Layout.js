@@ -55,7 +55,7 @@ export default function Layout({ children }) {
                   {actionButton}
                 </div>
               )}
-              <Button variant="destructive" onClick={handleLogout}>
+              <Button variant="destructive" className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-700 hover:to-red-800 text-white" onClick={handleLogout}>
                 Logout
               </Button>
             </div>

@@ -1021,6 +1021,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
           )}
           <Input
             type="file"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
             accept="image/*"
                 {...register("thumbnail", {
                   validate: (value) => {
@@ -1068,6 +1069,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
                 ref={ebookInputRef}
                 type="file"
                 accept=".pdf,.doc,.docx"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
