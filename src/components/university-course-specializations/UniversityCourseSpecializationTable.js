@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import DataTable from "@/components/table/DataTable";
 import { Pencil, Trash } from "lucide-react";
-import PermissionGuard from "@/components/common/PermissionGuard";
+import { createTableActions } from "@/utils/tableActions";
 import { usePermissions } from "@/hooks/usePermissions";
 
 function formatCurrency(value) {
@@ -85,50 +85,41 @@ export default function UniversityCourseSpecializationTable({
     {
       key: "name",
       label: "Specialization Name",
-      style: { minWidth: "150px", wordBreak: "break-word", overflowWrap: "break-word" },
-      cellClassName: "px-2 py-1",
-      contentClassName: "break-words whitespace-normal w-full",
       render: (row) =>
         canRead ? (
-          <Button variant="link" onClick={() => onEdit(row)} className="text-left break-words whitespace-normal">
+          <Button variant="link" onClick={() => onEdit(row)} className="">
             {row.name}
           </Button>
         ) : (
-          <span className="text-gray-700 break-words whitespace-normal">{row.name}</span>
+          <span className="">{row.name}</span>
         ),
     },
     {
       key: "course_name",
       label: "Course Name",
-      style: { minWidth: "11%" },
     },
     {
       key: "university_name",
       label: "University Name",
-      style: { minWidth: "150px" },
     },
     {
       key: "full_fee",
       label: "Full Fee",
-      style: { minWidth: "115px" },
       render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "full_fees")),
     },
     { 
       key: "sem_fee",
       label: "Sem Fee",
-      style: { minWidth: "100px" },
       render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "Semester Fee")),
     },
     {
       key: "emi_monthly",
       label: "EMI (Monthly)",
-      style: {minWidth: "50px" },
       render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "EMI Monthly")),
     },
     {
       key: "brochure",
       label: "Brochure",
-      style: { width: "8%" },
       render: (row) =>
         row.brochure_file ? (
           <a
@@ -145,16 +136,13 @@ export default function UniversityCourseSpecializationTable({
     },
     {
       key: "updated_at",
-      label: "Updated Date",
-      style: {minWidth: "90px" },
-      cellClassName: "px-2 py-1 align-middle whitespace-nowrap",
+      label: "Updated",
       render: (row) =>
         row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",
     },
   {
     key: "is_active",
-    label: "Active / Deactivate",
-    style: { width: "10%" },
+    label: "Act / Deact",
     render: (row) =>
       canUpdate ? (
         <Button
@@ -175,7 +163,6 @@ export default function UniversityCourseSpecializationTable({
   {
     key: "is_page_created",
     label: "Page Created",
-    style: { width: "10%" },
     render: (row) =>
       canUpdate ? (
         <Button
@@ -194,38 +181,7 @@ export default function UniversityCourseSpecializationTable({
       ),
   },
   ];
-  const actions = [
-    {
-      key: ({ row }) => (
-        <PermissionGuard permission="update">
-          <Button
-            size="sm"
-            variant="ghost"
-            type="button"
-            className="h-8 w-8 p-0"
-            onClick={() => onEdit(row)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-        </PermissionGuard>
-      ),
-    },
-    {
-      key: ({ row }) => (
-        <PermissionGuard permission="delete">
-          <Button
-            size="sm"
-            variant="ghost"
-            type="button"
-            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-            onClick={() => onDelete(row)}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        </PermissionGuard>
-      ),
-    },
-  ];
+      const actions = createTableActions(onEdit, onDelete);
 
   if (isLoading) {
     return <p>Loading specializations...</p>;

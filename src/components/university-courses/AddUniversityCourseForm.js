@@ -1059,21 +1059,20 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30">
       {/* Header Section */}
-      <div className="max-w-6xl mx-auto bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white rounded-lg shadow-lg mb-4 mt-2">
+      <div className="max-w-6xl mx-auto mb-4 mt-2">
         <div className="max-w-6xl mx-auto px-6 py-2.5">
           <div className="relative flex justify-center items-center">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={onCancel} 
-              className="absolute left-0 text-white hover:bg-white/20 hover:text-white"
+              className="absolute left-0 hover:bg-gray-200 hover:text-black text-black"
             >
               <ArrowLeft className="mr-2 h-2 w-2" />
               Back to List
             </Button>
             <div className="flex items-center gap-2">
-              <div className="w-1 h-8 bg-white rounded-full"></div>
-              <h3 className="text-3xl font-bold">{isEdit ? "Edit University Course" : "Add New University Course"}</h3>
+              <h3 className="text-3xl font-bold text-blue-700">{isEdit ? "Edit University Course" : "Add New University Course"}</h3>
             </div>
           </div>
         </div>

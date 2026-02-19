@@ -1150,26 +1150,28 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 bg-gray-50 min-h-screen pb-24">
       <div className="relative flex justify-center items-center mb-6">
-        <Button variant="ghost" size="sm" onClick={onCancel} className="absolute left-0">
-          <ArrowLeft className="mr-2 h-4 w-4" />
+        <Button variant="ghost" size="sm" onClick={onCancel} className="absolute left-0 hover:bg-gray-200 hover:text-black text-black">
+          <ArrowLeft className="mr-2 h-2 w-2" />
           Back to List
         </Button>
-        <h3 className="text-xl font-bold">
-           {isEdit ? "Edit University Course Specialization" : "Add University Course Specialization"}
-        </h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-3xl font-bold text-blue-700">
+            {isEdit ? "Edit University Course Specialization" : "Add University Course Specialization"}
+          </h3>
+        </div>
       </div>
-      <div className="space-y-4 max-w-6xl mx-auto">
+      <div className="space-y-4 max-w-6xl mx-auto bg-white p-3 rounded-lg shadow-sm w-full">
         <form
-          className="space-y-4"
+          className="space-y-4 rounded-lg shadow-none"
           encType="multipart/form-data"
           onSubmit={(e) => {
             e.preventDefault();
             handleSave();
           }}
         >
-          <div>
+          <div className="space-y-2">
             <Label>University</Label>
             <input
               type="hidden"
@@ -1207,7 +1209,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
             )}
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label>Course</Label>
             <input
               type="hidden"
@@ -1249,7 +1251,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Specialization Name</Label>
-              <Input
+              <Input className="h-8"
                 {...register("name", { required: "Name is required" })}
                 placeholder="e.g. Human Resource, Finance"
               />
@@ -1259,7 +1261,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
             </div>
             <div className="space-y-2">
               <Label>Specialization Slug</Label>
-              <Input {...register("slug", { required: "Slug is required" })} placeholder="Enter specialization slug" />
+              <Input className="h-8" {...register("slug", { required: "Slug is required" })} placeholder="Enter specialization slug" />
               {errors.slug && (
                 <p className="text-xs text-red-500">{errors.slug.message}</p>
               )}
@@ -1269,6 +1271,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         <div className="space-y-2">
           <Label>H1 Tag</Label>
           <Input
+            className="h-8"
             {...register("h1Tag", { required: "H1 Tag is required" })}
             placeholder="SEO H1 tag"
           />
@@ -1280,6 +1283,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         <div className="space-y-2">
           <Label>Meta Title</Label>
           <Input
+            className="h-8"
             {...register("meta_title")}
             placeholder="SEO Meta Title (max 60 character)"
           />
@@ -1303,33 +1307,29 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Label</Label>
-              <Input {...register("label")} placeholder="Short label" />
+              <Input className="h-8"   {...register("label")} placeholder="Short label" />
             </div>
             <div className="space-y-2">
               <Label>Author Name</Label>
-              <Input {...register("author_name")} placeholder="Instructor / author" />
+              <Input className="h-8" {...register("author_name")} placeholder="Instructor / author" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Specialization Duration (Years/Months)</Label>
-              <Input {...register("duration")} placeholder="e.g. 2 Years" />
+              <Input className="h-8" {...register("duration")} placeholder="e.g. 2 Years" />
             </div>
             <div className="space-y-2">
               <Label>EMI Duration (In Months)</Label>
-              <Input 
+              <Input className="h-8"
                 type="number" 
-                {...register("emi_duration", {
-                  validate: (value) => {
-                    if (value === "" || value === null || value === undefined) return true;
-                    const numValue = Number(value);
-                    if (isNaN(numValue)) return true;
-                    return Number.isInteger(numValue) || "Must be an integer";
-                  }
-                })} 
+                {...register("emi_duration")} 
                 placeholder="e.g. 24" 
               />
+              {errors.emi_duration && (
+                <p className="text-xs text-red-500">{errors.emi_duration.message}</p>
+              )}
             </div>
           </div>
 
@@ -1424,9 +1424,10 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
               <Label>Upload Syllabus (Max 4MB)
               </Label>
               <Input
+                className="h-8"
                 type="file"
                 accept=".pdf,.doc,.docx"
-                {...register("syllabus_file")}
+                {...register("syllabus_file")} 
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
@@ -1468,6 +1469,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
               <Label>Upload Brochure (Max 4MB)
               </Label>
               <Input
+                className="h-8"
                 type="file"
                 accept=".pdf,.doc,.docx"
                 name="brochure_file"
@@ -1693,7 +1695,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
 
           <div className="border rounded-md p-4 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Fee Types</h3>
+              <h3 className="text-xl font-semibold">Fee Types</h3>
               {isLoadingFeeTypes && (
                 <span className="text-sm text-muted-foreground">Loading...</span>
               )}
@@ -1726,7 +1728,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                         // min="0"
                         placeholder={`Enter ${label} amount`}
                         {...register(`fee_type_values.${sanitizedKey}`, validationRules)}
-                        className="spin-none"
+                        className="spin-none h-8"
                       />
                       {errors?.fee_type_values?.[sanitizedKey] && (
                         <p className="text-xs text-red-500">
@@ -1764,6 +1766,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                     <Label>Course Banner  (size: 650×480px)
                     </Label>
                     <Input
+                      className="h-8"
                       type="file"
                       accept="image/*"
                       name={`banner_${index}_banner_image`}
@@ -1809,12 +1812,14 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
                   <div className="space-y-2">
                     <Label>Video ID</Label>
                     <Input
+                      className="h-8"
                       value={banner.video_id}
                       onChange={(e) => updateBanner(index, { video_id: e.target.value })}
                       placeholder="YouTube / Vimeo video ID"
                     />
                     <Label className="mt-2 block">Video Title</Label>
                     <Input
+                      className="h-8"
                       value={banner.video_title}
                       onChange={(e) => updateBanner(index, { video_title: e.target.value })}
                       placeholder="Video title"

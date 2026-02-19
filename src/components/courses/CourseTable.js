@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
-import PermissionGuard from "../common/PermissionGuard";
 import { usePermissions } from "@/hooks/usePermissions";
+import { createTableActions } from "@/utils/tableActions";
 
 export default function CourseTable({
   items,
@@ -47,8 +47,8 @@ export default function CourseTable({
             variant={row.menu_visibility ? "default" : "outline"}
             className={
               row.menu_visibility
-                ? "bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-600 hover:to-pink-700 text-white border-0 shadow-sm"
-                : "bg-red-100 text-red-700 hover:bg-red-200 border-red-300"
+                ? "bg-gradient-to-r from-blue-400 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 shadow-sm"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
             }
             onClick={() => onToggleMenuVisibility?.(row.id, !row.menu_visibility)}
           >
@@ -62,7 +62,7 @@ export default function CourseTable({
     },
     {
       key: "is_active",
-      label: "Active / Inactive",
+      label: "Act / Inact",
       render: (row) => 
         canUpdate ? (
           <Button
@@ -97,32 +97,7 @@ export default function CourseTable({
     },
   ];
 
-  const actions = [
-    {
-      key: (props) => (
-        <PermissionGuard permission="update">
-          <Button size="sm" variant="ghost" type="button" onClick={() => onEdit(props.row)}>
-            <Pencil className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600" />
-          </Button>
-        </PermissionGuard>
-      ),
-    },
-    {
-      key: (props) => (
-        <PermissionGuard permission="delete">
-          <Button
-            size="sm"
-            variant="ghost"
-            type="button"
-            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-            onClick={() => onDelete(props.row.id)}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        </PermissionGuard>
-      ),
-    },
-  ];
+    const actions = createTableActions(onEdit, onDelete);
 
   return <DataTable columns={columns} data={items} actions={actions} />;
 }

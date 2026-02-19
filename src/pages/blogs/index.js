@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import PermissionGuard from "@/components/common/PermissionGuard";
 import AddBlogForm from "@/components/blogs/AddBlogForm";
 import BlogTable from "@/components/blogs/BlogTable";
@@ -17,6 +17,10 @@ import {
   toggleBlogVerified,
 } from "@/lib/api";
 import { notifySuccess, notifyError } from "@/lib/notify";
+import TableContainer from "@/components/common/TableContainer";
+import FiltersSection from "@/components/common/FiltersSection";
+import PaginationControls from "@/components/common/PaginationControls";
+import { useHeader } from "@/context/HeaderContext";
 
 const normalizeApiList = (payload) => {
   if (!payload) return [];
@@ -27,6 +31,7 @@ const normalizeApiList = (payload) => {
 };
 
 export default function BlogsPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingBlog, setEditingBlog] = useState(null);
@@ -34,6 +39,16 @@ export default function BlogsPage() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [page, setPage] = useState(1);
   const limit = 20;
+  const { setActionButton, setTotalCount } = useHeader();
+
+  // Reset state when route changes
+  useEffect(() => {
+    setShowForm(false);
+    setEditingBlog(null);
+    setSearch("");
+    setCategoryFilter("");
+    setPage(1);
+  }, [router.pathname]);
 
   // Fetch blog categories for filter
   const { data: categoriesData } = useQuery({
@@ -55,8 +70,10 @@ export default function BlogsPage() {
     keepPreviousData: true,
   });
   const blogs = blogsData?.data?.data || [];
-  const total = blogsData?.data?.total || 0;
   const totalPages = blogsData?.data?.pages || 1;
+
+  // Calculate total (before any early returns)
+  const total = blogsData?.data?.total || 0;
 
   // Blog mutations
   const deleteBlogMutation = useMutation({
@@ -100,6 +117,36 @@ export default function BlogsPage() {
     setEditingBlog(null);
     setShowForm(true);
   };
+
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={handleAdd}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+          >
+            <Plus className="mr-2 h-3 w-5" /> Add Blog
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
 
   const handleEdit = (blog) => {
     setEditingBlog(blog);
@@ -148,111 +195,61 @@ export default function BlogsPage() {
 
   // Show table view
   return (
-    <div className="p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
-        <div>
-          <h3 className="text-xl font-bold">All Blogs</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            Total: {total} {search && `(filtered)`}
-          </p>
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
-            <div className="relative w-72">
-              <Input
-                placeholder="Search by title, description, or author"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-                className="pr-8"
-              />
-              {search && (
-                <button
-                  onClick={() => {
-                    setSearch("");
-                    setPage(1);
-                  }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-            <select
-              value={categoryFilter}
-              onChange={(e) => {
-                setCategoryFilter(e.target.value);
-                setPage(1);
-              }}
-              className="border rounded px-3 py-2 w-72"
-            >
-              <option value="">All Categories</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.title}
-                </option>
-              ))}
-            </select>
-            {(search || categoryFilter) && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSearch("");
-                  setCategoryFilter("");
-                  setPage(1);
-                }}
-                className="flex items-center gap-1"
-              >
-                <X className="h-4 w-4" />
-                Clear Filters
-              </Button>
-            )}
-          </div>
+    <div className="p-1 bg-gray-100 min-h-screen">
+      <div className="mb-4 space-y-2">
+        <FiltersSection
+          search={search}
+          onSearchChange={(value) => {
+            setSearch(value);
+            setPage(1);
+          }}
+          searchPlaceholder="Search by title, description, or author"
+          showClearButton={!!search || !!categoryFilter}
+          onClearFilters={() => {
+            setSearch("");
+            setCategoryFilter("");
+            setPage(1);
+          }}
+        />
+        <div className="px-1">
+          <select
+            value={categoryFilter}
+            onChange={(e) => {
+              setCategoryFilter(e.target.value);
+              setPage(1);
+            }}
+            className="w-full max-w-xs border rounded px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          >
+            <option value="">All Categories</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.title}
+              </option>
+            ))}
+          </select>
         </div>
-        <PermissionGuard permission="create">
-          <Button onClick={handleAdd}>
-            <Plus className="mr-1 h-4 w-4" /> Add Blog
-          </Button>
-        </PermissionGuard>
       </div>
 
-      {isLoading ? (
-        <p>Loading blogs...</p>
-      ) : blogs.length > 0 ? (
-        <>
-          <BlogTable
-            items={blogs}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onToggleVerified={handleToggleVerified}
-          />
-          {totalPages > 1 && !search && !categoryFilter && (
-            <div className="flex justify-center items-center gap-2 pt-4">
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={page === 1}
-                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              >
-                Prev
-              </Button>
-              <span className="text-sm">
-                Page {page} of {totalPages}
-              </span>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={page >= totalPages}
-                onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              >
-                Next
-              </Button>
-            </div>
-          )}
-        </>
-      ) : (
-        <p className="text-sm text-muted-foreground">No blogs found.</p>
+      <TableContainer
+        isLoading={isLoading}
+        isEmpty={!isLoading && blogs.length === 0}
+        loadingText="Loading blogs..."
+        emptyText="No blogs found."
+      >
+        <BlogTable
+          items={blogs}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onToggleVerified={handleToggleVerified}
+        />
+      </TableContainer>
+
+      {totalPages > 1 && !search && !categoryFilter && (
+        <PaginationControls
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       )}
     </div>
   );

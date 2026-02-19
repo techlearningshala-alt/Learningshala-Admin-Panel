@@ -1,21 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchEmiPartners, deleteEmiPartner } from "@/lib/universityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import AddEmiPartnerForm from "@/components/emi-partners/AddEmiPartnerForm";
 import EmiPartnerTable from "@/components/emi-partners/EmiPartnerTable";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import PermissionGuard from "@/components/common/PermissionGuard";
+import TableContainer from "@/components/common/TableContainer";
+import FiltersSection from "@/components/common/FiltersSection";
+import { useHeader } from "@/context/HeaderContext";
 
 export default function EmiPartnersPage() {
+  const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [editPartner, setEditPartner] = useState(null);
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
+  const { setActionButton, setTotalCount } = useHeader();
+
+  // Reset state when route changes
+  useEffect(() => {
+    setShowForm(false);
+    setEditPartner(null);
+    setSearch("");
+  }, [router.pathname]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["emi-partners"],
@@ -32,10 +44,46 @@ export default function EmiPartnersPage() {
     onError: (err) => notifyError(err.response?.data?.message || "Delete failed"),
   });
 
+  // Calculate total (before any early returns)
+  const filteredPartners = (data?.data?.data || []).filter((partner) =>
+    (partner.name || "").toLowerCase().includes(search.toLowerCase())
+  );
+  const total = filteredPartners.length;
+
   const handleAdd = () => {
     setEditPartner(null);
     setShowForm(true);
   };
+
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={handleAdd}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+          >
+            <Plus className="mr-2 h-3 w-5" /> Add Partner
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
 
   const handleEdit = (partner) => {
     setEditPartner(partner);
@@ -72,36 +120,27 @@ export default function EmiPartnersPage() {
 
   // Show table view
   return (
-    <div className="p-4">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-        <h3 className="text-xl font-bold">EMI/Financing Partners</h3>
-        <PermissionGuard permission="create">
-          <Button onClick={handleAdd}>
-            <Plus className="mr-1 h-4 w-4" /> Add Partner
-          </Button>
-        </PermissionGuard>
-      </div>
+    <div className="p-1 bg-gray-100 min-h-screen">
+      <FiltersSection 
+        search={search} 
+        onSearchChange={setSearch} 
+        searchPlaceholder="Search partners"
+        showClearButton={!!search}
+        onClearFilters={() => setSearch("")}
+      />
 
-      <div className="mb-4 max-w-sm">
-        <Input
-          placeholder="Search partners"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
+      <TableContainer
+        isLoading={isLoading}
+        isEmpty={!isLoading && filteredPartners.length === 0}
+        loadingText="Loading partners..."
+        emptyText="No partners found."
+      >
         <EmiPartnerTable
-          partners={(data?.data?.data || []).filter((partner) =>
-            (partner.name || "").toLowerCase().includes(search.toLowerCase())
-          )}
+          partners={filteredPartners}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
-      )}
-
+      </TableContainer>
     </div>
   );
 }

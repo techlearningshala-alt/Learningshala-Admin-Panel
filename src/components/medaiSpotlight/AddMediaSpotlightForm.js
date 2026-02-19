@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
+import FormActionButtons from "@/components/common/FormActionButtons";
 
 export default function AddMediaSpotlightForm({ item, onCancel, onSuccess }) {
   const [previewLogo, setPreviewLogo] = useState(null);
@@ -65,67 +66,65 @@ export default function AddMediaSpotlightForm({ item, onCancel, onSuccess }) {
   const onSubmit = (data, saveWithDate = true) => mutation.mutate({ data, saveWithDate });
 
   return (
-    <div className="p-4">
+    <div className="p-6 bg-gray-50 min-h-screen pb-24">
       <div className="relative flex justify-center items-center mb-6">
         <Button variant="ghost" size="sm" onClick={onCancel} className="absolute left-0">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to List
         </Button>
-        <h3 className="text-xl font-bold">{item ? "Edit Media Spotlight" : "Add New Media Spotlight"}</h3>
+        <h3 className="text-2xl text-blue-700 font-bold">{item ? "Edit Media Spotlight" : "Add New Media Spotlight"}</h3>
       </div>
 
-      <form className="space-y-4 max-w-2xl mx-auto">
+      <form className="space-y-6 max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-sm">
         {/* Title */}
         <div className="space-y-2">
-          <Label>Title</Label>
-          <Input {...register("title", { required: "Title is required" })} placeholder="Enter title" />
-          {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+          <Label className="text-sm font-medium text-gray-700">Title</Label>
+          <Input 
+            {...register("title", { required: "Title is required" })} 
+            placeholder="Enter title"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+          {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
         </div>
 
         {/* Logo */}
         <div className="space-y-2">
-          <Label>Logo</Label>
-          {previewLogo && <img src={previewLogo} alt="Logo preview" className="h-32 w-32 object-contain rounded border mb-2" />}
+          <Label className="text-sm font-medium text-gray-700">Logo</Label>
+          {previewLogo && (
+            <div className="mb-3">
+              <img src={previewLogo} alt="Logo preview" className="h-32 w-32 object-contain rounded-lg border-2 border-gray-200 shadow-sm" />
+            </div>
+          )}
           <Input
             type="file"
             accept="image/*"
             {...register("logo", { required: !item })}
             onChange={(e) => e.target.files?.[0] && setPreviewLogo(URL.createObjectURL(e.target.files[0]))}
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
           />
-          {errors.logo && <p className="text-red-500 text-sm">{errors.logo.message}</p>}
+          {errors.logo && <p className="text-red-500 text-sm mt-1">{errors.logo.message}</p>}
         </div>
 
         {/* Link */}
         <div className="space-y-2">
-          <Label>Link</Label>
-          <Input {...register("link", { required: "Link is required" })} placeholder="https://example.com" />
-          {errors.link && <p className="text-red-500 text-sm">{errors.link.message}</p>}
+          <Label className="text-sm font-medium text-gray-700">Link</Label>
+          <Input 
+            {...register("link", { required: "Link is required" })} 
+            placeholder="https://example.com"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+          {errors.link && <p className="text-red-500 text-sm mt-1">{errors.link.message}</p>}
         </div>
-
-        {/* Save Buttons */}
-        {item ? (
-          <div className="flex gap-2">
-            <Button type="button" className="flex-1" disabled={isSubmitting || mutation.isLoading} onClick={handleSubmit((data) => onSubmit(data, true))}>
-              Save with Date
-            </Button>
-            <Button type="button" className="flex-1" disabled={isSubmitting || mutation.isLoading} onClick={handleSubmit((data) => onSubmit(data, false))}>
-              Save without Date
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <Button type="button" className="flex-1" disabled={isSubmitting || mutation.isLoading} onClick={handleSubmit((data) => onSubmit(data, true))}>
-              {mutation.isLoading ? "Saving..." : "Save"}
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          </div>
-        )}
       </form>
+
+      <FormActionButtons
+        isEdit={!!item}
+        isSubmitting={isSubmitting}
+        isLoading={mutation.isLoading}
+        onSave={(saveWithDate) => handleSubmit((data) => onSubmit(data, saveWithDate))()}
+        onCancel={onCancel}
+        saveButtonText="Save"
+      />
     </div>
   );
 }

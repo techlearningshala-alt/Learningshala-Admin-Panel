@@ -3,11 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
-import PermissionGuard from "../common/PermissionGuard";
-import { usePermissions } from "@/hooks/usePermissions";
+import { createTableActions } from "@/utils/tableActions";  
 
 export default function UserTable({ items, onEdit, onDelete, page = 1, limit = 10 }) {
-  const { canRead, canUpdate, canDelete } = usePermissions();
+  const actions = createTableActions(onEdit, onDelete);
 
   const columns = [
     {
@@ -22,13 +21,7 @@ export default function UserTable({ items, onEdit, onDelete, page = 1, limit = 1
       key: "name",
       label: "Name",
       render: (row) =>
-        canRead ? (
-          <Button variant="link" onClick={() => onEdit(row)}>
-            {row.name}
-          </Button>
-        ) : (
-          <span className="text-gray-700">{row.name}</span>
-        ),
+        <span className="text-gray-700">{row.name}</span>,
     },
     { key: "email", label: "Email" },
     {
@@ -65,27 +58,5 @@ export default function UserTable({ items, onEdit, onDelete, page = 1, limit = 1
     },
   ];
 
-  const actions = [
-    {
-      key: (props) => (
-        <PermissionGuard permission="update">
-          <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
-            <Pencil className="h-4 w-4" />
-          </Button>
-        </PermissionGuard>
-      ),
-    },
-    {
-      key: (props) => (
-        <PermissionGuard permission="delete">
-          <Button size="sm" variant="destructive" onClick={() => onDelete(props.row.id)}>
-            <Trash className="h-4 w-4" />
-          </Button>
-        </PermissionGuard>
-      ),
-    },
-  ];
-
-  return <DataTable columns={columns} data={items} actions={actions} />;
+    return <DataTable columns={columns} data={items} actions={actions} />;
 }
-

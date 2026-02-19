@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import PermissionGuard from "@/components/common/PermissionGuard";
 import AddBlogCategoryForm from "@/components/blog-categories/AddBlogCategoryForm";
 import BlogCategoryTable from "@/components/blog-categories/BlogCategoryTable";
@@ -15,12 +15,24 @@ import {
   updateBlogCategory,
 } from "@/lib/api";
 import { notifySuccess, notifyError } from "@/lib/notify";
+import TableContainer from "@/components/common/TableContainer";
+import FiltersSection from "@/components/common/FiltersSection";
+import { useHeader } from "@/context/HeaderContext";
 
 export default function BlogCategoriesPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [search, setSearch] = useState("");
+  const { setActionButton, setTotalCount } = useHeader();
+
+  // Reset state when route changes
+  useEffect(() => {
+    setShowForm(false);
+    setEditingCategory(null);
+    setSearch("");
+  }, [router.pathname]);
 
   // Fetch Categories
   const { data: categoriesData } = useQuery({
@@ -58,11 +70,53 @@ export default function BlogCategoriesPage() {
     onError: (err) => notifyError(err.response?.data?.message || "Update failed"),
   });
 
+  // Calculate filtered categories and total (before any early returns)
+  const filteredCategories = search
+    ? categories.filter((category) => {
+        const term = search.toLowerCase();
+        return (
+          category.title?.toLowerCase().includes(term) ||
+          category.category_slug?.toLowerCase().includes(term)
+        );
+      })
+    : categories;
+  const total = filteredCategories.length;
+
   // Category handlers
   const handleAdd = () => {
     setEditingCategory(null);
     setShowForm(true);
   };
+
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={handleAdd}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+          >
+            <Plus className="mr-2 h-3 w-5" /> Add Blog Category
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
 
   const handleEdit = (category) => {
     setEditingCategory(category);
@@ -102,55 +156,28 @@ export default function BlogCategoriesPage() {
   }
 
   // Show table view
-  const filteredCategories = search
-    ? categories.filter((category) => {
-        const term = search.toLowerCase();
-        return (
-          category.title?.toLowerCase().includes(term) ||
-          category.category_slug?.toLowerCase().includes(term)
-        );
-      })
-    : categories;
-
   return (
-    <div className="p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
-        <div>
-          <h3 className="text-xl font-bold">Blog Categories</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            Total: {filteredCategories.length} {search && `(filtered from ${categories.length})`}
-          </p>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="relative w-72">
-              <Input
-                placeholder="Search by title or slug"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pr-8"
-              />
-              {search && (
-                <button
-                  onClick={() => setSearch("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-        <PermissionGuard permission="create">
-          <Button onClick={handleAdd}>
-            <Plus className="mr-1 h-4 w-4" /> Add Blog Category
-          </Button>
-        </PermissionGuard>
-      </div>
-
-      <BlogCategoryTable
-        items={filteredCategories}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+    <div className="p-1 bg-gray-100 min-h-screen">
+      <FiltersSection 
+        search={search} 
+        onSearchChange={setSearch} 
+        searchPlaceholder="Search by title or slug"
+        showClearButton={!!search}
+        onClearFilters={() => setSearch("")}
       />
+
+      <TableContainer
+        isLoading={categoriesData?.isLoading}
+        isEmpty={!categoriesData?.isLoading && filteredCategories.length === 0}
+        loadingText="Loading blog categories..."
+        emptyText="No blog categories found."
+      >
+        <BlogCategoryTable
+          items={filteredCategories}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      </TableContainer>
     </div>
   );
 }

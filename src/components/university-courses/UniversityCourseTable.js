@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import DataTable from "@/components/table/DataTable";
 import { Pencil, Trash } from "lucide-react";
-import PermissionGuard from "@/components/common/PermissionGuard";
+import { createTableActions } from "@/utils/tableActions";
 import { usePermissions } from "@/hooks/usePermissions";
 
 function formatCurrency(value) {
@@ -85,49 +85,49 @@ export default function UniversityCourseTable({
   { 
     key: "name", 
     label: "Course Name", 
-    style: { width: "140px", maxWidth: "140px", minWidth: "105px", wordBreak: "break-word", overflowWrap: "break-word" },
-    cellClassName: " px-2 py-1",
-    contentClassName: "break-words whitespace-normal w-full",
+    style: { minWidth: "150px", maxWidth: "300px", width: "200px"  },
+    cellClassName: "px-2 py-1 align-middle",
+    contentClassName: "",
     render: (row) =>
       canRead ? (
-        <div className="w-full max-w-full break-words whitespace-normal overflow-wrap-anywhere">
-          <Button variant="link" onClick={() => onEdit(row)} className="text-left break-words whitespace-normal">
+        <div>
+          <Button variant="link" onClick={() => onEdit(row)} className="text-left p-0 h-auto">
             {row.name}
           </Button>
         </div>
       ) : (
-        <div className="w-full max-w-full break-words whitespace-normal overflow-wrap-anywhere">
-          <span className="text-gray-700 break-words whitespace-normal">{row.name}</span>
+        <div>
+          <span className="text-gray-700">{row.name}</span>
         </div>
       ),
   },
   {
     key: "university_name",
     label: "University Name",
-    style: { minWidth: "150px" },
+    // style: { minWidth: "150px" },
   },
   {
     key: "duration",
     label: "Duration",
-    style: { minWidth: "70px" },
+    // style: { },
     render: (row) => row.duration || "-",
   },
   {
     key: "full_fee",
     label: "Full Fee",
-    style: { minWidth: "115px" },
+    // style: { minWidth: "115px" },
     render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "full_fees")),
   },
   {
     key: "sem_fee",
     label: "Sem Fee",
-    style: { minWidth: "100px" },
+    // style: { minWidth: "100px" },
     render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "Semester Fee")),
   },
   {
     key: "emi",
     label: "EMI (Monthly)",
-    style: { minWidth: "100px" },
+    // style: { minWidth: "100px" },
     render: (row) => {
       const emiValue = findFeeValue(row.fee_type_values, "EMI Monthly") || 
                        findFeeValue(row.fee_type_values, "Monthly EMI") ||
@@ -140,7 +140,7 @@ export default function UniversityCourseTable({
       {
         key: "brochure",
         label: "Brochure",
-        style: { width: "100px" },
+        // style: { width: "100px" },
         render: (row) =>
           row.brochure_file ? (
             <a
@@ -157,16 +157,16 @@ export default function UniversityCourseTable({
       },
   {
     key: "updated_at",
-    label: "Updated Date",
-    style: { minWidth: "90px" },
-    cellClassName: "px-2 py-1 align-middle whitespace-nowrap",
+    label: "Updated",
+    // style: { minWidth: "90px" },
+    cellClassName: "",
     render: (row) =>
       row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",
   },
   {
     key: "is_active",
-    label: "Active / Deactivate",
-    style: { width: "10%" },
+    label: "Act / Deact",
+    // style: { width: "10%" },
     render: (row) =>
       canUpdate ? (
         <Button
@@ -187,7 +187,7 @@ export default function UniversityCourseTable({
   {
     key: "is_page_created",
     label: "Page Created",
-    style: { width: "10%" },
+    // style: { width: "10%" },
     render: (row) =>
       canUpdate ? (
         <Button
@@ -206,38 +206,7 @@ export default function UniversityCourseTable({
       ),
   },
   ];
-  const actions = [
-    {
-      key: ({ row }) => (
-        <PermissionGuard permission="update">
-          <Button
-            size="sm"
-            variant="ghost"
-            type="button"
-            className="h-8 w-8 p-0"
-            onClick={() => onEdit(row)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-        </PermissionGuard>
-      ),
-    },
-    {
-      key: ({ row }) => (
-        <PermissionGuard permission="delete">
-          <Button
-            size="sm"
-            variant="ghost"
-            type="button"
-            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-            onClick={() => onDelete(row)}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        </PermissionGuard>
-      ),
-    },
-  ];
+    const actions = createTableActions(onEdit, onDelete);
 
   if (isLoading) {
     return <p>Loading courses...</p>;

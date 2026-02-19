@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
-import PermissionGuard from "../common/PermissionGuard";
+import { createTableActions } from "@/utils/tableActions";
 import { usePermissions } from "@/hooks/usePermissions";
 
 const HtmlContent = ({ content }) => {
@@ -86,26 +86,8 @@ export default function UniversityApprovalTable({ items, onEdit, onDelete }) {
     },
   ];
 
-  const actions = [
-    {
-      key: (props) => (
-        <PermissionGuard permission="update">
-          <Button size="sm" variant="outline" onClick={() => onEdit(props.row)}>
-            <Pencil className="h-4 w-4" />
-          </Button>
-        </PermissionGuard>
-      ),
-    },
-    {
-      key: (props) => (
-        <PermissionGuard permission="delete">
-          <Button size="sm" variant="destructive" onClick={() => onDelete(props.row.id)}>
-            <Trash className="h-4 w-4" />
-          </Button>
-        </PermissionGuard>
-      ),
-    },
-  ];
+    const actions = createTableActions(onEdit, onDelete);
+
 
   return <DataTable columns={columns} data={items} actions={actions} />;
 }

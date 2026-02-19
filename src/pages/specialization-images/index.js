@@ -1,22 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchSpecializationImages, deleteSpecializationImage } from "@/lib/menuApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import AddSpecializationImageForm from "@/components/specialization-images/AddSpecializationImageForm";
 import SpecializationImageTable from "@/components/specialization-images/SpecializationImageTable";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import PermissionGuard from "@/components/common/PermissionGuard";
+import TableContainer from "@/components/common/TableContainer";
+import FiltersSection from "@/components/common/FiltersSection";
+import PaginationControls from "@/components/common/PaginationControls";
+import { useHeader } from "@/context/HeaderContext";
 
 export default function SpecializationImagesPage() {
+  const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
+  const { setActionButton, setTotalCount } = useHeader();
+
+  // Reset state when route changes
+  useEffect(() => {
+    setShowForm(false);
+    setEditItem(null);
+    setSearch("");
+    setPage(1);
+  }, [router.pathname]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["specialization-images", page],
@@ -33,10 +47,52 @@ export default function SpecializationImagesPage() {
     onError: (err) => notifyError(err.response?.data?.message || "Delete failed"),
   });
 
+  // Calculate filtered items and total (before any early returns)
+  const items = data?.data?.data || [];
+  const filteredItems = items.filter((item) => {
+    if (!search.trim()) return true;
+    const searchLower = search.toLowerCase();
+    return item.name?.toLowerCase().includes(searchLower);
+  });
+  
+  // Use filtered count when searching, otherwise use total from API
+  const total = data?.data?.total || 0;
+  const displayTotal = search.trim().length > 0 ? filteredItems.length : total;
+
   const handleAdd = () => {
     setEditItem(null);
     setShowForm(true);
   };
+
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={handleAdd}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+          >
+            <Plus className="mr-2 h-3 w-5" /> Add Specialization Image
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(displayTotal);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, displayTotal, showForm]);
 
   const handleEdit = (item) => {
     setEditItem(item);
@@ -72,59 +128,28 @@ export default function SpecializationImagesPage() {
   }
 
   // Show table view
-  const total = data?.data?.total || 0;
-  
-  // Filter items based on search (Frontend-only filtering)
-  const filteredItems = (data?.data?.data || []).filter((item) => {
-    if (!search.trim()) return true;
-    const searchLower = search.toLowerCase();
-    return item.name?.toLowerCase().includes(searchLower);
-  });
-  
-  // Use filtered count when searching, otherwise use total from API
-  const displayTotal = search.trim().length > 0 ? filteredItems.length : total;
-  
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h3 className="text-xl font-bold">University Specialization Images</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            Total: {displayTotal}
-            {search.trim().length > 0 && (
-              <span className="text-xs text-muted-foreground ml-1">
-                (filtered from {total})
-              </span>
-            )}
-          </p>
-        </div>
-        <PermissionGuard permission="create">
-          <Button onClick={handleAdd}>
-            <Plus className="mr-1 h-4 w-4" /> Add Specialization Image
-          </Button>
-        </PermissionGuard>
-      </div>
+    <div className="p-1 bg-gray-100 min-h-screen">
+      <FiltersSection 
+        search={search} 
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(1);
+        }} 
+        searchPlaceholder="Search by name..."
+        showClearButton={!!search}
+        onClearFilters={() => {
+          setSearch("");
+          setPage(1);
+        }}
+      />
 
-      {/* Search Input */}
-      <div className="mb-4">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search by name..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1); // Reset to first page when searching
-            }}
-            className="pl-10"
-          />
-        </div>
-      </div>
-
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
+      <TableContainer
+        isLoading={isLoading}
+        isEmpty={!isLoading && filteredItems.length === 0}
+        loadingText="Loading specialization images..."
+        emptyText="No specialization images found."
+      >
         <SpecializationImageTable
           items={filteredItems}
           onEdit={handleEdit}
@@ -133,20 +158,16 @@ export default function SpecializationImagesPage() {
           limit={10}
           isFiltered={search.trim().length > 0}
         />
-      )}
+      </TableContainer>
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-4 gap-2">
-        <Button size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
-          Prev
-        </Button>
-        <span className="px-3 py-1">
-          Page {page} of {data?.data?.pages || 1}
-        </span>
-        <Button size="sm" disabled={page >= (data?.data?.pages || 0)} onClick={() => setPage(page + 1)}>
-          Next
-        </Button>
-      </div>
+      {/* Pagination - Only show when not searching (client-side filtering) */}
+      {!search && (
+        <PaginationControls
+          currentPage={page}
+          totalPages={data?.data?.pages || 1}
+          onPageChange={setPage}
+        />
+      )}
     </div>
   );
 }

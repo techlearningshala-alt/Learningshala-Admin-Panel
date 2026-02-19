@@ -8,7 +8,7 @@ import { notifySuccess, notifyError } from "@/lib/notify";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { ArrowLeft, Plus, X } from "lucide-react";
+import { ArrowLeft, Plus, Save, X } from "lucide-react";
 
 const buildAssetUrl = (value) => {
   if (!value) return null;
@@ -168,10 +168,10 @@ export default function AddWebsiteBannerForm({ banners, onCancel, onSuccess }) {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to List
         </Button>
-        <h3 className="text-xl font-bold">Banners</h3>
+        <h3 className="text-2xl text-blue-700 font-bold">Add New Banner</h3>
       </div>
 
-      <form className="space-y-6 max-w-4xl mx-auto" onSubmit={handleSubmit(onSubmit)}>
+      <form className="space-y-6 max-w-6xl mx-auto" onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-4">
           {fields.map((banner, index) => {
             const bannerField = `banners.${index}`;
@@ -197,6 +197,7 @@ export default function AddWebsiteBannerForm({ banners, onCancel, onSuccess }) {
                     )}
                     <Input
                       type="file"
+                      className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8 "
                       accept="image/*"
                       {...register(`${bannerField}.banner_image`)}
                       onChange={(e) => {
@@ -221,7 +222,7 @@ export default function AddWebsiteBannerForm({ banners, onCancel, onSuccess }) {
                         render={({ field }) => (
                           <select
                             {...field}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex h-8 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <option value="">Select Banner Type</option>
                             <option value="website">Website</option>
@@ -311,36 +312,36 @@ export default function AddWebsiteBannerForm({ banners, onCancel, onSuccess }) {
           <div className="flex gap-2">
             <Button
               type="submit"
-              className="flex-1"
+              className="flex-1 bg-gradient-to-r from-blue-400 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
               onClick={handleSubmit((data) => onSubmit(data, true))}
               disabled={isSubmitting || mutation.isLoading}
             >
-              Save with Date
+              <Save className="h-4 w-4 mr-1" /> Save with Date
             </Button>
             <Button
               type="submit"
-              className="flex-1"
+              className="flex-1 bg-gradient-to-r from-blue-400 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
               onClick={handleSubmit((data) => onSubmit(data, false))}
               disabled={isSubmitting || mutation.isLoading}
             >
-              Save without Date
+              <Save className="h-4 w-4 mr-1" /> Save without Date
             </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
+            <Button type="button" variant="outline" className="bg-gradient-to-r from-blue-400 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white" onClick={onCancel}>
+             Cancel
             </Button>
           </div>
         ) : (
           <div className="flex gap-2">
             <Button
               type="submit"
-              className="flex-1"
+              className="flex-1 bg-gradient-to-r from-blue-400 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
               onClick={handleSubmit((data) => onSubmit(data, true))}
               disabled={isSubmitting || mutation.isLoading}
             >
-              {mutation.isLoading ? "Saving..." : "Save"}
+              <Save className="h-4 w-4 mr-1" /> {mutation.isLoading ? "Saving..." : "Save"}
             </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
+            <Button type="button" variant="outline" className="bg-gradient-to-r from-blue-400 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white" onClick={onCancel}>
+              <X className="h-4 w-4 mr-1" /> Cancel
             </Button>
           </div>
         )}

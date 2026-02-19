@@ -3,28 +3,13 @@
 import { Button } from "../ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
-import PermissionGuard from "../common/PermissionGuard";
-import { usePermissions } from "@/hooks/usePermissions";
+import { createTableActions } from "@/utils/tableActions";      
 
 export default function BlogCategoryTable({ items, onEdit, onDelete }) {
-  const { canRead } = usePermissions();
+  const actions = createTableActions(onEdit, onDelete);
 
   const columns = [
-    {
-      key: "title",
-      label: "Title",
-      style: { width: "40%" },
-      cellClassName: "border px-3 py-2",
-      headerClassName: "border px-3 py-2 text-left",
-      render: (row) =>
-        canRead ? (
-          <Button variant="link" onClick={() => onEdit(row)} className="p-0 h-auto font-normal">
-            {row.title}
-          </Button>
-        ) : (
-          <span className="text-gray-700">{row.title}</span>
-        ),
-    },
+    { key: "title", label: "Title" },
     {
       key: "category_slug",
       label: "Category Slug",
@@ -47,38 +32,7 @@ export default function BlogCategoryTable({ items, onEdit, onDelete }) {
     },
   ];
 
-  const actions = [
-    {
-      key: (props) => (
-        <PermissionGuard permission="update">
-          <Button
-            size="sm"
-            variant="ghost"
-            type="button"
-            className="h-8 w-8 p-0"
-            onClick={() => onEdit(props.row)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-        </PermissionGuard>
-      ),
-    },
-    {
-      key: (props) => (
-        <PermissionGuard permission="delete">
-          <Button
-            size="sm"
-            variant="ghost"
-            type="button"
-            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-            onClick={() => onDelete(props.row.id)}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        </PermissionGuard>
-      ),
-    },
-  ];
-
-  return <DataTable columns={columns} data={items} actions={actions} />;
+      return <DataTable columns={columns} data={items} actions={actions} />;
 }
+
+

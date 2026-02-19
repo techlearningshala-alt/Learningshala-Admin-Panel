@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import PermissionGuard from "@/components/common/PermissionGuard";
 import AddUniversityFaqCategoryForm from "@/components/university-faq/AddUniversityFaqCategoryForm";
@@ -15,12 +15,24 @@ import {
   updateUniversityFaqCategory,
 } from "@/lib/api";
 import { notifySuccess, notifyError } from "@/lib/notify";
+import TableContainer from "@/components/common/TableContainer";
+import FiltersSection from "@/components/common/FiltersSection";
+import { useHeader } from "@/context/HeaderContext";
 
 export default function UniversityFaqPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [search, setSearch] = useState("");
+  const { setActionButton, setTotalCount } = useHeader();
+
+  // Reset state when route changes
+  useEffect(() => {
+    setShowCategoryForm(false);
+    setEditingCategory(null);
+    setSearch("");
+  }, [router.pathname]);
 
   // Fetch Categories
   const { data: categoriesData } = useQuery({
@@ -83,6 +95,12 @@ export default function UniversityFaqPage() {
     setEditingCategory(null);
   };
 
+  // Calculate filtered categories (before any early returns)
+  const filteredCategories = categories.filter((cat) =>
+    (cat.heading || "").toLowerCase().includes(search.toLowerCase())
+  );
+  const total = filteredCategories.length;
+
   const handleCategoryFormSuccess = (data) => {
     const { saveWithDate, ...formData } = data;
     if (editingCategory?.id) {
@@ -94,6 +112,36 @@ export default function UniversityFaqPage() {
     setEditingCategory(null);
     queryClient.invalidateQueries({ queryKey: ["university-faq-categories"], exact: false });
   };
+
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
+    if (!showCategoryForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={handleAddCategory}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+          >
+            <Plus className="mr-2 h-3 w-5" /> Add Category
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showCategoryForm]);
 
   // Show form views
   if (showCategoryForm) {
@@ -108,43 +156,27 @@ export default function UniversityFaqPage() {
 
   // Show unified table view
   return (
-    <div className="p-4">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-        <h3 className="text-xl font-bold">University FAQ Categories</h3>
-        <div className="flex gap-2">
-          <PermissionGuard permission="create">
-            <Button variant="outline" onClick={handleAddCategory}>
-              <Plus className="mr-1 h-4 w-4" /> Add Category
-            </Button>
-          </PermissionGuard>
-        </div>
-      </div>
-      {/* Category Table */}
-      <div className="bg-white border rounded-lg">
-        <div className="p-4">
-          <div className="max-w-sm mb-4">
-            <Input
-              placeholder="Search categories"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          {categoriesData?.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading categories...</p>
-          ) : categories.length > 0 ? (
-            <UniversityFaqCategoryTable
-              categories={categories.filter((cat) =>
-                (cat.heading || "").toLowerCase().includes(search.toLowerCase())
-              )}
-              onEdit={handleEditCategory}
-              onDelete={handleDeleteCategory}
-            />
-          ) : (
-            <p className="text-sm text-muted-foreground">No categories found. Add your first category.</p>
-          )}
-        </div>
-      </div>
+    <div className="p-1 bg-gray-100 min-h-screen">
+      <FiltersSection 
+        search={search} 
+        onSearchChange={setSearch} 
+        searchPlaceholder="Search categories"
+        showClearButton={!!search}
+        onClearFilters={() => setSearch("")}
+      />
+
+      <TableContainer
+        isLoading={categoriesData?.isLoading}
+        isEmpty={!categoriesData?.isLoading && filteredCategories.length === 0}
+        loadingText="Loading categories..."
+        emptyText="No categories found. Add your first category."
+      >
+        <UniversityFaqCategoryTable
+          categories={filteredCategories}
+          onEdit={handleEditCategory}
+          onDelete={handleDeleteCategory}
+        />
+      </TableContainer>
     </div>
   );
 }

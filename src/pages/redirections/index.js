@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchRedirections,
@@ -14,12 +15,12 @@ import AddRedirectionForm from "@/components/redirections/AddRedirectionForm";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useHeader } from "@/context/HeaderContext";
-import { useEffect } from "react";
 import FiltersSection from "@/components/common/FiltersSection";
 import TableContainer from "@/components/common/TableContainer";
 import PaginationControls from "@/components/common/PaginationControls";
 
 export default function RedirectionsPage() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
   const [search, setSearch] = useState("");
@@ -28,39 +29,55 @@ export default function RedirectionsPage() {
   const { setActionButton, setTotalCount } = useHeader();
   const queryClient = useQueryClient();
 
+  // Reset state when route changes
+  useEffect(() => {
+    setShowForm(false);
+    setEditingItem(null);
+    setSearch("");
+    setPage(1);
+  }, [router.pathname]);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["redirections", page, limit, search],
     queryFn: () => fetchRedirections(page, limit, search),
   });
 
+  // Calculate total (before any early returns)
+  const total = data?.data?.total || 0;
+
+  const handleAdd = () => {
+    setEditingItem(null);
+    setShowForm(true);
+  };
+
+  // Set action button and total count in header (must be before early return)
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     if (!showForm) {
-      setActionButton(
+      const actionBtn = (
         <Button
-          onClick={() => {
-            setEditingItem(null);
-            setShowForm(true);
-          }}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+          onClick={handleAdd}
+          className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
         >
-          <Plus className="h-4 w-4 mr-1" />
+          <Plus className="mr-2 h-3 w-5" />
           Add New Redirection
         </Button>
       );
-
-      if (data?.data?.total) {
-        setTotalCount(`${data.data.total}`);
-      }
+      setActionButton(actionBtn);
+      setTotalCount(total);
     } else {
       setActionButton(null);
       setTotalCount(null);
     }
 
+    // Cleanup: clear action button and total count when component unmounts
     return () => {
       setActionButton(null);
       setTotalCount(null);
     };
-  }, [data, setActionButton, setTotalCount, showForm]);
+  }, [setActionButton, setTotalCount, total, showForm]);
 
   const createMutation = useMutation({
     mutationFn: addRedirection,
@@ -139,17 +156,25 @@ export default function RedirectionsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-1 bg-gray-100 min-h-screen">
       <FiltersSection
         search={search}
         onSearchChange={handleSearchChange}
         searchPlaceholder="Search by old URL or new URL..."
+        showClearButton={!!search}
+        onClearFilters={() => {
+          setSearch("");
+          setPage(1);
+        }}
       />
 
-      <TableContainer>
-        {isLoading ? (
-          <div className="text-center py-8 text-gray-500">Loading...</div>
-        ) : error ? (
+      <TableContainer
+        isLoading={isLoading}
+        isEmpty={!isLoading && (data?.data?.data || []).length === 0}
+        loadingText="Loading redirections..."
+        emptyText="No redirections found."
+      >
+        {error ? (
           <div className="text-center py-8 text-red-500">
             Error loading redirections: {error.message}
           </div>

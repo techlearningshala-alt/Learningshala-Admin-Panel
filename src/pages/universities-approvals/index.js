@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchUniversityApprovals, deleteUniversityApprovals } from "@/lib/universityApi";
 import { notifyError, notifySuccess } from "@/lib/notify";
@@ -11,12 +12,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import PermissionGuard from "@/components/common/PermissionGuard";
+import TableContainer from "@/components/common/TableContainer";
+import { useHeader } from "@/context/HeaderContext";
 
 export default function UniversityApprovalsPage() {
+  const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const { setActionButton, setTotalCount } = useHeader();
+
+  // Reset state when route changes
+  useEffect(() => {
+    setShowForm(false);
+    setEditItem(null);
+    setSearch("");
+  }, [router.pathname]);
 
   // Fetch list
   const { data, isLoading } = useQuery({
@@ -37,10 +49,51 @@ export default function UniversityApprovalsPage() {
     onError: (err) => notifyError(err.response?.data?.message || "Delete failed"),
   });
 
+  // Calculate total (before any early returns)
+  const filteredItems = (data?.data?.data || []).filter((item) => {
+    const query = search.toLowerCase();
+    return (
+      !query ||
+      (item.title || "").toLowerCase().includes(query) ||
+      (item.description || "").toLowerCase().includes(query)
+    );
+  });
+  const total = filteredItems.length;
+
   const handleAdd = () => {
     setEditItem(null);
     setShowForm(true);
   };
+
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={handleAdd}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+          >
+            <Plus className="mr-2 h-3 w-5" /> Add Approval
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
 
   const handleEdit = (item) => {
     setEditItem(item);
@@ -77,43 +130,29 @@ export default function UniversityApprovalsPage() {
 
   // Show table view
   return (
-    <div className="p-4">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-        <h3 className="text-xl font-bold">University Approvals</h3>
-        <PermissionGuard permission="create">
-          <Button onClick={handleAdd}>
-            <Plus className="mr-1 h-4 w-4" /> Add Approval
-          </Button>
-        </PermissionGuard>
-      </div>
-
-      <div className="max-w-md mb-4">
-        <Label htmlFor="approval-search">Search Approvals</Label>
+    <div className="p-1 bg-gray-100 min-h-screen">
+      <div className="max-w-6xl mb-1 mx-auto mt-1">
         <Input
           id="approval-search"
           placeholder="Search by title or description"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-        />
+          className="border border-gray-300 rounded-md px-4 py-0.5 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-700 min-w-[200px]"
+          />
       </div>
 
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
+      <TableContainer
+        isLoading={isLoading}
+        isEmpty={!isLoading && filteredItems.length === 0}
+        loadingText="Loading approvals..."
+        emptyText="No approvals found."
+      >
         <UniversityApprovalTable
-          items={(data?.data?.data || []).filter((item) => {
-            const query = search.toLowerCase();
-            return (
-              !query ||
-              (item.title || "").toLowerCase().includes(query) ||
-              (item.description || "").toLowerCase().includes(query)
-            );
-          })}
+          items={filteredItems}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
-      )}
-
+      </TableContainer>
     </div>
   );
 }

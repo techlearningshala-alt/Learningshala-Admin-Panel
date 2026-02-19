@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
-import PermissionGuard from "../common/PermissionGuard";
+import { createTableActions } from "@/utils/tableActions";
 import { usePermissions } from "@/hooks/usePermissions";
 
 export default function SpecializationImageTable({
@@ -69,29 +69,14 @@ export default function SpecializationImageTable({
       label: "Actions",
       render: (row) => (
         <div className="flex gap-2">
-          <PermissionGuard permission="update">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onEdit(row)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-          </PermissionGuard>
-          <PermissionGuard permission="delete">
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => onDelete(row.id)}
-            >
-              <Trash className="h-4 w-4" />
-            </Button>
-          </PermissionGuard>
+         
         </div>
       ),
     },
   ];
 
-  return <DataTable columns={columns} data={items} />;
+  const actions = createTableActions(onEdit, onDelete); 
+
+  return <DataTable columns={columns} data={items} actions={actions} />;
 }
 

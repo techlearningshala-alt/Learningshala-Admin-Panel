@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
+import FormActionButtons from "@/components/common/FormActionButtons";
 
 export default function AddCourseImageForm({ item, onCancel, onSuccess }) {
   useScrollToTop();
@@ -38,7 +39,8 @@ export default function AddCourseImageForm({ item, onCancel, onSuccess }) {
   }, [item, reset, setValue]);
 
   const mutation = useMutation({
-    mutationFn: async (formData) => {
+    mutationFn: async ({ formData, saveWithDate }) => {
+      formData.append("saveWithDate", saveWithDate ? "true" : "false");
       return item?.id ? updateCourseImage(item.id, formData) : addCourseImage(formData);
     },
     onSuccess: () => {
@@ -56,7 +58,7 @@ export default function AddCourseImageForm({ item, onCancel, onSuccess }) {
     onError: (err) => notifyError(err.response?.data?.message || "Operation failed"),
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = (data, saveWithDate = true) => {
     const formData = new FormData();
     formData.append("name", data.name);
 
@@ -70,7 +72,7 @@ export default function AddCourseImageForm({ item, onCancel, onSuccess }) {
     // If editing and no new image selected, the backend will keep the existing image
     // We don't need to send it in the form data - backend handles it
 
-    mutation.mutate(formData);
+    mutation.mutate({ formData, saveWithDate });
   };
 
   const handleImageChange = (e) => {
@@ -90,32 +92,36 @@ export default function AddCourseImageForm({ item, onCancel, onSuccess }) {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-6 bg-gray-50 min-h-screen pb-24">
       <div className="relative flex justify-center items-center mb-6">
         <Button variant="ghost" size="sm" onClick={onCancel} className="absolute left-0">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to List
         </Button>
-        <h3 className="text-2xl font-bold">{item ? "Edit Course Image" : "Add New Course Image"}</h3>
+        <h3 className="text-2xl text-blue-700 font-bold">{item ? "Edit Course Image" : "Add New Course Image"}</h3>
       </div>
 
-      <form className="space-y-4 max-w-2xl mx-auto" onSubmit={handleSubmit(onSubmit)}>
+      <form className="space-y-6 max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-sm">
         {/* Name */}
         <div className="space-y-2">
-          <Label>Name</Label>
-          <Input {...register("name", { required: "Name is required" })} placeholder="Enter image name" />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+          <Label className="text-sm font-medium text-gray-700">Name</Label>
+          <Input 
+            {...register("name", { required: "Name is required" })} 
+            placeholder="Enter image name"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
         </div>
 
         {/* Image */}
         <div className="space-y-2">
-          <Label>Image</Label>
+          <Label className="text-sm font-medium text-gray-700">Image</Label>
           {(previewImage || existingImage) && !imageRemoved && (
-            <div className="mb-2">
+            <div className="mb-3">
               <img
                 src={previewImage || `${process.env.NEXT_PUBLIC_thumbnail_URL}${existingImage}`}
                 alt="Preview"
-                className="h-32 w-32 object-contain rounded border"
+                className="h-32 w-32 object-contain rounded-lg border-2 border-gray-200 shadow-sm p-2 bg-gray-50"
               />
               <Button
                 type="button"
@@ -135,20 +141,20 @@ export default function AddCourseImageForm({ item, onCancel, onSuccess }) {
               required: !item || imageRemoved ? "Image is required" : false 
             })}
             onChange={handleImageChange}
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
           />
-          {errors.image && <p className="text-red-500 text-sm">{errors.image.message}</p>}
-        </div>
-
-        {/* Save Buttons */}
-        <div className="flex gap-2">
-          <Button type="submit" className="flex-1" disabled={isSubmitting || mutation.isLoading}>
-            {mutation.isLoading ? "Saving..." : item ? "Update" : "Save"}
-          </Button>
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
+          {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>}
         </div>
       </form>
+
+      <FormActionButtons
+        isEdit={!!item}
+        isSubmitting={isSubmitting}
+        isLoading={mutation.isLoading}
+        onSave={(saveWithDate) => handleSubmit((data) => onSubmit(data, saveWithDate))()}
+        onCancel={onCancel}
+        saveButtonText="Save"
+      />
     </div>
   );
 }

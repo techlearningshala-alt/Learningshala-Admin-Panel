@@ -12,6 +12,7 @@ import SafeCKEditor from "@/components/CKEditor";
 import { fetchBlogCategories, addBlogFaq, fetchAuthors } from "@/lib/api";
 import BlogFaqInlinePanel from "@/components/blog-faq/InlineFaqPanel";
 import { notifySuccess, notifyError } from "@/lib/notify";
+import FormActionButtons from "@/components/common/FormActionButtons";
 
 const buildAssetUrl = (value) => {
   if (!value) return null;
@@ -191,21 +192,21 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-6 bg-gray-50 min-h-screen pb-24">
       <div className="relative flex justify-center items-center mb-6">
         <Button variant="ghost" size="sm" onClick={onCancel} className="absolute left-0">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to List
         </Button>
-        <h3 className="text-xl font-bold">
+        <h3 className="text-2xl text-blue-700 font-bold">
           {item ? "Edit Blog" : "Add New Blog"}
         </h3>
       </div>
 
-      <form className="space-y-6 max-w-4xl mx-auto">
+      <form className="space-y-6 max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-sm">
         {/* Category */}
         <div className="space-y-2">
-          <Label>Category <span className="text-red-500">*</span></Label>
+          <Label className="text-sm font-medium text-gray-700">Category <span className="text-red-500">*</span></Label>
           <Controller
             name="category_id"
             control={control}
@@ -213,7 +214,7 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
             render={({ field }) => (
               <select
                 {...field}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 value={field.value || ""}
                 onChange={(e) => field.onChange(Number(e.target.value))}
               >
@@ -227,43 +228,43 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
             )}
           />
           {errors.category_id && (
-            <p className="text-red-500 text-sm">{errors.category_id.message}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.category_id.message}</p>
           )}
         </div>
 
         {/* H1 Tag */}
         <div className="space-y-2">
-          <Label>H1 Tag</Label>
+          <Label className="text-sm font-medium text-gray-700">H1 Tag</Label>
           <Input
             {...register("h1_tag")}
             placeholder="Enter H1 tag"
           />
           {errors.h1_tag && (
-            <p className="text-red-500 text-sm">{errors.h1_tag.message}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.h1_tag.message}</p>
           )}
         </div>
 
         {/* Slug */}
         <div className="space-y-2">
-          <Label>URL/Slug</Label>
+          <Label className="text-sm font-medium text-gray-700">URL/Slug</Label>
           <Input
             {...register("slug")}
             placeholder="Enter URL-friendly slug"
           />
           {errors.slug && (
-            <p className="text-red-500 text-sm">{errors.slug.message}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.slug.message}</p>
           )}
         </div>
 
         {/* Banner/Thumbnail */}
         <div className="space-y-2">
-          <Label>Banner/Thumbnail</Label>
+          <Label className="text-sm font-medium text-gray-700">Banner/Thumbnail</Label>
           {previewThumbnail && (
-            <div className="mb-2 relative inline-block">
+            <div className="mb-3 relative inline-block">
               <img
                 src={previewThumbnail}
                 alt="Thumbnail preview"
-                className="h-24 w-24 object-cover rounded border"
+                className="h-32 w-32 object-cover rounded-lg border-2 border-gray-200 shadow-sm"
               />
               <Button
                 type="button"
@@ -280,45 +281,47 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
             type="file"
             accept="image/*"
             onChange={handleThumbnailChange}
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
           />
         </div>
 
         {/* Meta Title */}
         <div className="space-y-2">
-          <Label>Meta Title</Label>
+          <Label className="text-sm font-medium text-gray-700">Meta Title</Label>
           <Input
             {...register("meta_title")}
             placeholder="Enter meta title"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
           {errors.meta_title && (
-            <p className="text-red-500 text-sm">{errors.meta_title.message}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.meta_title.message}</p>
           )}
         </div>
 
         {/* Meta Description */}
         <div className="space-y-2">
-          <Label>Meta Description</Label>
+          <Label className="text-sm font-medium text-gray-700">Meta Description</Label>
           <Textarea
             {...register("meta_description")}
             placeholder="Enter meta description"
             rows={4}
-            className="w-full"
+            className="w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
           {errors.meta_description && (
-            <p className="text-red-500 text-sm">{errors.meta_description.message}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.meta_description.message}</p>
           )}
         </div>
 
         {/* Author Name (Dropdown) */}
         <div className="space-y-2">
-          <Label>Author Name</Label>
+          <Label className="text-sm font-medium text-gray-700">Author Name</Label>
           <Controller
             name="author_id"
             control={control}
             render={({ field }) => (
               <select
                 {...field}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 value={field.value || ""}
                 onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : "")}
               >
@@ -332,24 +335,24 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
             )}
           />
           {errors.author_id && (
-            <p className="text-red-500 text-sm">{errors.author_id.message}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.author_id.message}</p>
           )}
         </div>
 
         {/* Short Intro */}
         <div className="space-y-2">
-          <Label>Short Intro</Label>
+          <Label className="text-sm font-medium text-gray-700">Short Intro</Label>
           <Textarea
             {...register("short_description")}
             placeholder="Enter short description"
             rows={4}
-            className="w-full"
+            className="w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
         </div>
 
         {/* Long Content */}
         <div className="space-y-2">
-          <Label>Long Content</Label>
+          <Label className="text-sm font-medium text-gray-700">Long Content</Label>
           <Controller
             name="content"
             control={control}
@@ -374,45 +377,15 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
           />
         </div>
 
-        {/* Buttons */}
-        {item ? (
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              className="flex-1"
-              disabled={isSubmitting}
-              onClick={handleSubmit((data) => onSubmit(data, true))}
-            >
-              Save with Date
-            </Button>
-            <Button
-              type="button"
-              className="flex-1"
-              disabled={isSubmitting}
-              onClick={handleSubmit((data) => onSubmit(data, false))}
-            >
-              Save without Date
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          </div>
-        ) : (
-          <div className="flex gap-2 fix-position bottom-0 left-0 right-0">
-            <Button
-              type="button"
-              className="flex-1"
-              disabled={isSubmitting}
-              onClick={handleSubmit(onSubmit)}
-            >
-              {isSubmitting ? "Saving..." : "Save"}
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          </div>
-        )}
       </form>
+
+      <FormActionButtons
+        isEdit={!!item}
+        isSubmitting={isSubmitting}
+        onSave={(saveWithDate) => handleSubmit((data) => onSubmit(data, saveWithDate))()}
+        onCancel={onCancel}
+        saveButtonText="Save"
+      />
     </div>
   );
 }

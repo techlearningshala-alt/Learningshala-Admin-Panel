@@ -1,9 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import DataTable from "@/components/table/DataTable";
-import { Pencil, Trash } from "lucide-react";
-import PermissionGuard from "@/components/common/PermissionGuard";
+import { createInlineActions } from "@/utils/tableActions";
 
 // Component to render HTML content in table cell
 const HtmlContent = ({ content }) => {
@@ -66,20 +64,10 @@ export default function FaqTable({ data, onEdit, onDelete }) {
     {
       key: "actions",
       label: "Actions",
-      render: (item) => (
-        <div className="flex gap-2">
-          <PermissionGuard permission="update">
-            <Button size="sm" variant="outline" onClick={() => onEdit(item)}>
-              <Pencil className="h-4 w-4" />
-            </Button>
-          </PermissionGuard>
-          <PermissionGuard permission="delete">
-            <Button size="sm" variant="destructive" onClick={() => onDelete(item.id)}>
-              <Trash className="h-4 w-4" />
-            </Button>
-          </PermissionGuard>
-        </div>
-      ),
+      render: createInlineActions(onEdit, onDelete, {
+        // editVariant: "outline",
+        // deleteVariant: "destructive",
+      }),
     },
   ];
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchWebsiteBanners, deleteWebsiteBanner } from "@/lib/api";
 import { notifySuccess, notifyError } from "@/lib/notify";
@@ -9,19 +10,31 @@ import WebsiteBannerTable from "@/components/website-banners/WebsiteBannerTable"
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import PermissionGuard from "@/components/common/PermissionGuard";
-import Pagination from "@/components/common/Pagination";
+import TableContainer from "@/components/common/TableContainer";
+import PaginationControls from "@/components/common/PaginationControls";
+import { useHeader } from "@/context/HeaderContext";
 
 export default function WebsiteBannersPage() {
+  const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [editBanners, setEditBanners] = useState(null);
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const limit = 10;
   const [filterType, setFilterType] = useState("all"); // "all", "website", "mobile"
   const queryClient = useQueryClient();
+  const { setActionButton, setTotalCount } = useHeader();
+
+  // Reset state when route changes
+  useEffect(() => {
+    setShowForm(false);
+    setEditBanners(null);
+    setPage(1);
+    setFilterType("all");
+  }, [router.pathname]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["website-banners", page, rowsPerPage],
-    queryFn: () => fetchWebsiteBanners({ page, limit: rowsPerPage }),
+    queryKey: ["website-banners", page],
+    queryFn: () => fetchWebsiteBanners({ page, limit }),
     keepPreviousData: true,
   });
 
@@ -70,6 +83,40 @@ export default function WebsiteBannersPage() {
     return allBanners.filter((banner) => banner.banner_type === filterType);
   }, [data, filterType]);
 
+  // Calculate total (before any early returns)
+  const total = data?.data?.total || 0;
+
+  // Set action button and total count in header (must be before early return)
+  // Use useEffect with immediate execution to ensure it works in both local and production
+  useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={handleAdd}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+            >
+            <Plus className="mr-2 h-3 w-5" /> Add Banner
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
+
   if (showForm) {
     return (
       <AddWebsiteBannerForm
@@ -80,19 +127,8 @@ export default function WebsiteBannersPage() {
     );
   }
 
-  const total = data?.data?.total || 0;
-
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-bold">Banners</h3>
-        <PermissionGuard permission="create">
-          <Button onClick={handleAdd}>
-            <Plus className="mr-1 h-4 w-4" /> Add Banner
-          </Button>
-        </PermissionGuard>
-      </div>
-
+    <div className="p-1 bg-gray-100 min-h-screen">
       {/* Filter Dropdown */}
       <div className="mb-4 flex items-center gap-2">
         <label htmlFor="banner-type-filter" className="text-sm font-medium">
@@ -110,24 +146,24 @@ export default function WebsiteBannersPage() {
         </select>
       </div>
 
-      {isLoading ? (
-        <p>Loading banners...</p>
-      ) : (
-        <>
-          <WebsiteBannerTable
-            banners={filteredBanners}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-          <Pagination
-            total={total}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={setPage}
-            onRowsPerPageChange={setRowsPerPage}
-          />
-        </>
-      )}
+      <TableContainer
+        isLoading={isLoading}
+        isEmpty={!isLoading && filteredBanners.length === 0}
+        loadingText="Loading banners..."
+        emptyText="No banners found."
+      >
+        <WebsiteBannerTable
+          banners={filteredBanners}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      </TableContainer>
+
+      <PaginationControls
+        currentPage={page}
+        totalPages={data?.data?.pages || 1}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import PermissionGuard from "@/components/common/PermissionGuard";
 import AddUniversityTypeForm from "@/components/university-types/AddUniversityTypeForm";
 import UniversityTypeTable from "@/components/university-types/UniversityTypeTable";
+import TableContainer from "@/components/common/TableContainer";
+import FiltersSection from "@/components/common/FiltersSection";
+import { useHeader } from "@/context/HeaderContext";
 import {
   fetchUniversityTypes,
   deleteUniversityType,
@@ -17,13 +20,22 @@ import {
 import { notifySuccess, notifyError } from "@/lib/notify";
 
 export default function UniversityTypesPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingType, setEditingType] = useState(null);
   const [search, setSearch] = useState("");
+  const { setActionButton, setTotalCount } = useHeader();
+
+  // Reset state when route changes
+  useEffect(() => {
+    setShowForm(false);
+    setEditingType(null);
+    setSearch("");
+  }, [router.pathname]);
 
   // Fetch Types
-  const { data: typesData } = useQuery({
+  const { data: typesData, isLoading } = useQuery({
     queryKey: ["universityTypes"],
     queryFn: () => fetchUniversityTypes({ page: 1, limit: 1000 }),
     keepPreviousData: true,
@@ -58,11 +70,50 @@ export default function UniversityTypesPage() {
     onError: (err) => notifyError(err.response?.data?.message || "Update failed"),
   });
 
+  // Calculate total (before any early returns)
+  const filteredTypes = search
+    ? types.filter((type) => {
+        const term = search.toLowerCase();
+        return type.name?.toLowerCase().includes(term);
+      })
+    : types;
+  const total = filteredTypes.length;
+
   // Type handlers
   const handleAdd = () => {
     setEditingType(null);
     setShowForm(true);
   };
+
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={handleAdd}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+          >
+            <Plus className="mr-2 h-3 w-5" /> Add University Type
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
 
   const handleEdit = (type) => {
     setEditingType(type);
@@ -102,52 +153,28 @@ export default function UniversityTypesPage() {
   }
 
   // Show table view
-  const filteredTypes = search
-    ? types.filter((type) => {
-        const term = search.toLowerCase();
-        return type.name?.toLowerCase().includes(term);
-      })
-    : types;
-
   return (
-    <div className="p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
-        <div>
-          <h3 className="text-xl font-bold">University Types</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            Total: {filteredTypes.length} {search && `(filtered from ${types.length})`}
-          </p>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="relative w-72">
-              <Input
-                placeholder="Search by name"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pr-8"
-              />
-              {search && (
-                <button
-                  onClick={() => setSearch("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-        <PermissionGuard permission="create">
-          <Button onClick={handleAdd}>
-            <Plus className="mr-1 h-4 w-4" /> Add University Type
-          </Button>
-        </PermissionGuard>
-      </div>
-
-      <UniversityTypeTable
-        items={filteredTypes}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+    <div className="p-1 bg-gray-100 min-h-screen">
+      <FiltersSection 
+        search={search} 
+        onSearchChange={setSearch} 
+        searchPlaceholder="Search by name"
+        showClearButton={!!search}
+        onClearFilters={() => setSearch("")}
       />
+
+      <TableContainer
+        isLoading={isLoading}
+        isEmpty={!isLoading && filteredTypes.length === 0}
+        loadingText="Loading university types..."
+        emptyText="No university types found."
+      >
+        <UniversityTypeTable
+          items={filteredTypes}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      </TableContainer>
     </div>
   );
 }

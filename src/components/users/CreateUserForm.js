@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft } from "lucide-react";
+import FormActionButtons from "@/components/common/FormActionButtons";
 
 const defaultFormValues = {
   name: "",
@@ -52,10 +53,10 @@ export default function CreateUserForm({ item, onCancel, onSuccess }) {
   }, [item, setValue, reset]);
 
   const mutation = useMutation({
-    mutationFn: (data) => {
+    mutationFn: ({ data, saveWithDate }) => {
       if (item?.id) {
         // Update user - don't send password if it's empty
-        const updateData = { ...data };
+        const updateData = { ...data, saveWithDate };
         if (!updateData.password || updateData.password.trim() === "") {
           delete updateData.password;
         }
@@ -75,14 +76,14 @@ export default function CreateUserForm({ item, onCancel, onSuccess }) {
     },
   });
 
-  const onSubmit = (data) => {
-    mutation.mutate(data);
+  const onSubmit = (data, saveWithDate = true) => {
+    mutation.mutate({ data, saveWithDate });
   };
 
   const role = watch("role");
 
   return (
-    <div className="p-4">
+    <div className="p-6 bg-gray-50 min-h-screen pb-24">
       <div className="relative flex justify-center items-center mb-6">
         <Button
           variant="ghost"
@@ -93,27 +94,28 @@ export default function CreateUserForm({ item, onCancel, onSuccess }) {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to List
         </Button>
-        <h3 className="text-2xl font-bold">{item ? "Edit User" : "Create User"}</h3>
+        <h3 className="text-2xl text-blue-700 font-bold">{item ? "Edit User" : "Create User"}</h3>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto">
-        <div className="border rounded-lg p-6 space-y-4">
+      <form className="space-y-6 max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-sm">
+        <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">
+            <Label htmlFor="name" className="text-sm font-medium text-gray-700">
               Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id="name"
               {...register("name", { required: "Name is required" })}
               placeholder="Enter user name"
+              className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             />
             {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
+              <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">
+            <Label htmlFor="email" className="text-sm font-medium text-gray-700">
               Email <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -127,14 +129,15 @@ export default function CreateUserForm({ item, onCancel, onSuccess }) {
                 },
               })}
               placeholder="Enter email address"
+              className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             />
             {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
+              <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">
+            <Label htmlFor="password" className="text-sm font-medium text-gray-700">
               Password {!item && <span className="text-red-500">*</span>}
               {item && <span className="text-gray-500 text-sm">(Leave empty to keep current password)</span>}
             </Label>
@@ -155,19 +158,20 @@ export default function CreateUserForm({ item, onCancel, onSuccess }) {
                 },
               })}
               placeholder={item ? "Enter new password (optional)" : "Enter password (min 6 characters)"}
+              className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             />
             {errors.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
+              <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="role">
+            <Label htmlFor="role" className="text-sm font-medium text-gray-700">
               Role <span className="text-red-500">*</span>
             </Label>
             <select
               id="role"
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               {...register("role", { required: "Role is required" })}
             >
               <option value="mentor">User</option>
@@ -175,13 +179,13 @@ export default function CreateUserForm({ item, onCancel, onSuccess }) {
               {/* <option value="lead">Lead</option> */}
             </select>
             {errors.role && (
-              <p className="text-sm text-red-500">{errors.role.message}</p>
+              <p className="text-sm text-red-500 mt-1">{errors.role.message}</p>
             )}
           </div>
 
           {(role === "mentor" || (item && item.role === "mentor")) && (
             <div className="space-y-4 border-t pt-4 mt-4">
-              <Label className="text-base font-semibold">CRUD Permissions</Label>
+              <Label className="text-sm font-medium text-gray-700">CRUD Permissions</Label>
               <p className="text-sm text-gray-600">
                 Select which permissions this user should have:
               </p>
@@ -226,16 +230,16 @@ export default function CreateUserForm({ item, onCancel, onSuccess }) {
             </div>
           )}
         </div>
-
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (item ? "Updating..." : "Creating...") : (item ? "Update User" : "Create User")}
-          </Button>
-        </div>
       </form>
+
+      <FormActionButtons
+        isEdit={!!item}
+        isSubmitting={isSubmitting}
+        isLoading={mutation.isLoading}
+        onSave={(saveWithDate) => handleSubmit((data) => onSubmit(data, saveWithDate))()}
+        onCancel={onCancel}
+        saveButtonText={item ? "Update User" : "Create User"}
+      />
     </div>
   );
 }

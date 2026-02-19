@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   fetchFeeTypes,
@@ -9,16 +10,29 @@ import {
 import { notifyError, notifySuccess } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import FeeTypeTable from "@/components/fee-types/FeeTypeTable";
 import AddFeeTypeForm from "@/components/fee-types/AddFeeTypeForm";
 import PermissionGuard from "@/components/common/PermissionGuard";
+import TableContainer from "@/components/common/TableContainer";
+import { useHeader } from "@/context/HeaderContext";
+import FiltersSection from "@/components/common/FiltersSection";
 
 export default function FeeTypesPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingFeeType, setEditingFeeType] = useState(null);
+  const { setActionButton, setTotalCount } = useHeader();
+
+  // Reset state when route changes
+  useEffect(() => {
+    setShowForm(false);
+    setEditingFeeType(null);
+    setSearch("");
+  }, [router.pathname]);
 
   const { data: feeTypeResponse, isLoading } = useQuery({
     queryKey: ["fee-types", search],
@@ -45,10 +59,43 @@ export default function FeeTypesPage() {
   const result = feeTypeResponse?.data || feeTypeResponse;
   const feeTypes = result?.data || [];
 
+  // Calculate total (before any early returns)
+  const total = feeTypes.length;
+
   const openForm = (feeType = null) => {
     setEditingFeeType(feeType);
     setShowForm(true);
   };
+
+  // Set action button and total count in header (must be before early return)
+  useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
+    if (!showForm) {
+      const actionBtn = (
+        <PermissionGuard permission="create">
+          <Button 
+            onClick={() => openForm()}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+          >
+            <Plus className="mr-2 h-3 w-5" /> Add Fee Type
+          </Button>
+        </PermissionGuard>
+      );
+      setActionButton(actionBtn);
+      setTotalCount(total);
+    } else {
+      setActionButton(null);
+      setTotalCount(null);
+    }
+
+    // Cleanup: clear action button and total count when component unmounts
+    return () => {
+      setActionButton(null);
+      setTotalCount(null);
+    };
+  }, [setActionButton, setTotalCount, total, showForm]);
 
   const closeForm = () => {
     setEditingFeeType(null);
@@ -73,43 +120,22 @@ export default function FeeTypesPage() {
   }
 
   return (
-    <div className="p-4 space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <h3 className="text-xl font-bold">Fee Types</h3>
-        <PermissionGuard permission="create">
-          <Button onClick={() => openForm()}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Fee Type
-          </Button>
-        </PermissionGuard>
-      </div>
+    <div className="p-1 bg-gray-100 min-h-screen">
+      <FiltersSection search={search} onSearchChange={setSearch} searchPlaceholder="Search by title" />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="space-y-2">
-          <Input
-            id="fee-search"
-            placeholder="Search by title"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-            }}
-          />
-        </div>
-      </div>
-
-      {feeTypes.length ? (
+      <TableContainer
+        isLoading={isLoading}
+        isEmpty={!isLoading && feeTypes.length === 0}
+        loadingText="Loading fee types..."
+        emptyText="No fee types found."
+      >
         <FeeTypeTable
           data={feeTypes}
           isLoading={isLoading}
           onEdit={openForm}
           onDelete={handleDelete}
         />
-      ) : isLoading ? (
-        <p>Loading fee types...</p>
-      ) : (
-        <p className="text-sm text-muted-foreground">No fee types found.</p>
-      )}
-
+      </TableContainer>
     </div>
   );
 }

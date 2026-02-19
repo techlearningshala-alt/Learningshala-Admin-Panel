@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 import CKEditor from "@/components/CKEditor";
+import FormActionButtons from "@/components/common/FormActionButtons";
 
 export default function AddFaqForm({
   item,
@@ -40,22 +41,22 @@ export default function AddFaqForm({
   };
 
   return (
-    <div className="p-4 max-h-[calc(100vh-100px)] overflow-y-auto">
+    <div className="p-6 bg-gray-50 min-h-screen pb-24">
       <div className="relative flex justify-center items-center mb-6">
         <Button variant="ghost" size="sm" onClick={onCancel} className="absolute left-0">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to List
         </Button>
-        <h3 className="text-xl font-bold">{item ? "Edit FAQ" : "Add New FAQ"}</h3>
+        <h3 className="text-2xl text-blue-700 font-bold">{item ? "Edit FAQ" : "Add New FAQ"}</h3>
       </div>
 
-      <form className="space-y-4 max-w-2xl mx-auto">
+      <form className="space-y-6 max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-sm">
         {/* Category */}
         <div className="space-y-2">
-          <Label>Category</Label>
+          <Label className="text-sm font-medium text-gray-700">Category</Label>
           <select
             {...register("category_id", { required: "Category is required" })}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded-md px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             defaultValue={item?.category_id || ""}
           >
             <option value="" disabled>
@@ -69,25 +70,26 @@ export default function AddFaqForm({
               ))}
           </select>
           {errors.category_id && (
-            <p className="text-red-500 text-sm">{errors.category_id.message}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.category_id.message}</p>
           )}
         </div>
 
         {/* Question */}
         <div className="space-y-2">
-          <Label>Question</Label>
+          <Label className="text-sm font-medium text-gray-700">Question</Label>
           <Input
             {...register("title", { required: "Question is required" })}
             placeholder="Enter question"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
           {errors.title && (
-            <p className="text-red-500 text-sm">{errors.title.message}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
           )}
         </div>
 
         {/* Answer */}
         <div className="space-y-2">
-          <Label>Answer</Label>
+          <Label className="text-sm font-medium text-gray-700">Answer</Label>
           <div className="min-h-[200px] rounded-md border bg-white">
             <Controller
               name="description"
@@ -102,49 +104,19 @@ export default function AddFaqForm({
             />
           </div>
           {errors.description && (
-            <p className="text-red-500 text-sm">{errors.description.message}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
           )}
         </div>
-
-        {/* Buttons */}
-        {item ? (
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              className="flex-1"
-              disabled={isSubmitting}
-              onClick={handleSubmit((data) => onSubmit({ ...data, saveWithDate: true }))}
-            >
-              Save with Date
-            </Button>
-            <Button
-              type="button"
-              className="flex-1"
-              disabled={isSubmitting}
-              onClick={handleSubmit((data) => onSubmit({ ...data, saveWithDate: false }))}
-            >
-              Save without Date
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              className="flex-1"
-              disabled={isSubmitting}
-              onClick={handleSubmit((data) => onSubmit({ ...data, saveWithDate: true }))}
-            >
-              {isSubmitting ? "Saving..." : "Save"}
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          </div>
-        )}
       </form>
+
+      <FormActionButtons
+        isEdit={!!item}
+        isSubmitting={isSubmitting}
+        isLoading={false}
+        onSave={(saveWithDate) => handleSubmit((data) => onSubmit({ ...data, saveWithDate }))()}
+        onCancel={onCancel}
+        saveButtonText="Save"
+      />
     </div>
   );
 }

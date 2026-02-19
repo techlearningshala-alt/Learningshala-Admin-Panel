@@ -9,6 +9,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { ArrowLeft } from "lucide-react";
+import FormActionButtons from "@/components/common/FormActionButtons";
 
 export default function AddTestimonialForm({ item, onCancel, onSuccess }) {
   const [preview, setPreview] = useState(null);
@@ -80,37 +81,40 @@ export default function AddTestimonialForm({ item, onCancel, onSuccess }) {
     mutation.mutate({ data, saveWithDate });
 
   return (
-    <div className="p-4">
+    <div className="p-6 bg-gray-50 min-h-screen pb-24">
       <div className="relative flex justify-center items-center mb-6">
         <Button variant="ghost" size="sm" onClick={onCancel} className="absolute left-0">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to List
         </Button>
-        <h3 className="text-xl font-bold">
+        <h3 className="text-2xl text-blue-700 font-bold">
           {item ? "Edit Testimonial" : "Add New Testimonial"}
         </h3>
       </div>
 
-      <form className="space-y-4 max-w-2xl mx-auto">
+      <form className="space-y-6 max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-sm">
         {/* Name */}
         <div className="space-y-2">
-          <Label>Name</Label>
+          <Label className="text-sm font-medium text-gray-700">Name</Label>
           <Input
             {...register("name", { required: "Name is required" })}
             placeholder="Enter student name"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
         </div>
 
         {/* Thumbnail */}
         <div className="space-y-2">
-          <Label>Thumbnail</Label>
+          <Label className="text-sm font-medium text-gray-700">Thumbnail</Label>
           {preview && (
-            <img
-              src={preview}
-              alt="Preview"
-              className="w-32 h-32 object-cover rounded mb-2 border"
-            />
+            <div className="mb-3">
+              <img
+                src={preview}
+                alt="Preview"
+                className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200 shadow-sm"
+              />
+            </div>
           )}
           <Input
             type="file"
@@ -120,70 +124,44 @@ export default function AddTestimonialForm({ item, onCancel, onSuccess }) {
               e.target.files?.[0] &&
               setPreview(URL.createObjectURL(e.target.files[0]))
             }
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
           />
+          {errors.thumbnail && <p className="text-red-500 text-sm mt-1">{errors.thumbnail.message}</p>}
         </div>
 
         {/* Video Title */}
         <div className="space-y-2">
-          <Label>Video Title</Label>
+          <Label className="text-sm font-medium text-gray-700">Video Title</Label>
           <Input
             {...register("video_title", {
               required: "Video title is required",
             })}
             placeholder="Enter video title"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
-          {errors.video_title && <p className="text-red-500 text-sm">{errors.video_title.message}</p>}
+          {errors.video_title && <p className="text-red-500 text-sm mt-1">{errors.video_title.message}</p>}
         </div>
 
         {/* Video ID */}
         <div className="space-y-2">
-          <Label>Video ID</Label>
+          <Label className="text-sm font-medium text-gray-700">Video ID</Label>
           <Input
             {...register("video_id", { required: "Video ID is required" })}
             placeholder="YouTube Video ID"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
-          {errors.video_id && <p className="text-red-500 text-sm">{errors.video_id.message}</p>}
+          {errors.video_id && <p className="text-red-500 text-sm mt-1">{errors.video_id.message}</p>}
         </div>
-
-        {/* Buttons */}
-        {item ? (
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              className="flex-1"
-              onClick={handleSubmit((data) => onSubmit(data, true))}
-              disabled={isSubmitting || mutation.isLoading}
-            >
-              Save with Date
-            </Button>
-            <Button
-              type="button"
-              className="flex-1"
-              onClick={handleSubmit((data) => onSubmit(data, false))}
-              disabled={isSubmitting || mutation.isLoading}
-            >
-              Save without Date
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              className="flex-1"
-              onClick={handleSubmit((data) => onSubmit(data, true))}
-              disabled={isSubmitting || mutation.isLoading}
-            >
-              {mutation.isLoading ? "Saving..." : "Save"}
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          </div>
-        )}
       </form>
+
+      <FormActionButtons
+        isEdit={!!item}
+        isSubmitting={isSubmitting}
+        isLoading={mutation.isLoading}
+        onSave={(saveWithDate) => handleSubmit((data) => onSubmit(data, saveWithDate))()}
+        onCancel={onCancel}
+        saveButtonText="Save"
+      />
     </div>
   );
 }

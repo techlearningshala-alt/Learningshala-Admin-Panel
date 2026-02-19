@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
+import FormActionButtons from "@/components/common/FormActionButtons";
 
 export default function AddRedirectionForm({ item, onCancel, onSuccess }) {
   const {
@@ -29,10 +30,10 @@ export default function AddRedirectionForm({ item, onCancel, onSuccess }) {
     }
   }, [item, reset]);
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data, saveWithDate = true) => {
     try {
       if (onSuccess) {
-        await onSuccess(data);
+        await onSuccess({ ...data, saveWithDate });
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -40,23 +41,18 @@ export default function AddRedirectionForm({ item, onCancel, onSuccess }) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6 border border-gray-200">
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={onCancel}
-          className="hover:bg-gray-100"
-        >
-          <ArrowLeft className="h-5 w-5" />
+    <div className="p-6 bg-gray-50 min-h-screen pb-24">
+      <div className="relative flex justify-center items-center mb-6">
+        <Button variant="ghost" size="sm" onClick={onCancel} className="absolute left-0">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to List
         </Button>
-        <h2 className="text-2xl font-semibold text-gray-800">
+        <h3 className="text-2xl text-blue-700 font-bold">
           {item ? "Edit Redirection" : "Add New Redirection"}
-        </h2>
+        </h3>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form className="space-y-6 max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-sm">
         <div className="space-y-2">
           <Label htmlFor="old_url" className="text-sm font-medium text-gray-700">
             Old URL (Source) <span className="text-red-500">*</span>
@@ -75,7 +71,7 @@ export default function AddRedirectionForm({ item, onCancel, onSuccess }) {
             className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
           {errors.old_url && (
-            <p className="text-xs text-red-500">{errors.old_url.message}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.old_url.message}</p>
           )}
         </div>
 
@@ -97,28 +93,18 @@ export default function AddRedirectionForm({ item, onCancel, onSuccess }) {
             className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
           {errors.new_url && (
-            <p className="text-xs text-red-500">{errors.new_url.message}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.new_url.message}</p>
           )}
         </div>
-
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            className="px-6"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
-          >
-            {isSubmitting ? "Saving..." : item ? "Update" : "Save"}
-          </Button>
-        </div>
       </form>
+
+      <FormActionButtons
+        isEdit={!!item}
+        isSubmitting={isSubmitting}
+        onSave={(saveWithDate) => handleSubmit((data) => onSubmit(data, saveWithDate))()}
+        onCancel={onCancel}
+        saveButtonText="Save"
+      />
     </div>
   );
 }

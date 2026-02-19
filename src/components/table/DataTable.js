@@ -1,26 +1,27 @@
 "use client";
 
+import { Table } from "../ui/table";
+
 export default function DataTable({ columns, data = [], actions = [] }) {
   return (
-    <div className="w-full overflow-x-auto rounded-lg border border-gray-200 shadow-lg bg-white">
-      <table className="min-w-full text-sm table-auto divide-y divide-gray-200">
+    <div className="w-full overflow-x-auto rounded-lg border border-gray-200 shadow-lg bg-white ">
+      <Table className="min-w-full text-sm  divide-y divide-gray-200">
         <thead className="bg-gradient-to-r from-gray-50 via-gray-50 to-gray-100">
           <tr>
             {columns.map((col) => {
-              const columnStyle = col.style || (col.width ? { width: col.width } : undefined);
-              const headerClassName = col.headerClassName || "px-6 py-4 text-left";
+            
               return (
                 <th 
                   key={col.key} 
-                  className={`${headerClassName} text-xs font-semibold text-gray-700 uppercase tracking-wider`} 
-                  style={columnStyle}
+                  className={`text-xs font-semibold text-gray-700 uppercase text-center whitespace-nowrap text-nowrap px-3 py-2 bg-blue-100`} 
+                 
                 >
                   {col.label}
                 </th>
               );
             })}
             {actions.length > 0 && (
-              <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider" style={{ width: "120px" }}>
+              <th className="text-xs font-semibold text-gray-700 uppercase text-center whitespace-nowrap text-nowrap px-3 py-2 bg-blue-100 ">
                 Actions
               </th>
             )}
@@ -31,7 +32,7 @@ export default function DataTable({ columns, data = [], actions = [] }) {
             <tr>
               <td
                 colSpan={columns.length + actions.length}
-                className="px-6 py-12 text-center text-gray-500"
+                className="text-center text-gray-500 whitespace-nowrap text-nowrap"
               >
                 <div className="flex flex-col items-center justify-center">
                   <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,26 +46,23 @@ export default function DataTable({ columns, data = [], actions = [] }) {
             data?.map((row, rowIndex) => (
               <tr 
                 key={row.id ?? rowIndex}
-                className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 transition-all duration-200 border-b border-gray-100"
+                className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 transition-all duration-200 border-b border-gray-100 bg-blue-50 whitespace-nowrap text-nowrap"
               >
                 {columns.map((col) => {
-                  const columnStyle = col.style || (col.width ? { width: col.width } : undefined);
-                  const cellClassName = col.cellClassName || "px-6 py-4";
-                  const wrapperClassName = col.contentClassName || "break-words whitespace-pre-line";
+                
+                 
                   return (
                     <td 
                       key={col.key} 
-                      className={`${cellClassName} align-middle text-gray-900`} 
-                      style={columnStyle}
+                      className={` text-gray-900 whitespace-nowrap text-nowrap px-2 truncate max-w-[180px]`} 
+                     
                     >
-                      <div className={`${wrapperClassName} w-full`}>
-                        {col.render ? col.render(row, rowIndex) : row[col.key]}
-                      </div>
+                     {col.render ? col.render(row, rowIndex) : row[col.key]}
                     </td>
                   );
                 })}
                 {actions.length > 0 && (
-                  <td className="px-6 py-4 text-center align-middle">
+                  <td className="px-2 py-2 text-center whitespace-nowrap text-nowrap">
                     <div className="flex justify-center gap-2">
                       {actions.map((action, idx) => (
                         <div key={idx}>{action.key({ row, index: rowIndex })}</div>
@@ -76,7 +74,7 @@ export default function DataTable({ columns, data = [], actions = [] }) {
             ))
           )}
         </tbody>
-      </table>
+      </Table>
     </div>
   );
 }
