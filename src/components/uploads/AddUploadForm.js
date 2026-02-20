@@ -8,7 +8,7 @@ import { notifySuccess, notifyError } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, FileText } from "lucide-react";
+import { ArrowLeft, FileText, Video } from "lucide-react";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import FormActionButtons from "@/components/common/FormActionButtons";
 
@@ -32,12 +32,16 @@ export default function AddUploadForm({ item, onCancel, onSuccess }) {
     if (item) {
       setValue("name", item.name || "");
       setValue("file_type", item.file_type || "image");
-      setFileType(item.file_type === "pdf" ? "pdf" : "image");
+      setFileType(item.file_type === "pdf" ? "pdf" : item.file_type === "video" ? "video" : "image");
       const path = item.file_path || item.image;
       if (path) {
         setExistingPath(path);
-        if ((item.file_type || "").toLowerCase() === "pdf" || path.toLowerCase().endsWith(".pdf")) {
+        const type = (item.file_type || "").toLowerCase();
+        const pathLower = path.toLowerCase();
+        if (type === "pdf" || pathLower.endsWith(".pdf")) {
           setPreviewUrl("pdf");
+        } else if (type === "video" || pathLower.match(/\.(mp4|webm|ogg|mov)$/)) {
+          setPreviewUrl("video");
         } else {
           setPreviewUrl(`${baseUrl}${path}`);
         }
@@ -94,6 +98,8 @@ export default function AddUploadForm({ item, onCancel, onSuccess }) {
     if (file) {
       if (file.type.startsWith("image/")) {
         setPreviewUrl(URL.createObjectURL(file));
+      } else if (file.type.startsWith("video/")) {
+        setPreviewUrl("video");
       } else {
         setPreviewUrl("pdf");
       }
@@ -109,7 +115,12 @@ export default function AddUploadForm({ item, onCancel, onSuccess }) {
     if (fileInput) fileInput.value = "";
   };
 
-  const accept = fileType === "pdf" ? "application/pdf,.pdf" : "image/*";
+  const accept =
+    fileType === "pdf"
+      ? "application/pdf,.pdf"
+      : fileType === "video"
+        ? "video/*,.mp4,.webm,.ogg,.mov"
+        : "image/*";
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen pb-24">
@@ -142,6 +153,7 @@ export default function AddUploadForm({ item, onCancel, onSuccess }) {
           >
             <option value="image">Image</option>
             <option value="pdf">PDF</option>
+            <option value="video">Video</option>
           </select>
           {errors.file_type && (
             <p className="text-red-500 text-sm mt-1">{errors.file_type.message}</p>
@@ -150,7 +162,7 @@ export default function AddUploadForm({ item, onCancel, onSuccess }) {
 
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">
-            {fileType === "pdf" ? "PDF File" : "Image"}
+            {fileType === "pdf" ? "PDF File" : fileType === "video" ? "Video File" : "Image"}
           </Label>
           {(previewUrl || existingPath) && !fileRemoved && (
             <div className="mb-3">
@@ -158,6 +170,16 @@ export default function AddUploadForm({ item, onCancel, onSuccess }) {
                 <div className="flex items-center gap-2 p-4 border rounded-lg bg-gray-50 w-fit">
                   <FileText className="h-10 w-10 text-red-500" />
                   <span className="text-sm text-gray-600">PDF file</span>
+                  {existingPath && (
+                    <span className="text-xs text-gray-400 truncate max-w-[200px]" title={existingPath}>
+                      {existingPath}
+                    </span>
+                  )}
+                </div>
+              ) : previewUrl === "video" || (existingPath && existingPath.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/)) ? (
+                <div className="flex items-center gap-2 p-4 border rounded-lg bg-gray-50 w-fit">
+                  <Video className="h-10 w-10 text-blue-500" />
+                  <span className="text-sm text-gray-600">Video file (MP4, etc.)</span>
                   {existingPath && (
                     <span className="text-xs text-gray-400 truncate max-w-[200px]" title={existingPath}>
                       {existingPath}

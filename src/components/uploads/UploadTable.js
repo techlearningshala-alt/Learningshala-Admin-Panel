@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { FileText } from "lucide-react";
+import { FileText, Video } from "lucide-react";
 import DataTable from "../table/DataTable";
 import { createTableActions } from "@/utils/tableActions";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -24,11 +24,20 @@ export default function UploadTable({ items, onEdit, onDelete, page = 1, limit =
       render: (row) => {
         const path = row.file_path || row.image || "";
         const type = (row.file_type || "").toLowerCase();
-        const isPdf = type === "pdf" || (path && path.toLowerCase().endsWith(".pdf"));
+        const pathLower = path ? path.toLowerCase() : "";
+        const isPdf = type === "pdf" || pathLower.endsWith(".pdf");
+        const isVideo = type === "video" || pathLower.match(/\.(mp4|webm|ogg|mov)$/);
         if (isPdf) {
           return (
             <div className="flex items-center justify-center h-16 w-16 rounded border bg-gray-100">
               <FileText className="h-8 w-8 text-red-500" />
+            </div>
+          );
+        }
+        if (isVideo) {
+          return (
+            <div className="flex items-center justify-center h-16 w-16 rounded border bg-gray-100">
+              <Video className="h-8 w-8 text-blue-500" />
             </div>
           );
         }
@@ -76,10 +85,11 @@ export default function UploadTable({ items, onEdit, onDelete, page = 1, limit =
       label: "Type",
       render: (row) => {
         const path = row.file_path || row.image || "";
-        const isPdf =
-          (row.file_type || "").toLowerCase() === "pdf" ||
-          path.toLowerCase().endsWith(".pdf");
-        return <span>{isPdf ? "PDF" : "Image"}</span>;
+        const type = (row.file_type || "").toLowerCase();
+        const pathLower = path ? path.toLowerCase() : "";
+        if (type === "pdf" || pathLower.endsWith(".pdf")) return <span>PDF</span>;
+        if (type === "video" || pathLower.match(/\.(mp4|webm|ogg|mov)$/)) return <span>Video</span>;
+        return <span>Image</span>;
       },
     },
     {
