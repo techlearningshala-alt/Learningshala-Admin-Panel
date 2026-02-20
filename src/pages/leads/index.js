@@ -17,7 +17,7 @@ function LeadsPageContent() {
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
 
   const { data, isLoading } = useQuery({
     queryKey: ["leads", page, rowsPerPage, search, fromDate, toDate],
@@ -143,7 +143,7 @@ function LeadsPageContent() {
           </div>
         )}
       </div>
-      <h3 className="text-xl font-semibold text-blue-900 ">Leads Details</h3>
+      <h3 className="text-xl font-semibold text-blue-900 mb-4">Leads Details</h3>
       <div className="rounded-md border bg-white">
         <LeadTable data={leads} isLoading={isLoading} />
       </div>

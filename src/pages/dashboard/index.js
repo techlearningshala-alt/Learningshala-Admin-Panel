@@ -56,15 +56,21 @@ export default function DashboardPage() {
         {/* Dashboard Content */}
         {!isLoading && !error && data && (
           <>
-            {/* Today's Statistics - Only for lead role */}
+            {/* Today's Statistics - Only for lead role (same section styling as admin) */}
             {user?.role === "lead" && (
-              <TodayStats
-                todayStats={data.todayStats}
-                weekStats={data.weekStats}
-                statistics={data.statistics}
-                isLoading={isLoading}
-                userRole={user?.role}
-              />
+              <div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <span className="w-1 h-8 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full"></span>
+                  Overview Statistics
+                </h3>
+                <TodayStats
+                  todayStats={data.todayStats}
+                  weekStats={data.weekStats}
+                  statistics={data.statistics}
+                  isLoading={isLoading}
+                  userRole={user?.role}
+                />
+              </div>
             )}
 
             {/* Main Statistics Grid - Hidden for lead role */}

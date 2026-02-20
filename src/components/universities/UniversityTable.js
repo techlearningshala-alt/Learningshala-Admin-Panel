@@ -80,7 +80,7 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
     },
     {
       key: "is_page_created",
-      label: "Page Created",
+      label: "Page Live",
       render: (row) =>
         canUpdate ? (
           <Button
@@ -107,7 +107,7 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
     },
     {
       key: "menu_visibility",
-      label: "Home Page Visi",
+      label: "Home Visibility",
       render: (row) =>
         canUpdate ? (
           <Button
@@ -134,7 +134,7 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
     },
     {
       key: "provide_emi",
-      label: "Provide EMI",
+      label: "EMI",
       render: (row) =>
         canUpdate ? (
           <Button
@@ -155,24 +155,21 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
           </span>
         ),
     },
+  ];
+
+  const actions = createTableActions(onEdit, onDelete);
+
+  const columnsAfterActions = [
     {
       key: "updated_at",
       label: "Updated",
       render: (row) => (
         <span className="">
-          {new Date(row.updated_at).toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric' 
-          })}
+          {row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-"}
         </span>
       ),
     },
   ];
 
-    const actions = createTableActions(onEdit, onDelete);
-
-
-
-  return <DataTable columns={columns} data={items} actions={actions} />;
+  return <DataTable columns={columns} data={items} actions={actions} columnsAfterActions={columnsAfterActions} />;
 }

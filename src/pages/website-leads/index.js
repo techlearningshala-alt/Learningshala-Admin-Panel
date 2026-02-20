@@ -17,7 +17,7 @@ function WebsiteLeadsPageContent() {
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
 
   const { data, isLoading } = useQuery({
     queryKey: ["website-leads", page, rowsPerPage, search, fromDate, toDate],

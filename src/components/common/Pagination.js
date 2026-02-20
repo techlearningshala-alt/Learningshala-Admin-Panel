@@ -19,7 +19,7 @@ export default function Pagination({
   rowsPerPage,
   onPageChange,
   onRowsPerPageChange,
-  rowsPerPageOptions = [10, 25, 50, 100],
+  rowsPerPageOptions = [20, 50, 100, 200],
 }) {
   const totalPages = Math.max(1, Math.ceil(total / rowsPerPage));
 

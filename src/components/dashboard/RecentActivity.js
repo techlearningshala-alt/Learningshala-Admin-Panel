@@ -50,8 +50,8 @@ export default function RecentActivity({ data, isLoading, userRole }) {
       {/* Recent Leads - Only for lead role */}
       {isLead && (
         <Card>
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
-          <CardTitle className="flex items-center justify-between text-lg font-semibold">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b h-15">
+          <CardTitle className="flex items-center justify-between text-lg font-semibold py-3">
             <span className="text-gray-800">Recent Leads</span>
             <Link
               href="/leads"
@@ -100,8 +100,8 @@ export default function RecentActivity({ data, isLoading, userRole }) {
       {/* Recent Contact Messages - Only for lead role */}
       {isLead && (
         <Card>
-        <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b">
-          <CardTitle className="flex items-center justify-between text-lg font-semibold">
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b h-15">
+          <CardTitle className="flex items-center justify-between text-lg font-semibold py-3">
             <span className="text-gray-800">Recent Contact Messages</span>
             <Link
               href="/contact-us"
@@ -145,8 +145,8 @@ export default function RecentActivity({ data, isLoading, userRole }) {
       {/* Recent Website Leads - Only for lead role */}
       {isLead && data?.recentWebsiteLeads?.length > 0 && (
         <Card>
-          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
-            <CardTitle className="flex items-center justify-between text-lg font-semibold">
+          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b h-15">
+            <CardTitle className="flex items-center justify-between text-lg font-semibold py-3">
               <span className="text-gray-800">Recent Website Leads</span>
               <Link
                 href="/website-leads"

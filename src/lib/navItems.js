@@ -64,6 +64,7 @@ const navItemsData = [
       { name: "Specialization Images", href: "/specialization-images", roles: ["admin","mentor"] },
       { name: "Authors", href: "/authors", roles: ["admin","mentor"] },
       { name: "Redirection", href: "/redirections", roles: ["admin","mentor"] },
+      { name: "Uploads", href: "/uploads", roles: ["admin","mentor"] },
     ],
   },
   {

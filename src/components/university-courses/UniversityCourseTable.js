@@ -126,7 +126,7 @@ export default function UniversityCourseTable({
   },
   {
     key: "emi",
-    label: "EMI (Monthly)",
+    label: "Emi Month",
     // style: { minWidth: "100px" },
     render: (row) => {
       const emiValue = findFeeValue(row.fee_type_values, "EMI Monthly") || 
@@ -140,7 +140,6 @@ export default function UniversityCourseTable({
       {
         key: "brochure",
         label: "Brochure",
-        // style: { width: "100px" },
         render: (row) =>
           row.brochure_file ? (
             <a
@@ -155,14 +154,7 @@ export default function UniversityCourseTable({
             <span className="text-muted-foreground">-</span>
           ),
       },
-  {
-    key: "updated_at",
-    label: "Updated",
-    // style: { minWidth: "90px" },
-    cellClassName: "",
-    render: (row) =>
-      row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",
-  },
+
   {
     key: "is_active",
     label: "Act / Deact",
@@ -186,7 +178,7 @@ export default function UniversityCourseTable({
   },
   {
     key: "is_page_created",
-    label: "Page Created",
+    label: "Page Live",
     // style: { width: "10%" },
     render: (row) =>
       canUpdate ? (
@@ -208,10 +200,22 @@ export default function UniversityCourseTable({
   ];
     const actions = createTableActions(onEdit, onDelete);
 
+  const columnsAfterActions = [
+    {
+      key: "updated_at",
+      label: "Updated",
+      render: (row) => (
+        <span className="">
+          {row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-"}
+        </span>
+      ),
+    },
+  ];
+
   if (isLoading) {
     return <p>Loading courses...</p>;
   }
 
-  return <DataTable columns={columns} data={data} actions={actions} />;
+  return <DataTable columns={columns} data={data} actions={actions} columnsAfterActions={columnsAfterActions} />;
 }
 

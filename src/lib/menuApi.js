@@ -249,6 +249,37 @@ export async function deleteCourseImage(id) {
   return res.data;
 }
 
+///////////////////////    UPLOADS APIS (Image & PDF)    ///////////////////////////
+
+export async function fetchUploads({ page = 1, limit = 10 }) {
+  const res = await api.get(`/uploads`, { params: { page, limit } });
+  return res.data;
+}
+
+export async function fetchUploadById(id) {
+  const res = await api.get(`/uploads/${id}`);
+  return res.data;
+}
+
+export async function addUpload(formData) {
+  const res = await api.post(`/uploads`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+}
+
+export async function updateUpload(id, formData) {
+  const res = await api.put(`/uploads/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+}
+
+export async function deleteUpload(id) {
+  const res = await api.delete(`/uploads/${id}`);
+  return res.data;
+}
+
 ///////////////////////    SPECIALIZATION IMAGES APIS    ///////////////////////////
 
 // Fetch specialization images with pagination

@@ -8,13 +8,6 @@ const defaultCellClass =
 const defaultColumnStyle = { minWidth: "160px" };
 
 const columns = [
-//   {
-//     key: "index",
-//     label: "Sr. No.",
-//     style: { width: "80px" },
-//     cellClassName: `${defaultCellClass} text-center`,
-//     render: (_row, index) => index + 1,
-//   },
   {
     key: "name",
     label: "Name",

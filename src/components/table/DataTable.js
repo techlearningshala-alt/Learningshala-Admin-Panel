@@ -2,7 +2,7 @@
 
 import { Table } from "../ui/table";
 
-export default function DataTable({ columns, data = [], actions = [] }) {
+export default function DataTable({ columns, data = [], actions = [], columnsAfterActions = [] }) {
   return (
     <div className="w-full overflow-x-auto rounded-lg border border-gray-200 shadow-lg bg-white ">
       <Table className="min-w-full text-sm  divide-y divide-gray-200">
@@ -13,7 +13,7 @@ export default function DataTable({ columns, data = [], actions = [] }) {
               return (
                 <th 
                   key={col.key} 
-                  className={`text-xs font-semibold text-gray-700 uppercase text-center whitespace-nowrap text-nowrap px-3 py-2 bg-blue-100`} 
+                  className={`text-xs font-semibold text-gray-700 text-center whitespace-nowrap text-nowrap px-3 py-2 bg-blue-100`} 
                  
                 >
                   {col.label}
@@ -21,17 +21,25 @@ export default function DataTable({ columns, data = [], actions = [] }) {
               );
             })}
             {actions.length > 0 && (
-              <th className="text-xs font-semibold text-gray-700 uppercase text-center whitespace-nowrap text-nowrap px-3 py-2 bg-blue-100 ">
+              <th className="text-xs font-semibold text-gray-700 text-center whitespace-nowrap text-nowrap px-3 py-2 bg-blue-100 ">
                 Actions
               </th>
             )}
+            {columnsAfterActions.map((col) => (
+              <th 
+                key={col.key} 
+                className={`text-xs font-semibold text-gray-700 text-center whitespace-nowrap text-nowrap px-3 py-2 bg-blue-100`} 
+              >
+                {col.label}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {data.length === 0 ? (
             <tr>
               <td
-                colSpan={columns.length + actions.length}
+                colSpan={columns.length + actions.length + columnsAfterActions.length}
                 className="text-center text-gray-500 whitespace-nowrap text-nowrap"
               >
                 <div className="flex flex-col items-center justify-center">
@@ -46,18 +54,16 @@ export default function DataTable({ columns, data = [], actions = [] }) {
             data?.map((row, rowIndex) => (
               <tr 
                 key={row.id ?? rowIndex}
-                className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 transition-all duration-200 border-b border-gray-100 bg-blue-50 whitespace-nowrap text-nowrap"
+                className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 transition-all duration-200 border-b border-gray-100 bg-blue-50 whitespace-nowrap text-nowrap bg"
               >
                 {columns.map((col) => {
-                
-                 
+                  const cellClass = col.cellClassName ?? "text-gray-900 whitespace-nowrap text-nowrap px-2 truncate max-w-[290px] mx-auto";
                   return (
-                    <td 
-                      key={col.key} 
-                      className={` text-gray-900 whitespace-nowrap text-nowrap px-2 truncate max-w-[180px]`} 
-                     
+                    <td
+                      key={col.key}
+                      className={cellClass}
                     >
-                     {col.render ? col.render(row, rowIndex) : row[col.key]}
+                      {col.render ? col.render(row, rowIndex) : row[col.key]}
                     </td>
                   );
                 })}
@@ -70,6 +76,14 @@ export default function DataTable({ columns, data = [], actions = [] }) {
                     </div>
                   </td>
                 )}
+                {columnsAfterActions.map((col) => {
+                  const cellClass = col.cellClassName ?? "text-gray-900 whitespace-nowrap text-nowrap px-2 truncate max-w-[290px] mx-auto";
+                  return (
+                    <td key={col.key} className={cellClass}>
+                      {col.render ? col.render(row, rowIndex) : row[col.key]}
+                    </td>
+                  );
+                })}
               </tr>
             ))
           )}

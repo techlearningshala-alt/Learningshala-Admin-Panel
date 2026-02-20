@@ -114,7 +114,7 @@ export default function UniversityCourseSpecializationTable({
     },
     {
       key: "emi_monthly",
-      label: "EMI (Monthly)",
+      label: "Emi Month",
       render: (row) => formatCurrency(findFeeValue(row.fee_type_values, "EMI Monthly")),
     },
     {
@@ -133,12 +133,6 @@ export default function UniversityCourseSpecializationTable({
         ) : (
           <span className="text-muted-foreground">-</span>
         ),
-    },
-    {
-      key: "updated_at",
-      label: "Updated",
-      render: (row) =>
-        row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",
     },
   {
     key: "is_active",
@@ -162,7 +156,7 @@ export default function UniversityCourseSpecializationTable({
   },
   {
     key: "is_page_created",
-    label: "Page Created",
+    label: "Page Live",
     render: (row) =>
       canUpdate ? (
         <Button
@@ -182,11 +176,22 @@ export default function UniversityCourseSpecializationTable({
   },
   ];
       const actions = createTableActions(onEdit, onDelete);
+      const columnsAfterActions = [
+        {
+          key: "updated_at",
+          label: "Updated",
+          render: (row) => (
+            <span className="">
+              {row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-"}
+            </span>
+          ),
+        },
+      ];
 
   if (isLoading) {
     return <p>Loading specializations...</p>;
   }
 
-  return <DataTable columns={columns} data={data} actions={actions} />;
+  return <DataTable columns={columns} data={data} actions={actions} columnsAfterActions={columnsAfterActions} />;
 }
 
