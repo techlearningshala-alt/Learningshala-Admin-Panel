@@ -712,17 +712,17 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
           variant="ghost"
           size="sm"
           onClick={onCancel}
-          className="absolute left-0"
+          className="absolute left-0 hover:bg-gray-200 hover:text-black text-black"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="mr-2 h-2 w-2" />
           Back to List
         </Button>
-        <h3 className="text-2xl font-bold">
+        <h3 className="text-2xl font-bold text-blue-700">
           {item ? "Edit Specialization" : "Add Specialization"}
         </h3>
       </div>
 
-      <form className="space-y-6">
+      <form className="space-y-6 max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-sm">
         <section className="border rounded-lg p-4 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -750,6 +750,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
             <div className="space-y-2">
               <Label>Specialization Name</Label>
               <Input
+                className="h-7"
                 placeholder="e.g. Data Science"
                 {...register("name", { required: "Specialization name is required" })}
               />
@@ -760,7 +761,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
 
             <div className="space-y-2">
               <Label>Specialization Slug</Label>
-              <Input placeholder="Enter specialization slug" {...register("slug", { required: "Specialization slug is required" })} />
+              <Input className="h-7" placeholder="Enter specialization slug" {...register("slug", { required: "Specialization slug is required" })} />
               {errors.slug && (
                 <p className="text-xs text-red-500">{errors.slug.message}</p>
               )}
@@ -769,6 +770,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
             <div className="space-y-2">
               <Label>Specialization Heading (H1 Tag)</Label>
               <Input
+                className="h-7"
                 placeholder="Primary headline"
                 {...register("h1Tag", { required: "H1 Tag is required" })}
               />
@@ -780,7 +782,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
             <div className="space-y-2 col-span-1 md:col-span-2">
               <Label>Meta Title</Label>
               <Input
-                className="w-full"
+                className="w-full h-7"
                 placeholder="SEO Meta Title (max 60 character)"
                 {...register("meta_title")}
               />
@@ -798,6 +800,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
             <div className="space-y-2">
               <Label>Duration</Label>
               <Input
+                className="h-7"
                 placeholder="Enter duration"
                 {...register("duration", {
                   required: "Duration is required",
@@ -811,6 +814,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
             <div className="space-y-2">
               <Label>Label (Menu Text)</Label>
               <Input
+                className="h-7"
                 placeholder="Short label for menu"
                 {...register("label")}
               />
@@ -822,6 +826,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
             <div className="space-y-2">
               <Label>Priority</Label>
               <Input
+                className="h-7"
                 type="number"
                 inputMode="numeric"
                 placeholder="Lower number → higher priority"
@@ -834,7 +839,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
 
             <div className="space-y-2">
               <Label>Author Name</Label>
-              <Input placeholder="Editor / Subject matter expert" {...register("author_name", { required: "Author name is required" })} />
+              <Input className="h-7" placeholder="Editor / Subject matter expert" {...register("author_name", { required: "Author name is required" })} />
               {errors.author_name && (
                 <p className="text-xs text-red-500">{errors.author_name.message}</p>
               )}
@@ -843,6 +848,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
             <div className="space-y-2">
               <Label>Learning Mode</Label>
               <Input
+                className="h-7"
                 placeholder="Ex. Online, Distance, Hybrid"
                 {...register("learning_mode")}
               />
@@ -995,6 +1001,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
               )}
               <Input
                 type="file"
+                className="h-8"
                 accept="image/*"
                 {...register("thumbnail", {
                   validate: (value) => {
@@ -1033,6 +1040,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
             <div className="space-y-2">
               <Label>Upload Ebook (Max 5MB)</Label>
               <Input
+                className="h-8"
                 ref={ebookInputRef}
                 type="file"
                 accept=".pdf,.doc,.docx"
@@ -1134,6 +1142,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
                   )}
                   <Input
                     type="file"
+                    className="h-8"
                     accept="image/*"
                     onChange={(e) => {
                       const file = e.target.files?.[0];

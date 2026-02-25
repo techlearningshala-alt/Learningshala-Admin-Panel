@@ -57,13 +57,15 @@ export default function DataTable({ columns, data = [], actions = [], columnsAft
                 className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 transition-all duration-200 border-b border-gray-100 bg-blue-50 whitespace-nowrap text-nowrap bg"
               >
                 {columns.map((col) => {
-                  const cellClass = col.cellClassName ?? "text-gray-900 whitespace-nowrap text-nowrap px-2 truncate max-w-[290px] mx-auto";
+                
+                 
                   return (
-                    <td
-                      key={col.key}
-                      className={cellClass}
+                    <td 
+                      key={col.key} 
+                      className={` text-gray-900 whitespace-nowrap text-nowrap px-2 truncate max-w-[290px] mx-auto`} 
+                     
                     >
-                      {col.render ? col.render(row, rowIndex) : row[col.key]}
+                     {col.render ? col.render(row, rowIndex) : row[col.key]}
                     </td>
                   );
                 })}
@@ -76,14 +78,14 @@ export default function DataTable({ columns, data = [], actions = [], columnsAft
                     </div>
                   </td>
                 )}
-                {columnsAfterActions.map((col) => {
-                  const cellClass = col.cellClassName ?? "text-gray-900 whitespace-nowrap text-nowrap px-2 truncate max-w-[290px] mx-auto";
-                  return (
-                    <td key={col.key} className={cellClass}>
-                      {col.render ? col.render(row, rowIndex) : row[col.key]}
-                    </td>
-                  );
-                })}
+                {columnsAfterActions.map((col) => (
+                  <td 
+                    key={col.key} 
+                    className={`text-gray-900 whitespace-nowrap text-nowrap px-2 truncate max-w-[290px] mx-auto`}
+                  >
+                    {col.render ? col.render(row, rowIndex) : row[col.key]}
+                  </td>
+                ))}
               </tr>
             ))
           )}

@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft } from "lucide-react";
+import FormActionButtons from "@/components/common/FormActionButtons";
 
 export default function AddDomainForm({ item, onCancel, onSuccess }) {
   const queryClient = useQueryClient();
@@ -62,9 +63,9 @@ export default function AddDomainForm({ item, onCancel, onSuccess }) {
     onError: (err) => notifyError(err.response?.data?.message || "Operation failed"),
   });
 
-  const handleSave = (shouldRedirect = true) => {
+  const handleSave = (shouldRedirect = true, saveWithoutDateFlag = undefined) => {
     handleSubmit((data) => {
-      const shouldSaveWithDate = item ? !saveWithoutDate : true;
+      const shouldSaveWithDate = item ? !(saveWithoutDateFlag !== undefined ? saveWithoutDateFlag : saveWithoutDate) : true;
       const formData = {
         ...data,
         label: data.label || "",
@@ -79,44 +80,57 @@ export default function AddDomainForm({ item, onCancel, onSuccess }) {
   };
 
   return (
-    <div className="p-4 pb-24">
+    <div className="p-6 bg-gray-50 min-h-screen pb-24">
       <div className="relative flex justify-center items-center mb-6">
         <Button variant="ghost" size="sm" onClick={onCancel} className="absolute left-0">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to List
         </Button>
-        <h3 className="text-2xl font-bold">{item ? "Edit Domain" : "Add New Domain"}</h3>
+        <h3 className="text-2xl text-blue-700 font-bold">{item ? "Edit Domain" : "Add New Domain"}</h3>
       </div>
 
-      <form className="space-y-4 max-w-2xl mx-auto">
+      <form className="space-y-6 max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-sm">
         {/* Name */}
         <div className="space-y-2">
-          <Label>Name</Label>
-          <Input {...register("name", { required: "Name is required" })} placeholder="Enter domain name" />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+          <Label className="text-sm font-medium text-gray-700">Name</Label>
+          <Input 
+            {...register("name", { required: "Name is required" })} 
+            placeholder="Enter domain name"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
         </div>
 
         {/* Label */}
         <div className="space-y-2">
-          <Label>Label</Label>
+          <Label className="text-sm font-medium text-gray-700">Label</Label>
           <Input
             {...register("label")}
             placeholder="Short label (optional, e.g. 'Top', 'Popular')"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
         </div>
 
         {/* Description */}
         <div className="space-y-2">
-          <Label>Description</Label>
-          <Input {...register("description", { required: "Description is required" })} placeholder="Enter description" />
-          {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
+          <Label className="text-sm font-medium text-gray-700">Description</Label>
+          <Input 
+            {...register("description", { required: "Description is required" })} 
+            placeholder="Enter description"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+          {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>}
         </div>
 
         {/* Priority */}
         <div className="space-y-2">
-          <Label>Priority</Label>
-          <Input type="number" {...register("priority", { required: "Priority is required" })} />
-          {errors.priority && <p className="text-red-500 text-sm">{errors.priority.message}</p>}
+          <Label className="text-sm font-medium text-gray-700">Priority</Label>
+          <Input 
+            type="number" 
+            {...register("priority", { required: "Priority is required" })}
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+          {errors.priority && <p className="text-red-500 text-sm mt-1">{errors.priority.message}</p>}
         </div>
 
         {/* Active */}
@@ -132,58 +146,54 @@ export default function AddDomainForm({ item, onCancel, onSuccess }) {
         </div>
       </form>
 
-      {/* Fixed Bottom Bar with Buttons - Same as Course Form */}
-      <div className="fixed bottom-0 left-0 md:left-[200px] right-0 bg-background border-t shadow-lg z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex flex-wrap items-center justify-end gap-3">
-            {item && (
-              <label className="flex items-center gap-2 text-sm">
-                <Checkbox
-                  id="save-without-date"
-                  checked={saveWithoutDate}
-                  onChange={(event) => setSaveWithoutDate(event.target.checked)}
-                />
-                Save without Date
-              </label>
-            )}
+      {/* Fixed Bottom Bar with Buttons */}
+      {item ? (
+        <div className="fixed bottom-0 left-[215px] right-0 bg-white border-t border-gray-200 z-50 shadow-2xl">
+          <div className="flex gap-3 p-4 max-w-6xl mx-auto">
             <Button
               type="button"
-              // variant="outline"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
               disabled={isSubmitting || mutation.isLoading}
+              onClick={() => handleSave(true)}
+            >
+              {mutation.isLoading ? "Saving..." : "Save"}
+            </Button>
+            <Button
+              type="button"
+              className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all"
+              disabled={isSubmitting || mutation.isLoading}
+              onClick={() => handleSave(false)}
+            >
+              {mutation.isLoading ? "Saving..." : "Save and Continue"}
+            </Button>
+            <Button
+              type="button"
+              className="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white shadow-md hover:shadow-lg transition-all"
+              disabled={isSubmitting || mutation.isLoading}
+              onClick={() => handleSave(true, true)}
+            >
+              {mutation.isLoading ? "Saving..." : "Save without Date"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
               onClick={onCancel}
+              className="border-gray-300 hover:bg-gray-50"
             >
               Cancel
             </Button>
-            {item ? (
-              <>
-                <Button
-                  type="button"
-                  onClick={() => handleSave(true)}
-                  disabled={isSubmitting || mutation.isLoading}
-                >
-                  {mutation.isLoading ? "Saving..." : "Save"}
-                </Button>
-                <Button
-                  type="button"
-                  // variant="secondary"
-                  onClick={() => handleSave(false)}
-                  disabled={isSubmitting || mutation.isLoading}
-                >
-                  {mutation.isLoading ? "Saving..." : "Save and Continue"}
-                </Button>
-              </>
-            ) : (
-              <Button
-                type="button"
-                onClick={() => handleSave(true)}
-                disabled={isSubmitting || mutation.isLoading}
-              >
-                {mutation.isLoading ? "Saving..." : "Create Domain"}
-              </Button>
-            )}
           </div>
         </div>
-      </div>
+      ) : (
+        <FormActionButtons
+          isEdit={false}
+          isSubmitting={isSubmitting}
+          isLoading={mutation.isLoading}
+          onSave={() => handleSave(true)}
+          onCancel={onCancel}
+          saveButtonText="Create Domain"
+        />
+      )}
     </div>
   );
 }

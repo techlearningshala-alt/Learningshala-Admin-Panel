@@ -833,7 +833,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       </div>
 
 
-      <form className="space-y-3 max-w-6xl mx-auto px-6 pb-24">
+      <form className="space-y-3 max-w-5xl mx-auto px-6 pb-24">
         {/* University Type Dropdown - At the top */}
         <div className="bg-white rounded-lg shadow-md p-3 border border-gray-200">
           <Label className="text-base font-semibold text-gray-700 mb-1 block">University Type</Label>

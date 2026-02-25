@@ -1157,14 +1157,14 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
           Back to List
         </Button>
         <div className="flex items-center gap-2">
-          <h3 className="text-3xl font-bold text-blue-700">
+          <h3 className="text-2xl font-bold text-blue-700">
             {isEdit ? "Edit University Course Specialization" : "Add University Course Specialization"}
           </h3>
         </div>
       </div>
-      <div className="space-y-4 max-w-6xl mx-auto bg-white p-3 rounded-lg shadow-sm w-full">
+      <div className="space-y-6 max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-sm w-full">
         <form
-          className="space-y-4 rounded-lg shadow-none"
+          className="space-y-6 rounded-lg shadow-none bg-white"
           encType="multipart/form-data"
           onSubmit={(e) => {
             e.preventDefault();
@@ -1221,7 +1221,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
               <p className="text-sm text-muted-foreground">Loading courses...</p>
             ) : (
               <select
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 h-7"
                 value={watch("university_course_id") || ""}
                 onChange={(e) =>
                   setValue("university_course_id", e.target.value, {

@@ -1072,14 +1072,14 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               Back to List
             </Button>
             <div className="flex items-center gap-2">
-              <h3 className="text-3xl font-bold text-blue-700">{isEdit ? "Edit University Course" : "Add New University Course"}</h3>
+              <h3 className="text-2xl font-bold text-blue-700">{isEdit ? "Edit University Course" : "Add New University Course"}</h3>
             </div>
           </div>
         </div>
       </div>
 
       <form 
-        className="space-y-6 max-w-7xl mx-auto  px-6 pb-24"
+        className="space-y-6 max-w-5xl mx-auto  px-6 pb-24"
         encType="multipart/form-data"
         onSubmit={(e) => {
           e.preventDefault();
@@ -1129,7 +1129,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               <Input
                 {...register("name", { required: "Name is required" })}
                 placeholder="e.g. MBA"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
               />
               {errors.name && (
                 <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
@@ -1140,7 +1140,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               <Input 
                 {...register("slug", { required: "Course slug is required" })} 
                 placeholder="Enter course slug"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
               />
               {errors.slug && (
                 <p className="text-sm text-red-500 mt-1">{errors.slug.message}</p>
@@ -1151,7 +1151,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               <Input
                 {...register("h1Tag", { required: "H1 Tag is required" })}
                 placeholder="SEO H1 tag"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
               />
               {errors.h1Tag && (
                 <p className="text-sm text-red-500 mt-1">{errors.h1Tag.message}</p>
@@ -1162,7 +1162,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               <Input
                 {...register("meta_title")}
                 placeholder="SEO Meta Title (max 60 character)"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
               />
               {errors.meta_title && (
                 <p className="text-sm text-red-500 mt-1">{errors.meta_title.message}</p>
@@ -1185,7 +1185,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               <Input 
                 {...register("label")} 
                 placeholder="Short label"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
               />
             </div>
             <div className="space-y-2">
@@ -1193,7 +1193,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               <Input 
                 {...register("author_name")} 
                 placeholder="Instructor / author"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
               />
             </div>
             <div className="space-y-2">
@@ -1201,7 +1201,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               <Input 
                 {...register("duration", { required: "Course duration is required" })} 
                 placeholder="e.g. 2 Years"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
               />
               {errors.duration && (
                 <p className="text-sm text-red-500 mt-1">{errors.duration.message}</p>
@@ -1220,7 +1220,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                   }
                 })} 
                 placeholder="e.g. 24"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
               />
             </div>
             <div className="flex items-center gap-3 space-y-2 mt-4">
@@ -1273,7 +1273,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                         {...register("duration_schema_value", {
                           required: field.value ? `Duration value is required` : false,
                         })}
-                        className="w-32 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                        className="w-32 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
                       />
                       <span className="text-sm text-gray-600">{field.value}</span>
                       {errors.duration_schema_value && (
@@ -1624,7 +1624,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                         // min="0"
                         placeholder={`Enter ${label} amount`}
                         {...register(`fee_type_values.${sanitizedKey}`, validationRules)}
-                        className="spin-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                        className="spin-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
                       />
                       {errors?.fee_type_values?.[sanitizedKey] && (
                         <p className="text-sm text-red-500 mt-1">
@@ -1709,7 +1709,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                       value={banner.video_id}
                       onChange={(e) => updateBanner(index, { video_id: e.target.value })}
                       placeholder="YouTube / Vimeo video ID"
-                      className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                      className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
                     />
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700">Video Title</Label>
@@ -1717,7 +1717,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                         value={banner.video_title}
                         onChange={(e) => updateBanner(index, { video_title: e.target.value })}
                         placeholder="Video title"
-                        className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                        className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
                       />
                     </div>
                   </div>
