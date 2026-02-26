@@ -137,10 +137,11 @@ export default function UniversityCourseSpecializationsPage() {
     setEditingSpecialization(null);
   };
 
-  const handleDelete = (specialization) => {
-    if (!specialization?.id) return;
+  const handleDelete = (id) => {
+    const specialization = specializations.find((s) => s.id === id);
+    if (!specialization) return;
     if (confirm(`Delete specialization "${specialization.name}"?`)) {
-      deleteMutation.mutate(specialization.id);
+      deleteMutation.mutate(id);
     }
   };
 

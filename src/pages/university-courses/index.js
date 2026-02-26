@@ -137,10 +137,11 @@ export default function UniversityCoursesPage() {
     setEditingCourse(null);
   };
 
-  const handleDelete = (course) => {
-    if (!course?.id) return;
+  const handleDelete = (id) => {
+    const course = courses.find((c) => c.id === id);
+    if (!course) return;
     if (confirm(`Delete course "${course.name}"?`)) {
-      deleteMutation.mutate(course.id);
+      deleteMutation.mutate(id);
     }
   };
 
