@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchContactUs, deleteContactUs, exportContactUsToExcel } from "@/lib/api";
 import ContactUsTable from "@/components/contact-us/ContactUsTable";
+import ExportOtpModal from "@/components/leads/ExportOtpModal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -56,8 +57,13 @@ function ContactUsPageContent() {
   const contacts = result?.data || [];
   const total = result?.total || 0;
   const [isExporting, setIsExporting] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
 
-  const handleExport = async () => {
+  const handleExportClick = () => {
+    setShowOtpModal(true);
+  };
+
+  const handleOtpVerified = async () => {
     setIsExporting(true);
     try {
       const blob = await exportContactUsToExcel({
@@ -84,7 +90,7 @@ function ContactUsPageContent() {
         </div>
         <div className="flex items-center gap-3">
           <Button
-            onClick={handleExport}
+            onClick={handleExportClick}
             disabled={isExporting || total === 0}
             variant="outline"
             size="sm"
@@ -174,6 +180,12 @@ function ContactUsPageContent() {
         rowsPerPage={rowsPerPage}
         onPageChange={setPage}
         onRowsPerPageChange={setRowsPerPage}
+      />
+
+      <ExportOtpModal
+        open={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        onVerified={handleOtpVerified}
       />
     </div>
   );

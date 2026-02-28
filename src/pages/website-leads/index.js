@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchWebsiteLeads, exportWebsiteLeadsToExcel } from "@/lib/api";
 import WebsiteLeadTable from "@/components/website-leads/WebsiteLeadTable";
+import ExportOtpModal from "@/components/leads/ExportOtpModal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -36,8 +37,13 @@ function WebsiteLeadsPageContent() {
   const leads = result?.data || [];
   const total = result?.total || 0;
   const [isExporting, setIsExporting] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
 
-  const handleExport = async () => {
+  const handleExportClick = () => {
+    setShowOtpModal(true);
+  };
+
+  const handleOtpVerified = async () => {
     setIsExporting(true);
     try {
       const blob = await exportWebsiteLeadsToExcel({
@@ -64,7 +70,7 @@ function WebsiteLeadsPageContent() {
         </div>
         <div className="flex items-center gap-3">
           <Button
-            onClick={handleExport}
+            onClick={handleExportClick}
             disabled={isExporting || total === 0}
             variant="outline"
             size="sm"
@@ -154,6 +160,12 @@ function WebsiteLeadsPageContent() {
         rowsPerPage={rowsPerPage}
         onPageChange={setPage}
         onRowsPerPageChange={setRowsPerPage}
+      />
+
+      <ExportOtpModal
+        open={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        onVerified={handleOtpVerified}
       />
     </div>
   );

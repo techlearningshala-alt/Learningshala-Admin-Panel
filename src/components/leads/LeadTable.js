@@ -1,7 +1,7 @@
 "use client";
 
 import DataTable from "@/components/table/DataTable";
-// import { maskEmail, maskPhone } from "@/lib/utils"; // Commented out masking for now
+import { maskEmail, maskPhone } from "@/lib/utils";
 
 const defaultCellClass =
   "border px-2 py-1 align-middle whitespace-nowrap text-sm text-muted-foreground";
@@ -19,14 +19,14 @@ const columns = [
     label: "Email",
     style: { minWidth: "170px" },
     cellClassName: defaultCellClass,
-    // render: (row) => maskEmail(row.email), // Commented out masking for now
+    render: (row) => maskEmail(row.email),
   },
   {
     key: "phone",
     label: "Phone",
     style: { minWidth: "100px" },
     cellClassName: defaultCellClass,
-    // render: (row) => maskPhone(row.phone), // Commented out masking for now
+    render: (row) => maskPhone(row.phone),
   },
   {
     key: "course",
