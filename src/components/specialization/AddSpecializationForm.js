@@ -36,6 +36,7 @@ const SECTION_TEMPLATES = [
   { id: "eligibility-criteria", section_key: "eligibility_criteria", title: "Eligibility Criteria" },
   { id: "course-duration", section_key: "course_duration", title: "Course Duration" },
   { id: "syllabus-subjects", section_key: "syllabus_subjects", title: "Syllabus / Subjects" },
+  { id: "exam-pattern", section_key: "exam_pattern", title: "Exam Pattern" },
   { id: "course-fee-details", section_key: "course_fee_details", title: "Course Fee Details" },
   { id: "emi-financial-support", section_key: "emi_financial_support", title: "EMI & Financial Support" },
   {

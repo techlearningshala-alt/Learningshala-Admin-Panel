@@ -25,6 +25,7 @@ import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel
 import { SectionsForm } from "@/components/universities/components/SectionRenderer";
 import { processSectionFiles } from "@/utils/fileProcessing";
 import FormActionButtons from "@/components/common/FormActionButtons";
+import SafeCKEditor from "@/components/CKEditor";
 
 // Helper function to convert title to section_key format with underscores
 const generateSectionKey = (title) => {
@@ -67,6 +68,9 @@ const defaultValues = {
   video_id: "",
   video_title: "",
   fee_type_values: {},
+  fees_note: "",
+  credit_points: "",
+  why_choose: [""],
   sections: [], // Will be initialized with defaultSections in useEffect
 };
 
@@ -566,6 +570,11 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         course_thumbnail: null,
         syllabus_file: null,
         fee_type_values: feeMap,
+        fees_note: merged.fees_note ?? "",
+        credit_points: merged.credit_points ?? "",
+        why_choose: Array.isArray(merged.why_choose) && merged.why_choose.length > 0 
+          ? merged.why_choose 
+          : [""],
       });
 
       setFeeKeyLookup(keyMap);
@@ -855,7 +864,8 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     const formData = new FormData();
 
     Object.entries(data).forEach(([key, value]) => {
-      if (key === "fee_type_values" || key === "duration_unit" || key === "duration_schema_value") return;
+      if (key === "fee_type_values" || key === "duration_unit" || key === "duration_schema_value" || 
+          key === "fees_note" || key === "credit_points" || key === "why_choose") return;
 
       if (FILE_FIELDS.includes(key)) {
         if (value instanceof FileList && value.length > 0) {
@@ -917,6 +927,20 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       {}
     );
     formData.append("fee_type_values", JSON.stringify(feeEntries));
+
+    // Add new fields
+    if (data.fees_note !== undefined && data.fees_note !== null) {
+      formData.append("fees_note", data.fees_note);
+    }
+    if (data.credit_points !== undefined && data.credit_points !== null && data.credit_points !== "") {
+      formData.append("credit_points", String(data.credit_points));
+    }
+    if (data.why_choose !== undefined && Array.isArray(data.why_choose) && data.why_choose.length > 0) {
+      const filtered = data.why_choose.filter(item => item && String(item).trim());
+      if (filtered.length > 0) {
+        formData.append("why_choose", JSON.stringify(filtered));
+      }
+    }
 
     // Process banners - include all banners that have content or are being removed
     const bannersData = banners
@@ -1636,6 +1660,85 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                 })}
               </div>
             )}
+
+            {/* Fees Note */}
+            <div className="mt-4 space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Fees Note</Label>
+              <div className="min-h-[200px] rounded-md border bg-white">
+                <Controller
+                  name="fees_note"
+                  control={control}
+                  render={({ field }) => (
+                    <SafeCKEditor
+                      value={field.value || ""}
+                      onChange={(html) => field.onChange(html)}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Course Compare Information */}
+          <div className="bg-white rounded-lg shadow-md p-3 border border-gray-200">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-800">Course Compare Information</h3>
+            </div>
+            
+            {/* Credit Points */}
+            <div className="space-y-2 mb-4">
+              <Label className="text-sm font-medium text-gray-700">Credit Points</Label>
+              <Input
+                type="text"
+                placeholder="Enter credit points"
+                {...register("credit_points")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+              />
+            </div>
+
+            {/* Why Choose */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Why Choose</Label>
+              {watch("why_choose")?.map((item, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <Input
+                    type="text"
+                    placeholder="Enter why choose point"
+                    {...register(`why_choose.${index}`)}
+                    className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 flex-1"
+                  />
+                  {watch("why_choose")?.length > 1 && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        const current = watch("why_choose") || [];
+                        setValue(
+                          "why_choose",
+                          current.filter((_, i) => i !== index)
+                        );
+                      }}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const current = watch("why_choose") || [""];
+                  setValue("why_choose", [...current, ""]);
+                }}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add More
+              </Button>
+            </div>
           </div>
 
           {/* Banner Information */}
