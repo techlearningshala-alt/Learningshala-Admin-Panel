@@ -10,7 +10,7 @@ import { notifySuccess, notifyError } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, X, Plus, Trash } from "lucide-react";
 import { MultiSelect } from "primereact/multiselect";
 
 // ✅ Import reusable components and utilities
@@ -328,6 +328,17 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       is_active: null,
       banners: [{ banner_image: null, video_id: "", video_title: "", existing_banner_image: "", remove_image: false }],
       sections: defaultSections,
+      // Compare Information fields
+      university_tag_line: "",
+      establishment_year: "",
+      emi_provides: false,
+      university_features: [""],
+      education_mode: "",
+      examination_mode: "",
+      alumni_status: "",
+      online_classes: false,
+      placement_assistance: false,
+      why_choose: [""],
     },
   });
 
@@ -485,6 +496,21 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       university_location: item.university_location || "",
       university_brochure: null,
       author_name: item.author_name || "",
+      // Compare Information fields
+      university_tag_line: item.university_tag_line ?? "",
+      establishment_year: item.establishment_year ?? "",
+      emi_provides: item.emi_provides === true || item.emi_provides === "true" || item.emi_provides === 1,
+      university_features: Array.isArray(item.university_features) && item.university_features.length > 0 
+        ? item.university_features 
+        : [""],
+      education_mode: item.education_mode ?? "",
+      examination_mode: item.examination_mode ?? "",
+      alumni_status: item.alumni_status ?? "",
+      online_classes: item.online_classes === true || item.online_classes === "true" || item.online_classes === 1,
+      placement_assistance: item.placement_assistance === true || item.placement_assistance === "true" || item.placement_assistance === 1,
+      why_choose: Array.isArray(item.why_choose) && item.why_choose.length > 0 
+        ? item.why_choose 
+        : [""],
       banners: Array.isArray(item.banners) && item.banners.length
         ? item.banners.map(b => ({
             banner_image: null,
@@ -691,6 +717,45 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     formData.append("meta_description", data.meta_description || "");
     formData.append("university_location", data.university_location || "");
     formData.append("author_name", data.author_name || "");
+    
+    // Compare Information fields
+    if (data.university_tag_line !== undefined && data.university_tag_line !== null && data.university_tag_line !== "") {
+      formData.append("university_tag_line", String(data.university_tag_line));
+    }
+    if (data.establishment_year !== undefined && data.establishment_year !== null && data.establishment_year !== "") {
+      formData.append("establishment_year", String(data.establishment_year));
+    }
+    if (data.emi_provides !== undefined) {
+      formData.append("emi_provides", data.emi_provides ? "true" : "false");
+    }
+    if (data.university_features !== undefined && Array.isArray(data.university_features) && data.university_features.length > 0) {
+      const filtered = data.university_features.filter(item => item && String(item).trim());
+      if (filtered.length > 0) {
+        formData.append("university_features", JSON.stringify(filtered));
+      }
+    }
+    if (data.education_mode !== undefined && data.education_mode !== null && data.education_mode !== "") {
+      formData.append("education_mode", String(data.education_mode));
+    }
+    if (data.examination_mode !== undefined && data.examination_mode !== null && data.examination_mode !== "") {
+      formData.append("examination_mode", String(data.examination_mode));
+    }
+    if (data.alumni_status !== undefined && data.alumni_status !== null && data.alumni_status !== "") {
+      formData.append("alumni_status", String(data.alumni_status));
+    }
+    if (data.online_classes !== undefined) {
+      formData.append("online_classes", data.online_classes ? "true" : "false");
+    }
+    if (data.placement_assistance !== undefined) {
+      formData.append("placement_assistance", data.placement_assistance ? "true" : "false");
+    }
+    if (data.why_choose !== undefined && Array.isArray(data.why_choose) && data.why_choose.length > 0) {
+      const filtered = data.why_choose.filter(item => item && String(item).trim());
+      if (filtered.length > 0) {
+        formData.append("why_choose", JSON.stringify(filtered));
+      }
+    }
+    
     // MultiSelect returns arrays of IDs directly, no need to map
     const approvalIds = Array.isArray(data.approval_ids) ? data.approval_ids : [];
     formData.append("approval_id", JSON.stringify(approvalIds));
@@ -965,6 +1030,234 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* Compare Information */}
+        <div className="bg-white rounded-lg shadow-md p-3 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Compare Information</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {/* University Tag Line */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">University Tag Line</Label>
+              <Input
+                type="text"
+                placeholder="Enter university tag line"
+                {...register("university_tag_line")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+              />
+            </div>
+
+            {/* Establishment Year */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Establishment Year</Label>
+              <Input
+                type="text"
+                placeholder="Enter establishment year"
+                {...register("establishment_year")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+              />
+            </div>
+
+            {/* EMI Provides */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">EMI Provides</Label>
+              <Controller
+                name="emi_provides"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    value={field.value ? "true" : "false"}
+                    onChange={(e) => field.onChange(e.target.value === "true")}
+                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                  >
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                  </select>
+                )}
+              />
+            </div>
+
+            {/* Education Mode */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Education Mode</Label>
+              <Controller
+                name="education_mode"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                  >
+                    <option value="">Select Education Mode</option>
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                    <option value="Hybrid">Hybrid</option>
+                    <option value="Blended">Blended</option>
+                  </select>
+                )}
+              />
+            </div>
+
+            {/* Examination Mode */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Examination Mode</Label>
+              <Controller
+                name="examination_mode"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                  >
+                    <option value="">Select Examination Mode</option>
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                )}
+              />
+            </div>
+
+            {/* Alumni Status */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Alumni Status</Label>
+              <Input
+                type="text"
+                placeholder="Enter alumni status"
+                {...register("alumni_status")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+              />
+            </div>
+
+            {/* Online Classes */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Online Classes</Label>
+              <Controller
+                name="online_classes"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    value={field.value ? "true" : "false"}
+                    onChange={(e) => field.onChange(e.target.value === "true")}
+                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                  >
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                  </select>
+                )}
+              />
+            </div>
+
+            {/* Placement Assistance */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Placement Assistance</Label>
+              <Controller
+                name="placement_assistance"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    value={field.value ? "true" : "false"}
+                    onChange={(e) => field.onChange(e.target.value === "true")}
+                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                  >
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                  </select>
+                )}
+              />
+            </div>
+
+            {/* University Features */}
+            <div className="space-y-2 col-span-2">
+              <Label className="text-sm font-medium text-gray-700">University Features</Label>
+              {watch("university_features")?.map((item, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <Input
+                    type="text"
+                    placeholder="Enter feature"
+                    {...register(`university_features.${index}`)}
+                    className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 flex-1"
+                  />
+                  {watch("university_features")?.length > 1 && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        const current = watch("university_features") || [];
+                        setValue(
+                          "university_features",
+                          current.filter((_, i) => i !== index)
+                        );
+                      }}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const current = watch("university_features") || [""];
+                  setValue("university_features", [...current, ""]);
+                }}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add More
+              </Button>
+            </div>
+
+            {/* Why Choose */}
+            <div className="space-y-2 col-span-2">
+              <Label className="text-sm font-medium text-gray-700">Why Choose</Label>
+              {watch("why_choose")?.map((item, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <Input
+                    type="text"
+                    placeholder="Enter why choose point"
+                    {...register(`why_choose.${index}`)}
+                    className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 flex-1"
+                  />
+                  {watch("why_choose")?.length > 1 && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        const current = watch("why_choose") || [];
+                        setValue(
+                          "why_choose",
+                          current.filter((_, i) => i !== index)
+                        );
+                      }}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const current = watch("why_choose") || [""];
+                  setValue("why_choose", [...current, ""]);
+                }}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add More
+              </Button>
             </div>
           </div>
         </div>
