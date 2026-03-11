@@ -7,7 +7,6 @@ import { fetchDomains, deleteDomain } from "@/lib/menuApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import AddDomainForm from "@/components/menu/AddDomainForm";
 import DomainTable from "@/components/menu/DomainTable";
 import PermissionGuard from "@/components/common/PermissionGuard";
 import FiltersSection from "@/components/common/FiltersSection";
@@ -18,20 +17,10 @@ import { useHeader } from "@/context/HeaderContext";
 export default function DomainsPage() {
   const limit = 10;
   const router = useRouter();
-  const [showForm, setShowForm] = useState(false);
-  const [editItem, setEditItem] = useState(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
   const { setActionButton, setTotalCount } = useHeader();
-
-  // Reset state when route changes
-  useEffect(() => {
-    setShowForm(false);
-    setEditItem(null);
-    setPage(1);
-    setSearch("");
-  }, [router.pathname]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["domains", page],
@@ -49,13 +38,11 @@ export default function DomainsPage() {
   });
 
   const handleAdd = () => {
-    setEditItem(null);
-    setShowForm(true);
+    router.push("/domains/add");
   };
 
   const handleEdit = (item) => {
-    setEditItem(item);
-    setShowForm(true);
+    router.push(`/domains/edit/${item.id}`);
   };
 
   const handleDelete = (id) => {
@@ -64,62 +51,33 @@ export default function DomainsPage() {
     }
   };
 
-  const handleFormClose = () => {
-    setShowForm(false);
-    setEditItem(null);
-  };
-
-  const handleFormSuccess = () => {
-    setShowForm(false);
-    setEditItem(null);
-    queryClient.invalidateQueries(["domains"]);
-  };
-
-  // Calculate total and items (before any early returns)
+  // Calculate total and items
   const items = data?.data?.data || [];
   const total = data?.data?.total || 0;
 
-  // Set action button and total count in header (must be before early return)
-  // Use useEffect with immediate execution to ensure it works in both local and production
+  // Set action button and total count in header
   useEffect(() => {
-    // Only run on client side
     if (typeof window === 'undefined') return;
     
-    if (!showForm) {
-      const actionBtn = (
-        <PermissionGuard permission="create">
-          <Button 
-            onClick={handleAdd}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white"
-            >
-            <Plus className="mr-2 h-3 w-5" /> Add New Domain
-          </Button>
-        </PermissionGuard>
-      );
-      setActionButton(actionBtn);
-      setTotalCount(total);
-    } else {
-      setActionButton(null);
-      setTotalCount(null);
-    }
+    const actionBtn = (
+      <PermissionGuard permission="create">
+        <Button 
+          onClick={handleAdd}
+          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white"
+        >
+          <Plus className="mr-2 h-3 w-5" /> Add New Domain
+        </Button>
+      </PermissionGuard>
+    );
+    setActionButton(actionBtn);
+    setTotalCount(total);
 
     // Cleanup: clear action button and total count when component unmounts
     return () => {
       setActionButton(null);
       setTotalCount(null);
     };
-  }, [setActionButton, setTotalCount, total, showForm]);
-
-  // Show form view
-  if (showForm) {
-    return (
-      <AddDomainForm
-        item={editItem}
-        onCancel={handleFormClose}
-        onSuccess={handleFormSuccess}
-      />
-    );
-  }
+  }, [setActionButton, setTotalCount, total]);
 
   // Show table view
   const filteredItems = search

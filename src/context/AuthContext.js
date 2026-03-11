@@ -13,8 +13,12 @@ export const AuthProvider = ({ children }) => {
 
   // Function to verify and update user from token
   const verifyUser = async () => {
-    // Use only sessionStorage for token (tab-specific) to prevent cross-tab interference
-    const token = sessionStorage.getItem("token");
+    // Use localStorage for token (shared across tabs) so new tabs can access the same session
+    // Priority: localStorage (shared) > sessionStorage (fallback) > env token
+    const token = typeof window !== "undefined" 
+      ? localStorage.getItem("token") || sessionStorage.getItem("token")
+      : null;
+    
     if (!token) {
       // Clear any stale user data
       sessionStorage.removeItem("token");
@@ -60,9 +64,18 @@ export const AuthProvider = ({ children }) => {
     verifyUser();
   }, []);
 
-  // Note: We don't need to listen for storage events since we're using sessionStorage
-  // sessionStorage is tab-specific and doesn't trigger storage events across tabs
-  // This prevents cross-tab interference when different users log in
+  // Listen for storage events to sync auth state across tabs
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      // When token is set/removed in another tab, sync auth state
+      if (e.key === "token" || e.key === "user") {
+        verifyUser();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   // OTP Login (commented out - restore previous direct login)
   // Login (Step 1: Validate credentials and send OTP)
@@ -88,9 +101,11 @@ export const AuthProvider = ({ children }) => {
     const { accessToken, user } = res.data.data;
     console.log("🔍 Frontend - Setting user after OTP verification:", { id: user.id, email: user.email, role: user.role });
 
-    // Store token in sessionStorage (tab-specific) to prevent cross-tab interference
-    sessionStorage.setItem("token", accessToken);
+    // Store token in localStorage (shared across tabs) so new tabs can access the same session
+    localStorage.setItem("token", accessToken);
     localStorage.setItem("user", JSON.stringify(user));
+    // Also store in sessionStorage as fallback
+    sessionStorage.setItem("token", accessToken);
     
     setUser(user);
     

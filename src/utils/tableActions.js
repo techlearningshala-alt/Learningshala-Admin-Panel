@@ -3,12 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import PermissionGuard from "@/components/common/PermissionGuard";
+import Link from "next/link";
 
 /**
  * Creates a reusable actions array for DataTable components
- * @param {Function} onEdit - Callback function for edit action: (row) => void
+ * @param {Function} onEdit - Callback function for edit action: (row) => void (used when editUrl is not provided)
  * @param {Function} onDelete - Callback function for delete action: (id) => void
  * @param {Object} options - Optional configuration
+ * @param {Function} options.editUrl - Function to generate edit URL: (row) => string. If provided, edit action will be a Link instead of Button
  * @param {string} options.editVariant - Button variant for edit button (default: "ghost")
  * @param {string} options.deleteVariant - Button variant for delete button (default: "ghost")
  * @param {string} options.editClassName - Additional className for edit button
@@ -17,6 +19,7 @@ import PermissionGuard from "@/components/common/PermissionGuard";
  */
 export function createTableActions(onEdit, onDelete, options = {}) {
   const {
+    editUrl,
     editVariant = "ghost",
     deleteVariant = "ghost",
     editClassName = "",
@@ -27,14 +30,27 @@ export function createTableActions(onEdit, onDelete, options = {}) {
     {
       key: (props) => (
         <PermissionGuard permission="update">
-          <Button
-            size="sm"
-            variant={editVariant}
-            onClick={() => onEdit(props.row)}
-            className={editClassName}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
+          {editUrl ? (
+            <Link href={editUrl(props.row)} className="inline-block">
+              <Button
+                size="sm"
+                variant={editVariant}
+                className={editClassName}
+                type="button"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              size="sm"
+              variant={editVariant}
+              onClick={() => onEdit(props.row)}
+              className={editClassName}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
         </PermissionGuard>
       ),
     },

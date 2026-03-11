@@ -38,10 +38,10 @@ export default function CoursesPage() {
     setSearch("");
   }, [router.pathname]);
 
-  // ✅ Fetch all courses
+  // ✅ Fetch courses with server-side search
   const { data, isLoading } = useQuery({
-    queryKey: ["courses", page],
-    queryFn: () => fetchCourses({ page, limit }),
+    queryKey: ["courses", page, search],
+    queryFn: () => fetchCourses({ page, limit, search: search || undefined }),
     keepPreviousData: true,
   });
 
@@ -153,23 +153,22 @@ export default function CoursesPage() {
     );
   }
 
-  const filteredItems = search
-    ? items.filter((item) => {
-        const term = search.toLowerCase();
-        return (
-          item.name?.toLowerCase().includes(term) ||
-          item.domain_name?.toLowerCase().includes(term) ||
-          item.slug?.toLowerCase().includes(term)
-        );
-      })
-    : items;
-  
+  const filteredItems = items;
+
   return (
     <div className="p-1 bg-gray-50 min-h-screen">
       <FiltersSection
         search={search}
-        onSearchChange={setSearch}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
         searchPlaceholder="Search by name, domain, or slug..."
+        showClearButton={!!search}
+        onClearFilters={() => {
+          setSearch("");
+          setPage(1);
+        }}
       />
 
       <TableContainer
@@ -191,14 +190,11 @@ export default function CoursesPage() {
         />
       </TableContainer>
 
-      {/* Pagination - Only show when not searching (client-side filtering) */}
-      {!search && (
-        <PaginationControls
-          currentPage={page}
-          totalPages={data?.data?.pages || 1}
-          onPageChange={setPage}
-        />
-      )}
+      <PaginationControls
+        currentPage={page}
+        totalPages={data?.data?.pages || 1}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

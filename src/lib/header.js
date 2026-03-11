@@ -7,12 +7,12 @@ const api = axios.create({
 // Attach token before every request
 api.interceptors.request.use(
   (config) => {
-    // Priority: 1. sessionStorage (tab-specific), 2. Environment variable (for one-time setup only)
-    // Don't use localStorage to prevent cross-tab interference
+    // Priority: 1. localStorage (shared across tabs), 2. sessionStorage (fallback), 3. Environment variable
+    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     const sessionToken = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
     const envToken = process.env.NEXT_PUBLIC_JWT_TOKEN;
-    // Only use sessionStorage (tab-specific) or env token
-    const token = sessionToken || envToken;
+    // Use localStorage first (shared), then sessionStorage (fallback), then env token
+    const token = localToken || sessionToken || envToken;
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

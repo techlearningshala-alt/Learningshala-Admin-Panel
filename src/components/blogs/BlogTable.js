@@ -13,6 +13,7 @@ export default function BlogTable({ items, onEdit, onDelete, onToggleVerified })
     {
       key: "title",
       label: "Title",
+      render: (row) => row.h1_tag || row.title || "-",
     },
     {
       key: "verified",

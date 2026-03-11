@@ -49,7 +49,9 @@ export default function DomainTable({ items, onEdit, onDelete, page = 1, limit =
     },
   ];
 
-  const actions = createTableActions(onEdit, onDelete);
+  const actions = createTableActions(onEdit, onDelete, {
+    editUrl: (row) => `/domains/edit/${row.id}`,
+  });
 
   return <DataTable columns={columns} data={items} actions={actions} />;
 }

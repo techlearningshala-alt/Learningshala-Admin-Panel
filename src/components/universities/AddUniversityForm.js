@@ -933,7 +933,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
               <Input 
                 {...register("university_name", { required: "University name is required" })} 
                 placeholder="Enter university name (H1 Tag)"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
               {errors.university_name && <p className="text-red-500 text-sm mt-1">{errors.university_name.message}</p>}
             </div>
@@ -942,7 +942,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
               <Input 
                 {...register("university_slug", { required: "University slug is required" })} 
                 placeholder="Enter university slug"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
               {errors.university_slug && <p className="text-red-500 text-sm mt-1">{errors.university_slug.message}</p>}
             </div>
@@ -951,7 +951,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
               <Input
                 {...register("meta_title")}
                 placeholder="SEO Meta Title (max 60 character)"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
             </div>
 
@@ -969,7 +969,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
               <Input 
                 {...register("university_location")} 
                 placeholder="Enter university location"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
             </div>
             <div className="space-y-2">
@@ -977,7 +977,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
               <Input 
                 {...register("author_name")} 
                 placeholder="Enter author name"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
             </div>
             <div className="space-y-2 col-span-1 md:col-span-2">
@@ -1045,7 +1045,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 type="text"
                 placeholder="Enter university tag line"
                 {...register("university_tag_line")}
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
             </div>
 
@@ -1056,7 +1056,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 type="text"
                 placeholder="Enter establishment year"
                 {...register("establishment_year")}
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
             </div>
 
@@ -1071,7 +1071,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                     {...field}
                     value={field.value ? "true" : "false"}
                     onChange={(e) => field.onChange(e.target.value === "true")}
-                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
                   >
                     <option value="false">No</option>
                     <option value="true">Yes</option>
@@ -1089,7 +1089,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 render={({ field }) => (
                   <select
                     {...field}
-                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
                   >
                     <option value="">Select Education Mode</option>
                     <option value="Online">Online</option>
@@ -1110,7 +1110,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 render={({ field }) => (
                   <select
                     {...field}
-                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
                   >
                     <option value="">Select Examination Mode</option>
                     <option value="Online">Online</option>
@@ -1128,7 +1128,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 type="text"
                 placeholder="Enter alumni status"
                 {...register("alumni_status")}
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
             </div>
 
@@ -1143,7 +1143,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                     {...field}
                     value={field.value ? "true" : "false"}
                     onChange={(e) => field.onChange(e.target.value === "true")}
-                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
                   >
                     <option value="false">No</option>
                     <option value="true">Yes</option>
@@ -1163,7 +1163,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                     {...field}
                     value={field.value ? "true" : "false"}
                     onChange={(e) => field.onChange(e.target.value === "true")}
-                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
                   >
                     <option value="false">No</option>
                     <option value="true">Yes</option>
@@ -1181,7 +1181,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                     type="text"
                     placeholder="Enter feature"
                     {...register(`university_features.${index}`)}
-                    className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 flex-1"
+                    className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8 flex-1"
                   />
                   {watch("university_features")?.length > 1 && (
                     <Button
@@ -1225,7 +1225,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                     type="text"
                     placeholder="Enter why choose point"
                     {...register(`why_choose.${index}`)}
-                    className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 flex-1"
+                    className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8 flex-1"
                   />
                   {watch("why_choose")?.length > 1 && (
                     <Button

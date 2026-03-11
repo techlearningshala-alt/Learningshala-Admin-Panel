@@ -6,6 +6,12 @@ export async function fetchDomains({ page = 1, limit = 10 }) {
   return res.data;
 }
 
+// Fetch single domain by ID
+export async function fetchDomainById(id) {
+  const res = await api.get(`/domains/${id}`);
+  return res.data.data; // Return the domain object
+}
+
 export async function fetchDomainsForCourse({ page = 1, limit = 100 }) {
   const res = await api.get(`/domains`, { params: { page, limit } });
   console.log(res.data,"dataaaa")
@@ -33,10 +39,14 @@ export async function deleteDomain(id) {
 
 ///////////////////////    COURSES APIS    ///////////////////////////
 
-// Fetch courses with pagination
-export async function fetchCourses({ page = 1, limit = 10 }) {
+// Fetch courses with pagination + server-side search
+export async function fetchCourses({ page = 1, limit = 10, search } = {}) {
   const res = await api.get(`/courses`, {
-    params: { page, limit },
+    params: {
+      page,
+      limit,
+      search: search || undefined,
+    },
   });
   return res.data;
 }

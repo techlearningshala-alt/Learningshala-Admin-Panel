@@ -8,6 +8,7 @@ import { fetchDashboardData } from "@/lib/api";
 import StatisticsGrid from "@/components/dashboard/StatisticsGrid";
 import RecentActivity from "@/components/dashboard/RecentActivity";
 import TodayStats from "@/components/dashboard/TodayStats";
+import WebsiteLeadsOverview from "@/components/dashboard/WebsiteLeadsOverview";
 import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -84,6 +85,20 @@ export default function DashboardPage() {
                   statistics={data.statistics}
                   isLoading={isLoading}
                   userRole={user?.role}
+                />
+              </div>
+            )}
+
+            {/* Website Leads Overview (below Overview Statistics) - only for admin (not lead) */}
+            {user?.role !== "lead" && data.websiteLeadsOverview && (
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2 mt-2">
+                  <span className="w-1 h-6 bg-gradient-to-b from-green-500 to-emerald-500 rounded-full"></span>
+                  Website Leads Overview
+                </h3>
+                <WebsiteLeadsOverview
+                  overview={data.websiteLeadsOverview}
+                  isLoading={isLoading}
                 />
               </div>
             )}
