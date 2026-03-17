@@ -23,10 +23,18 @@ export async function fetchApprovals() {
   const res = await api.get(`/universities-approvals/name`);
   return res.data; // { success, data: { data } }
 }
-// ✅ Fetch single university by ID (for modal)
-export const fetchUniversityById = async (id) => {
-  const res = await api.get(`/universities/${id}`);
-  return res.data.data; // full university object including banners & sections
+// ✅ Fetch single university by slug (backend route is /universities/:university_slug)
+// Used by website and any slug-based lookups
+export const fetchUniversityBySlug = async (slug) => {
+  const res = await api.get(`/universities/${slug}`);
+  return res.data.data;
+};
+
+// ✅ Fetch single university by ID for admin CMS edit form
+// Uses dedicated admin route that returns full sections/banners in the shape admin expects
+export const fetchUniversityByIdAdmin = async (id) => {
+  const res = await api.get(`/universities/admin/${id}`);
+  return res.data.data; // unwrap successResponse -> { statusCode, success, data }
 };
 
 

@@ -23,7 +23,7 @@ export default function CourseTable({
       key: "name",
       label: "Name",
       render: (row) => 
-        canRead ? (
+        canRead && onEdit ? (
           <Button variant="link" onClick={() => onEdit(row)}>
             {row.name}
           </Button>
@@ -97,7 +97,9 @@ export default function CourseTable({
     },
   ];
 
-    const actions = createTableActions(onEdit, onDelete);
+  const actions = createTableActions(onEdit, onDelete, {
+    editUrl: (row) => `/courses/edit/${row.id}`,
+  });
 
   return <DataTable columns={columns} data={items} actions={actions} />;
 }

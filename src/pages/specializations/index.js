@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchSpecialization,
@@ -11,7 +12,6 @@ import {
 } from "@/lib/menuApi";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import AddSpecializationForm from "@/components/specialization/AddSpecializationForm";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import SpecializationTable from "@/components/specialization/SpecializationTable";
 import PermissionGuard from "@/components/common/PermissionGuard";
@@ -22,8 +22,7 @@ import { useHeader } from "@/context/HeaderContext";
 
 export default function SpecializationsPage() {
   const limit = 25;
-  const [showForm, setShowForm] = useState(false);
-  const [editItem, setEditItem] = useState(null);
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState("");
@@ -63,13 +62,11 @@ export default function SpecializationsPage() {
   });
 
   const handleAdd = () => {
-    setEditItem(null);
-    setShowForm(true);
+    router.push("/specializations/add");
   };
 
   const handleEdit = (item) => {
-    setEditItem(item);
-    setShowForm(true);
+    router.push(`/specializations/edit/${item.id}`);
   };
 
   const handleDelete = (id) => {
@@ -100,58 +97,31 @@ export default function SpecializationsPage() {
     },
   });
 
-  const handleFormClose = () => {
-    setShowForm(false);
-    setEditItem(null);
-  };
-
-  const handleFormSuccess = () => {
-    setShowForm(false);
-    setEditItem(null);
-    queryClient.invalidateQueries(["specialization"]);
-  };
-
   // Calculate total and items (before any early returns)
   const total = data?.data?.total || 0;
   const items = data?.data?.data || [];
 
   // Set action button and total count in header (must be before early return)
   useEffect(() => {
-    if (!showForm) {
-      const actionBtn = (
-        <PermissionGuard permission="create">
-          <Button 
-            onClick={handleAdd}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white"
-          >
-            <Plus className="mr-2 h-3 w-5" /> Add Specialization
-          </Button>
-        </PermissionGuard>
-      );
-      setActionButton(actionBtn);
-      setTotalCount(total);
-    } else {
-      setActionButton(null);
-      setTotalCount(null);
-    }
+    const actionBtn = (
+      <PermissionGuard permission="create">
+        <Button 
+          onClick={handleAdd}
+          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white"
+        >
+          <Plus className="mr-2 h-3 w-5" /> Add Specialization
+        </Button>
+      </PermissionGuard>
+    );
+    setActionButton(actionBtn);
+    setTotalCount(total);
 
     // Cleanup: clear action button and total count when component unmounts
     return () => {
       setActionButton(null);
       setTotalCount(null);
     };
-  }, [setActionButton, setTotalCount, total, showForm]);
-
-  // Show form view
-  if (showForm) {
-    return (
-      <AddSpecializationForm
-        item={editItem}
-        onCancel={handleFormClose}
-        onSuccess={handleFormSuccess}
-      />
-    );
-  }
+  }, [setActionButton, setTotalCount, total]);
 
   const hasFilters = !!search || !!courseFilter;
   const totalPages = data?.data?.pages || 1;

@@ -21,7 +21,7 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
       key: "university_name",
       label: "University Name",
       render: (row) =>
-        canRead ? (
+        canRead && onEdit ? (
           <Button 
             variant="link" 
             onClick={() => onEdit(row)}
@@ -39,7 +39,7 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
       key: "university_slug",
       label: "University Slug", 
       render: (row) =>
-        canRead ? (
+        canRead && onEdit ? (
           <Button 
             variant="link" 
             onClick={() => onEdit(row)}
@@ -157,7 +157,10 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
     },
   ];
 
-  const actions = createTableActions(onEdit, onDelete);
+  const actions = createTableActions(onEdit, onDelete, {
+    // Use numeric ID for admin edit; dedicated admin route handles ID lookup
+    editUrl: (row) => `/universities/edit/${row.id}`,
+  });
 
   const columnsAfterActions = [
     {

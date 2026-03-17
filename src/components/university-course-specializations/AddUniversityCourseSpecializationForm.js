@@ -1245,7 +1245,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
               <p className="text-sm text-muted-foreground">Loading courses...</p>
             ) : (
               <select
-                className="w-full border rounded px-3 py-2 h-7"
+                className="w-full border rounded px-3 py-2 h-9"
                 value={watch("university_course_id") || ""}
                 onChange={(e) =>
                   setValue("university_course_id", e.target.value, {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchUniversityCourseSpecializations,
@@ -33,8 +34,7 @@ const normalizeApiList = (payload) => {
 export default function UniversityCourseSpecializationsPage() {
   const queryClient = useQueryClient();
   const { setActionButton, setTotalCount } = useHeader();
-  const [showForm, setShowForm] = useState(false);
-  const [editingSpecialization, setEditingSpecialization] = useState(null);
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedUniversity, setSelectedUniversity] = useState(""); 
@@ -96,46 +96,35 @@ export default function UniversityCourseSpecializationsPage() {
   const total = specializationResponse?.data?.total || 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const openForm = (specialization = null) => {
-    setEditingSpecialization(specialization);
-    setShowForm(true);
+  const handleAdd = () => {
+    router.push("/university-course-specializations/add");
+  };
+
+  const handleEdit = (specialization) => {
+    router.push(`/university-course-specializations/edit/${specialization.id}`);
   };
 
   // Set action button and total count in header (must be before early return)
-  // Use useEffect with immediate execution to ensure it works in both local and production
   useEffect(() => {
-    // Only run on client side
-    if (typeof window === 'undefined') return;
-    
-    if (!showForm) {
-      const actionBtn = (
-        <PermissionGuard permission="create">
-          <Button 
-            onClick={() => openForm()}
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-600 text-white py-0.5 px-3 rounded-md shadow-md"
-            >
-            <Plus className="mr-2 h-3 w-5" /> Add New Specialization
-          </Button>
-        </PermissionGuard>
-      );
-      setActionButton(actionBtn);
-      setTotalCount(total);
-    } else {
-      setActionButton(null);
-      setTotalCount(null);
-    }
+    const actionBtn = (
+      <PermissionGuard permission="create">
+        <Button 
+          onClick={handleAdd}
+          className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-600 text-white py-0.5 px-3 rounded-md shadow-md"
+          >
+          <Plus className="mr-2 h-3 w-5" /> Add New Specialization
+        </Button>
+      </PermissionGuard>
+    );
+    setActionButton(actionBtn);
+    setTotalCount(total);
 
     // Cleanup: clear action button and total count when component unmounts
     return () => {
       setActionButton(null);
       setTotalCount(null);
     };
-  }, [setActionButton, setTotalCount, total, showForm]);
-
-  const closeForm = () => {
-    setShowForm(false);
-    setEditingSpecialization(null);
-  };
+  }, [setActionButton, setTotalCount, total]);
 
   const handleDelete = (id) => {
     const specialization = specializations.find((s) => s.id === id);
@@ -153,19 +142,6 @@ export default function UniversityCourseSpecializationsPage() {
     togglePageCreatedMutation.mutate({ id, isPageCreated });
   };
 
-  if (showForm) {
-    return (
-      <AddUniversityCourseSpecializationForm
-        specialization={editingSpecialization}
-        onCancel={closeForm}
-        onSuccess={() => {
-          closeForm();
-          queryClient.invalidateQueries(["university-course-specializations"]);
-        }}
-      />
-    );
-  }
-
   return (
     <div className="p-1 bg-gray-100 min-h-screen">
       <FiltersSection
@@ -176,7 +152,7 @@ export default function UniversityCourseSpecializationsPage() {
         }}
         searchPlaceholder="Search by specialization name..."
         showClearButton={!!(selectedUniversity || search)}
-        onClearFilters={() => {
+          onClearFilters={() => {
           setSelectedUniversity("");
           setSearch("");
           setPage(1);
@@ -209,7 +185,7 @@ export default function UniversityCourseSpecializationsPage() {
       >
         <UniversityCourseSpecializationTable
           data={specializations}
-          onEdit={openForm}
+          onEdit={handleEdit}
           onDelete={handleDelete}
           onToggleStatus={handleToggleStatus}
           onTogglePageCreated={handleTogglePageCreated}

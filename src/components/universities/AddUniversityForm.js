@@ -462,8 +462,11 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     // Merge database sections with defaultSections template
     // Match by component name since DB uses numeric IDs
     // ✅ ALWAYS preserve section_key from defaultSections (never change it)
+    // Ensure we always work with an array; some APIs may return sections as an object
+    const sourceSections = Array.isArray(item.sections) ? item.sections : [];
+
     const mergedSections = defaultSections.map((defaultSection, sectionIndex) => {
-      const dbSection = item.sections?.find(s => s.component === defaultSection.component);
+      const dbSection = sourceSections.find(s => s.component === defaultSection.component);
       if (dbSection && dbSection.props) {
         // FAQ is now simple Yes/No toggle - no special handling needed
         const merged = {

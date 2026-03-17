@@ -89,7 +89,7 @@ export default function UniversityCourseTable({
     cellClassName: "px-2 py-1 align-middle",
     contentClassName: "",
     render: (row) =>
-      canRead ? (
+      canRead && onEdit ? (
         <div>
           <Button variant="link" onClick={() => onEdit(row)} className="text-left p-0 h-auto">
             {row.name}
@@ -198,7 +198,9 @@ export default function UniversityCourseTable({
       ),
   },
   ];
-    const actions = createTableActions(onEdit, onDelete);
+  const actions = createTableActions(onEdit, onDelete, {
+    editUrl: (row) => `/university-courses/edit/${row.id}`,
+  });
 
   const columnsAfterActions = [
     {

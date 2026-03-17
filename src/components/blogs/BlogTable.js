@@ -13,7 +13,16 @@ export default function BlogTable({ items, onEdit, onDelete, onToggleVerified })
     {
       key: "title",
       label: "Title",
-      render: (row) => row.h1_tag || row.title || "-",
+      render: (row) => {
+        const value = row.h1_tag || row.title || "-";
+        return canUpdate && onEdit ? (
+          <Button variant="link" onClick={() => onEdit(row)}>
+            {value}
+          </Button>
+        ) : (
+          <span className="text-gray-700">{value}</span>
+        );
+      },
     },
     {
       key: "verified",
@@ -46,7 +55,9 @@ export default function BlogTable({ items, onEdit, onDelete, onToggleVerified })
     },
   ];
 
-  const actions = createTableActions(onEdit, onDelete);
+  const actions = createTableActions(onEdit, onDelete, {
+    editUrl: (row) => `/blogs/edit/${row.id}`,
+  });
 
   return <DataTable columns={columns} data={items} actions={actions} />;
 }

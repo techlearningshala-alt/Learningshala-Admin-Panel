@@ -1,6 +1,7 @@
- "use client";
+"use client";
 
 import { useMemo, useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchUniversityCourses,
@@ -33,8 +34,7 @@ const normalizeApiList = (payload) => {
 export default function UniversityCoursesPage() {
   const queryClient = useQueryClient();
   const { setActionButton, setTotalCount } = useHeader();
-  const [showForm, setShowForm] = useState(false);
-  const [editingCourse, setEditingCourse] = useState(null);
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedUniversity, setSelectedUniversity] = useState("");
@@ -96,9 +96,12 @@ export default function UniversityCoursesPage() {
   const total = courseResponse?.data?.total || 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const openForm = (course = null) => {
-    setEditingCourse(course);
-    setShowForm(true);
+  const handleAdd = () => {
+    router.push("/university-courses/add");
+  };
+
+  const handleEdit = (course) => {
+    router.push(`/university-courses/edit/${course.id}`);
   };
 
   // Set action button and total count in header (must be before early return)
@@ -107,35 +110,25 @@ export default function UniversityCoursesPage() {
     // Only run on client side
     if (typeof window === 'undefined') return;
     
-    if (!showForm) {
-      const actionBtn = (
-        <PermissionGuard permission="create">
-          <Button 
-            onClick={() => openForm()}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white"
-            >
-            <Plus className="mr-2 h-3 w-5" /> Add New Course
-          </Button>
-        </PermissionGuard>
-      );
-      setActionButton(actionBtn);
-      setTotalCount(total);
-    } else {
-      setActionButton(null);
-      setTotalCount(null);
-    }
+    const actionBtn = (
+      <PermissionGuard permission="create">
+        <Button 
+          onClick={handleAdd}
+          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white"
+          >
+          <Plus className="mr-2 h-3 w-5" /> Add New Course
+        </Button>
+      </PermissionGuard>
+    );
+    setActionButton(actionBtn);
+    setTotalCount(total);
 
     // Cleanup: clear action button and total count when component unmounts
     return () => {
       setActionButton(null);
       setTotalCount(null);
     };
-  }, [setActionButton, setTotalCount, total, showForm]);
-
-  const closeForm = () => {
-    setShowForm(false);
-    setEditingCourse(null);
-  };
+  }, [setActionButton, setTotalCount, total]);  
 
   const handleDelete = (id) => {
     const course = courses.find((c) => c.id === id);
@@ -152,19 +145,6 @@ export default function UniversityCoursesPage() {
   const handleTogglePageCreated = (id, isPageCreated) => {
     togglePageCreatedMutation.mutate({ id, isPageCreated });
   };
-
-  if (showForm) {
-    return (
-      <AddUniversityCourseForm
-        course={editingCourse}
-        onCancel={closeForm}
-        onSuccess={() => {
-          closeForm();
-          queryClient.invalidateQueries(["university-courses"]);
-        }}
-      />
-    );
-  }
 
   return (
     <div className="p-1 bg-gray-100 min-h-screen">
@@ -209,7 +189,7 @@ export default function UniversityCoursesPage() {
       >
         <UniversityCourseTable
           data={courses}
-          onEdit={openForm}
+          onEdit={handleEdit}
           onDelete={handleDelete}
           onToggleStatus={handleToggleStatus}
           onTogglePageCreated={handleTogglePageCreated}

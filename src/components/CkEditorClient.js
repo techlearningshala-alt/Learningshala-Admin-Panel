@@ -140,6 +140,7 @@ const CKEditorClient = ({ editorData = "", onChange, onFocus, onBlur }) => {
             "insertTable",
             "blockQuote",
             "|",
+            "fontSize",
             "fontColor",
             "fontBackgroundColor",
             "|",
@@ -229,6 +230,16 @@ const CKEditorClient = ({ editorData = "", onChange, onFocus, onBlur }) => {
               "resizeImage",
             ],
           },
+          // fontSize: {
+          //   options: [
+          //     "tiny",
+          //     "small",
+          //     "default",
+          //     "big",
+          //     "huge",
+          //   ],
+          //   supportAllValues: true,
+          // },
           fontColor: {
             colors: [
               {

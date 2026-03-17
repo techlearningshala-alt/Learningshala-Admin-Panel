@@ -13,6 +13,7 @@ import {
   deleteBlogCategory,
   addBlogCategory,
   updateBlogCategory,
+  toggleBlogCategoryVisibility,
 } from "@/lib/api";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import TableContainer from "@/components/common/TableContainer";
@@ -68,6 +69,16 @@ export default function BlogCategoriesPage() {
       queryClient.invalidateQueries(["blogCategories"]);
     },
     onError: (err) => notifyError(err.response?.data?.message || "Update failed"),
+  });
+
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: ({ id, visible }) => toggleBlogCategoryVisibility(id, visible),
+    onSuccess: () => {
+      notifySuccess("Category visibility updated successfully");
+      queryClient.invalidateQueries(["blogCategories"]);
+    },
+    onError: (err) =>
+      notifyError(err.response?.data?.message || "Visibility update failed"),
   });
 
   // Calculate filtered categories and total (before any early returns)
@@ -129,6 +140,10 @@ export default function BlogCategoriesPage() {
     }
   };
 
+  const handleToggleVisibility = (id, visible) => {
+    toggleVisibilityMutation.mutate({ id, visible });
+  };
+
   const handleFormClose = () => {
     setShowForm(false);
     setEditingCategory(null);
@@ -176,6 +191,7 @@ export default function BlogCategoriesPage() {
           items={filteredCategories}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onToggleVisibility={handleToggleVisibility}
         />
       </TableContainer>
     </div>

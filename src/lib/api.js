@@ -410,6 +410,13 @@ export async function deleteBlogCategory(id) {
   return res.data;
 }
 
+export async function toggleBlogCategoryVisibility(id, visible) {
+  const res = await api.patch(`/blog-categories/${id}/toggle-visibility`, {
+    visible,
+  });
+  return res.data;
+}
+
 // ===== Blogs APIs =====
 
 export async function fetchBlogs({ page = 1, limit = 10, search, category_id } = {}) {

@@ -23,7 +23,7 @@ export default function SpecializationTable({
       key: "name",
       label: "Name",
       render: (row) =>
-        canRead ? (
+        canRead && onEdit ? (
           <Button size="sm" variant="link" onClick={() => onEdit(row)}>
             {row.name}
           </Button>
@@ -97,7 +97,9 @@ export default function SpecializationTable({
     },
   ];
 
-  const actions = createTableActions(onEdit, onDelete);
+  const actions = createTableActions(onEdit, onDelete, {
+    editUrl: (row) => `/specializations/edit/${row.id}`,
+  });
 
   return <DataTable columns={columns} data={items} actions={actions} />;
 }

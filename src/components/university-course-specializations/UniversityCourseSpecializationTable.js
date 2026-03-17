@@ -86,7 +86,7 @@ export default function UniversityCourseSpecializationTable({
       key: "name",
       label: "Specialization Name",
       render: (row) =>
-        canRead ? (
+        canRead && onEdit ? (
           <Button variant="link" onClick={() => onEdit(row)} className="">
             {row.name}
           </Button>
@@ -175,7 +175,9 @@ export default function UniversityCourseSpecializationTable({
       ),
   },
   ];
-      const actions = createTableActions(onEdit, onDelete);
+      const actions = createTableActions(onEdit, onDelete, {
+        editUrl: (row) => `/university-course-specializations/edit/${row.id}`,
+      });
       const columnsAfterActions = [
         {
           key: "updated_at",

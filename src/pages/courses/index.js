@@ -23,20 +23,10 @@ import { useHeader } from "@/context/HeaderContext";
 export default function CoursesPage() {
   const limit = 20;
   const router = useRouter();
-  const [showForm, setShowForm] = useState(false);
-  const [editItem, setEditItem] = useState(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
   const { setActionButton, setTotalCount } = useHeader();
-
-  // Reset state when route changes
-  useEffect(() => {
-    setShowForm(false);
-    setEditItem(null);
-    setPage(1);
-    setSearch("");
-  }, [router.pathname]);
 
   // ✅ Fetch courses with server-side search
   const { data, isLoading } = useQuery({
@@ -59,8 +49,7 @@ export default function CoursesPage() {
 
 
   const handleEdit = (item) => {
-    setEditItem(item);
-    setShowForm(true);
+    router.push(`/courses/edit/${item.id}`);
   };
 
   const handleDelete = (id) => {
@@ -91,20 +80,8 @@ export default function CoursesPage() {
     },
   });
 
-  const handleFormClose = () => {
-    setShowForm(false);
-    setEditItem(null);
-  };
-
-  const handleFormSuccess = () => {
-    setShowForm(false);
-    setEditItem(null);
-    queryClient.invalidateQueries(["courses"]);
-  };
-
   const handleAdd = () => {
-    setEditItem(null);
-    setShowForm(true);
+    router.push("/courses/add");
   };
 
   // Calculate total and items (before any early returns)
@@ -117,41 +94,25 @@ export default function CoursesPage() {
     // Only run on client side
     if (typeof window === 'undefined') return;
     
-    if (!showForm) {
-      const actionBtn = (
-        <PermissionGuard permission="create">
-          <Button 
-            onClick={handleAdd}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white"
-            >
-            <Plus className="mr-2 h-3 w-5" /> Add New Course
-          </Button>
-        </PermissionGuard>
-      );
-      setActionButton(actionBtn);
-      setTotalCount(total);
-    } else {
-      setActionButton(null);
-      setTotalCount(null);
-    }
+    const actionBtn = (
+      <PermissionGuard permission="create">
+        <Button 
+          onClick={handleAdd}
+          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white"
+          >
+          <Plus className="mr-2 h-3 w-5" /> Add New Course
+        </Button>
+      </PermissionGuard>
+    );
+    setActionButton(actionBtn);
+    setTotalCount(total);
 
     // Cleanup: clear action button and total count when component unmounts
     return () => {
       setActionButton(null);
       setTotalCount(null);
     };
-  }, [setActionButton, setTotalCount, total, showForm]);
-
-  // Show form view
-  if (showForm) {
-    return (
-      <AddCourseForm
-        item={editItem}
-        onCancel={handleFormClose}
-        onSuccess={handleFormSuccess}
-      />
-    );
-  }
+  }, [setActionButton, setTotalCount, total]);
 
   const filteredItems = items;
 
