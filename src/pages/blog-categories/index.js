@@ -150,10 +150,15 @@ export default function BlogCategoriesPage() {
   };
 
   const handleFormSuccess = (data, editingCategory) => {
+    const payload = { ...data };
+    // Backend expects category_visibility as "yes"|"no", not boolean
+    if (typeof payload.category_visibility === "boolean") {
+      payload.category_visibility = payload.category_visibility ? "yes" : "no";
+    }
     if (editingCategory) {
-      updateCategoryMutation.mutate({ id: editingCategory.id, data });
+      updateCategoryMutation.mutate({ id: editingCategory.id, data: payload });
     } else {
-      addCategoryMutation.mutate(data);
+      addCategoryMutation.mutate(payload);
     }
     setShowForm(false);
     setEditingCategory(null);
