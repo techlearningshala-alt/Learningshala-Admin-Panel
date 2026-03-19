@@ -128,7 +128,7 @@ export default function BlogsPage() {
             setSearch(value);
             setPage(1);
           }}
-          searchPlaceholder="Search by title, description, or author"
+          searchPlaceholder="Search by title, or author"
           showClearButton={!!search || !!categoryFilter}
           onClearFilters={() => {
             setSearch("");

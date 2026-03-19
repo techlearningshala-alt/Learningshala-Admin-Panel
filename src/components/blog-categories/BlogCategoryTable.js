@@ -25,7 +25,11 @@ export default function BlogCategoryTable({ items, onEdit, onDelete, onToggleVis
           <Button
             size="sm"
             variant={row.category_visibility ? "default" : "outline"}
-            className="min-w-[80px]"
+            className={
+              row.category_visibility
+                ? "bg-gradient-to-r from-blue-400 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 shadow-sm"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
+            }
             onClick={() => onToggleVisibility(row.id, !row.category_visibility)}
           >
             {row.category_visibility ? "Yes" : "No"}

@@ -9,12 +9,13 @@ export default function DataTable({ columns, data = [], actions = [], columnsAft
         <thead className="bg-gradient-to-r from-gray-50 via-gray-50 to-gray-100">
           <tr>
             {columns.map((col) => {
-            
+              const headerNowrapClass =
+                col.wrap ? "" : "whitespace-nowrap text-nowrap";
+
               return (
                 <th 
                   key={col.key} 
-                  className={`text-xs font-semibold text-gray-700 text-center whitespace-nowrap text-nowrap px-3 py-2 bg-blue-100`} 
-                 
+                  className={`text-xs font-semibold text-gray-700 text-center px-3 py-2 bg-blue-100 ${headerNowrapClass} ${col.className || ""}`} 
                 >
                   {col.label}
                 </th>
@@ -54,18 +55,20 @@ export default function DataTable({ columns, data = [], actions = [], columnsAft
             data?.map((row, rowIndex) => (
               <tr 
                 key={row.id ?? rowIndex}
-                className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 transition-all duration-200 border-b border-gray-100 bg-blue-50 whitespace-nowrap text-nowrap bg"
+                className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 transition-all duration-200 border-b border-gray-100 bg-blue-50 bg"
               >
                 {columns.map((col) => {
-                
-                 
+                  const defaultCellNowrapClass =
+                    col.wrap ? "" : "whitespace-nowrap text-nowrap truncate";
+                  const cellClassName =
+                    col.cellClassName || defaultCellNowrapClass;
+
                   return (
                     <td 
                       key={col.key} 
-                      className={` text-gray-900 whitespace-nowrap text-nowrap px-2 truncate max-w-[290px] mx-auto`} 
-                     
+                      className={`text-gray-900 px-2 max-w-[290px] mx-auto ${cellClassName}`} 
                     >
-                     {col.render ? col.render(row, rowIndex) : row[col.key]}
+                      {col.render ? col.render(row, rowIndex) : row[col.key]}
                     </td>
                   );
                 })}

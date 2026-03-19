@@ -13,30 +13,61 @@ export default function BlogTable({ items, onEdit, onDelete, onToggleVerified })
     {
       key: "title",
       label: "Title",
+      wrap: true,
+      // className: "bg-blue-500",
+      cellClassName: "whitespace-normal break-words text-left align-top",
       render: (row) => {
         const value = row.h1_tag || row.title || "-";
         return canUpdate && onEdit ? (
-          <Button variant="link" onClick={() => onEdit(row)}>
+          <Button
+            variant="link"
+            onClick={() => onEdit(row)}
+            className="whitespace-normal break-words text-left block w-full"
+          >
             {value}
           </Button>
         ) : (
-          <span className="text-gray-700">{value}</span>
+          <span className="text-gray-700 whitespace-normal break-words text-left block">
+            {value}
+          </span>
         );
       },
     },
     {
+      key: "category_title",
+      label: "Category",
+      render: (row) => {
+        return row.category_title ? row.category_title : "-";
+      },
+    },
+    {
+      key: "author_name",
+      label: "Author",
+      render: (row) => {
+        return row.author_name ? row.author_name : "-";
+      },
+    }
+  ];
+
+  const actions = createTableActions(onEdit, onDelete, {
+    editUrl: (row) => `/blogs/edit/${row.id}`,
+  });
+
+  const columnsAfterActions = [
+    {
       key: "verified",
       label: "Verified",
-      style: { width: "10%" },
-      cellClassName: "border px-3 py-2",
-      headerClassName: "border px-3 py-2 text-center",
       render: (row) =>
         canUpdate && onToggleVerified ? (
           <Button
             size="sm"
             variant={row.verified ? "default" : "outline"}
             onClick={() => onToggleVerified(row.id, !row.verified)}
-            className="min-w-[80px]"
+            className={
+              row.verified
+                ? "bg-gradient-to-r from-blue-400 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 shadow-sm"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
+            }
           >
             {row.verified ? "Verified" : "Not Verified"}
           </Button>
@@ -46,18 +77,14 @@ export default function BlogTable({ items, onEdit, onDelete, onToggleVerified })
     },
     {
       key: "updated_at",
-      label: "Update Date",
-      style: { width: "12%" },
-      cellClassName: "border px-3 py-2",
-      headerClassName: "border px-3 py-2 text-left",
-      render: (row) =>
-        row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-",
+      label: "Updated",
+      render: (row) => (
+        <span className="">
+          {row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-"}
+        </span>
+      ),
     },
   ];
 
-  const actions = createTableActions(onEdit, onDelete, {
-    editUrl: (row) => `/blogs/edit/${row.id}`,
-  });
-
-  return <DataTable columns={columns} data={items} actions={actions} />;
+  return <DataTable columns={columns} data={items} actions={actions} columnsAfterActions={columnsAfterActions} />;
 }
