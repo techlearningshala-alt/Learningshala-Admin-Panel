@@ -19,9 +19,26 @@ function LeadsPageContent() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [websiteUrl, setWebsiteUrl] = useState("");
+
+  const websiteUrlOptions = [
+    "https://lpuonlinemba.com/",
+    "https://onlinembacollege.co.in/",
+    "https://learningshala.in/lpu-online-programs/",
+    "https://onlineadmission.today/",
+    "https://maheonlinedegree.com/",
+    "https://symbiosis-onlinemba.com/",
+    "https://onlineadmissiondegree.online/",
+    "https://onlineadmissiondegree.online/online-mba/",
+    "https://ignou.onlinedegreeadmission.online/",
+    "https://ignou.onlineadmission.degreeadmission.online/",
+    "https://ignou.degreeadmissiononline.com/",
+    "https://ignou.skillshalaa.com/",
+    "https://ignou.vagmineeducation.com/",
+  ];
 
   const { data, isLoading } = useQuery({
-    queryKey: ["leads", page, rowsPerPage, search, fromDate, toDate],
+    queryKey: ["leads", page, rowsPerPage, search, fromDate, toDate, websiteUrl],
     queryFn: () =>
       fetchLeads({
         page,
@@ -29,6 +46,7 @@ function LeadsPageContent() {
         search: search || undefined,
         fromDate: fromDate || undefined,
         toDate: toDate || undefined,
+        website_url: websiteUrl || undefined,
       }),
     keepPreviousData: true,
   });
@@ -50,6 +68,7 @@ function LeadsPageContent() {
         search: search || undefined,
         fromDate: fromDate || undefined,
         toDate: toDate || undefined,
+        website_url: websiteUrl || undefined,
       });
       const filename = `Leads_${new Date().toISOString().split("T")[0]}.xlsx`;
       downloadFile(blob, filename);
@@ -86,7 +105,7 @@ function LeadsPageContent() {
       </div>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-1">
             <label htmlFor="lead-search" className="text-sm font-medium text-muted-foreground">
               Search
@@ -132,20 +151,57 @@ function LeadsPageContent() {
               }}
             />
           </div>
-        </div>
-        {(fromDate || toDate) && (
-          <div className="flex justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setFromDate("");
-                setToDate("");
+          <div className="space-y-1">
+            <label htmlFor="lead-website-url-filter" className="text-sm font-medium text-muted-foreground">
+              Website URL
+            </label>
+            <select
+              id="lead-website-url-filter"
+              value={websiteUrl}
+              onChange={(e) => {
+                setWebsiteUrl(e.target.value);
                 setPage(1);
               }}
+              className="w-full bg-white border rounded-md px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm"
             >
-              Clear Date Filters
-            </Button>
+              <option value="">All URLs</option>
+              {websiteUrlOptions.map((url) => (
+                <option key={url} value={url}>
+                  {url}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        {(websiteUrl || fromDate || toDate) && (
+          <div className="flex justify-end">
+            <div className="flex gap-3">
+              {websiteUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setWebsiteUrl("");
+                    setPage(1);
+                  }}
+                >
+                  Clear Website URL
+                </Button>
+              )}
+              {(fromDate || toDate) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFromDate("");
+                    setToDate("");
+                    setPage(1);
+                  }}
+                >
+                  Clear Date Filters
+                </Button>
+              )}
+            </div>
           </div>
         )}
       </div>

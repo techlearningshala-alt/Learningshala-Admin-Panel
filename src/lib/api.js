@@ -14,11 +14,12 @@ export async function fetchMentors({ page = 1, limit = 10 }) {
 }
 
 // Fetch marketing leads (paginated)
-export async function fetchLeads({ page = 1, limit = 10, search, fromDate, toDate } = {}) {
+export async function fetchLeads({ page = 1, limit = 10, search, fromDate, toDate, website_url } = {}) {
   const params = { page, limit };
   if (search) params.search = search;
   if (fromDate) params.fromDate = fromDate;
   if (toDate) params.toDate = toDate;
+  if (website_url) params.website_url = website_url;
 
   const res = await api.get("/leads", { params });
   return res.data;
@@ -36,11 +37,12 @@ export async function fetchWebsiteLeads({ page = 1, limit = 10, search, fromDate
 }
 
 // Export leads to Excel
-export async function exportLeadsToExcel({ search, fromDate, toDate } = {}) {
+export async function exportLeadsToExcel({ search, fromDate, toDate, website_url } = {}) {
   const params = {};
   if (search) params.search = search;
   if (fromDate) params.fromDate = fromDate;
   if (toDate) params.toDate = toDate;
+  if (website_url) params.website_url = website_url;
 
   const res = await api.get("/leads/export", {
     params,

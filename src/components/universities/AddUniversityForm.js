@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -313,7 +313,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     clearErrors,
     control,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm({
     defaultValues: {
       university_type_id: null,
@@ -341,6 +341,10 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       why_choose: [""],
     },
   });
+
+  // Prevent overwriting user's unsaved edits when the `item` prop changes
+  // due to refetch/window focus. We only re-hydrate when the university id changes.
+  const lastHydratedUniversityIdRef = useRef(item?.id ?? null);
 
   const watchApprovalIds = watch("approval_ids") || [];
   const watchPlacementIds = watch("placement_partner_ids") || [];
@@ -386,7 +390,18 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
   useEffect(() => {
     if (item?.id) {
-      setStagedFaqs([]);
+      const sameUniversity = lastHydratedUniversityIdRef.current === item.id;
+
+      // If user already started editing and we got a refetch for same university,
+      // do not overwrite form values.
+      if (sameUniversity && isDirty) return;
+
+      // Clear staged FAQs only when switching universities.
+      if (!sameUniversity) setStagedFaqs([]);
+
+      lastHydratedUniversityIdRef.current = item.id;
+    } else {
+      lastHydratedUniversityIdRef.current = null;
     }
 
     if (!item) {
@@ -594,7 +609,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       setSectionPreviews(newPreviews);
     }
 
-  }, [item, reset, setValue]);
+  }, [item, reset, setValue, isDirty]);
 
   // Cleanup blob URLs on unmount or when previewLogo changes
   useEffect(() => {
