@@ -139,6 +139,27 @@ export default function AddAuthorForm({ author, onCancel, onSuccess }) {
           {errors.author_details && <p className="text-red-500 text-sm mt-1">{errors.author_details.message}</p>}
         </div>
 
+        {/* Meta Title */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Meta Title</Label>
+          <Input
+            {...register("meta_title")}
+            placeholder="Enter meta title (SEO)"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
+
+        {/* Meta Description */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Meta Description</Label>
+          <Textarea
+            {...register("meta_description")}
+            placeholder="Enter meta description (SEO)"
+            rows={4}
+            className="resize-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
+
         {/* Image */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">Image</Label>
