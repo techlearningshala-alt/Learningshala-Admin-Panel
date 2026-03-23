@@ -17,9 +17,11 @@ export default function AddAuthorForm({ author, onCancel, onSuccess }) {
   const [existingImage, setExistingImage] = useState(null);
   const queryClient = useQueryClient();
 
-  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm({
     defaultValues: author || {},
   });
+  const authorName = watch("author_name");
+  const authorSlug = watch("author_slug");
 
   // Prefill
   useEffect(() => {
@@ -35,6 +37,21 @@ export default function AddAuthorForm({ author, onCancel, onSuccess }) {
       setExistingImage(null);
     }
   }, [author, reset, setValue]);
+
+  // Auto-generate author_slug on create only.
+  useEffect(() => {
+    if (author) return;
+    if (!authorName || authorSlug) return;
+
+    const slug = authorName
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+
+    setValue("author_slug", slug);
+  }, [author, authorName, authorSlug, setValue]);
 
   // Mutation
   const mutation = useMutation({
@@ -87,6 +104,16 @@ export default function AddAuthorForm({ author, onCancel, onSuccess }) {
             className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
           {errors.author_name && <p className="text-red-500 text-sm mt-1">{errors.author_name.message}</p>}
+        </div>
+
+        {/* Author Slug */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Author Slug</Label>
+          <Input
+            {...register("author_slug")}
+            placeholder="Enter author slug (optional)"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
         </div>
 
         {/* Label */}

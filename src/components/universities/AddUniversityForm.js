@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, X, Plus, Trash } from "lucide-react";
 import { MultiSelect } from "primereact/multiselect";
 
-// ✅ Import reusable components and utilities
+// Import reusable components and utilities
 import { SectionsForm } from "./components/SectionRenderer";
 import { deepMergeProps, applyLinkedFieldMappings, convertDisplayKeysToTargetKeys } from "./utils/formHelpers";
 import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
@@ -72,7 +72,6 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
                       if (clearErrors) {
                         clearErrors("banners");
                       }
-                      console.log(`🧪 [BANNERS] New file selected`, { index, name: file.name });
                     }
                   }}
                   className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8 "
@@ -785,23 +784,13 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     formData.append("emi_partner_ids", JSON.stringify(emiPartnerIds));
     
     formData.append("saveWithDate", saveWithDate);
-
-    // Handle university logo - append if new file, or empty string if removed
-    console.log("📤 [FRONTEND] Preparing university_logo for submission");
-    console.log("📤 [FRONTEND] data.university_logo:", data.university_logo);
-    console.log("📤 [FRONTEND] existingLogo:", existingLogo);
-    console.log("📤 [FRONTEND] previewLogo:", previewLogo);
-    console.log("📤 [FRONTEND] item (edit mode):", item);
     
     if (data.university_logo && data.university_logo[0]) {
       // New file uploaded
-      console.log("📤 [FRONTEND] New logo file uploaded");
       formData.append("university_logo", data.university_logo[0]);
     } else if (item && existingLogo && !previewLogo) {
       // In edit mode: if there was an existing logo (existingLogo is set) but no preview, it was removed
       // existingLogo is only set when editing and there was an original logo from the database
-      console.log("📤 [FRONTEND] Logo was removed - sending empty string");
-      console.log("📤 [FRONTEND] Original logo from database:", existingLogo);
       formData.append("university_logo", "");
     } else {
       // No change: either new item with no logo, or edit mode with logo unchanged
@@ -852,8 +841,6 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
       return bannerData;
     });
-    console.log("🧪 [BANNERS] Submitting payload", banners);
-
     formData.append("banners", JSON.stringify(banners));
 
 
