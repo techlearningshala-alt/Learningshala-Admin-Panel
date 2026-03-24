@@ -24,6 +24,7 @@ import SafeCKEditor from "@/components/CKEditor";
 import { ArrowLeft, Plus, Trash, Info } from "lucide-react";
 import { MultiSelect } from "primereact/multiselect";
 import FormActionButtons from "@/components/common/FormActionButtons";
+import AuthorSelect from "@/components/common/AuthorSelect";
 
 const SECTION_TEMPLATES = [
   { id: "course-overview", section_key: "course_overview", title: "Course Overview" },
@@ -838,13 +839,11 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label>Author Name</Label>
-              <Input className="h-7" placeholder="Editor / Subject matter expert" {...register("author_name", { required: "Author name is required" })} />
-              {errors.author_name && (
-                <p className="text-xs text-red-500">{errors.author_name.message}</p>
-              )}
-            </div>
+            <AuthorSelect
+              register={register}
+              requiredMessage="Author name is required"
+              error={errors.author_name}
+            />
 
             <div className="space-y-2">
               <Label>Learning Mode</Label>

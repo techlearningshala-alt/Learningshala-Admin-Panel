@@ -26,6 +26,7 @@ import { SectionsForm } from "@/components/universities/components/SectionRender
 import { processSectionFiles } from "@/utils/fileProcessing";
 import FormActionButtons from "@/components/common/FormActionButtons";
 import SafeCKEditor from "@/components/CKEditor";
+import AuthorSelect from "@/components/common/AuthorSelect";
 
 // Helper function to convert title to section_key format with underscores
 const generateSectionKey = (title) => {
@@ -1212,14 +1213,11 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
               />
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">Author Name</Label>
-              <Input 
-                {...register("author_name")} 
-                placeholder="Instructor / author"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
-              />
-            </div>
+            <AuthorSelect
+              register={register}
+              className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-9 w-full border rounded px-3 py-2"
+              error={errors.author_name}
+            />
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">Course Duration (Years/Months)</Label>
               <Input 

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { addUniversity, updateUniversity } from "@/lib/universityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
 
@@ -20,6 +20,7 @@ import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel
 import { addUniversityFaq } from "@/lib/api";
 import { processSectionFiles } from "@/utils/fileProcessing";
 import FormActionButtons from "@/components/common/FormActionButtons";
+import AuthorSelect from "@/components/common/AuthorSelect";
 
 // Banner Section Component (separate component to avoid hooks in IIFE)
 function BannerSection({ control, register, previewBanners, setPreviewBanners, setValue, watch, clearErrors }) {
@@ -135,7 +136,6 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
 
 export default function AddUniversityForm({ item, onCancel, onSuccess, approvals = [], placementPartners = [], emiPartners = [], universityTypes = [] }) {
   const queryClient = useQueryClient();
-
   // Scroll to top when form component mounts
   useScrollToTop();
 
@@ -608,7 +608,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       setSectionPreviews(newPreviews);
     }
 
-  }, [item, reset, setValue, isDirty]);
+  }, [item, reset, approvals, placementPartners, emiPartners]);
 
   // Cleanup blob URLs on unmount or when previewLogo changes
   useEffect(() => {
@@ -977,14 +977,11 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">Author Name</Label>
-              <Input 
-                {...register("author_name")} 
-                placeholder="Enter author name"
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
-              />
-            </div>
+            <AuthorSelect
+              register={register}
+              className="w-full border rounded px-3 py-2"
+              error={errors.author_name}
+            />
             <div className="space-y-2 col-span-1 md:col-span-2">
               <Label className="text-sm font-medium text-gray-700">Approvals</Label>
               <Controller

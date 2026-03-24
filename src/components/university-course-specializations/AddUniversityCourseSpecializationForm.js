@@ -25,6 +25,7 @@ import { processSectionFiles } from "@/utils/fileProcessing";
 import UniversityFaqInlinePanel from "@/components/university-faq/InlineFaqPanel";
 import FormActionButtons from "@/components/common/FormActionButtons";
 import SafeCKEditor from "@/components/CKEditor";
+import AuthorSelect from "@/components/common/AuthorSelect";
 import {
   addUniversityCourseSpecializationFaq,
 } from "@/lib/universityApi";
@@ -1333,10 +1334,11 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
               <Label>Label</Label>
               <Input className="h-8"   {...register("label")} placeholder="Short label" />
             </div>
-            <div className="space-y-2">
-              <Label>Author Name</Label>
-              <Input className="h-8" {...register("author_name")} placeholder="Instructor / author" />
-            </div>
+            <AuthorSelect
+              register={register}
+              className="h-9 w-full border rounded px-3 py-2"
+              error={errors.author_name}
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
