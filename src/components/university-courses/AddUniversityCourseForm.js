@@ -52,6 +52,7 @@ const defaultValues = {
   h1Tag: "",
   meta_title: "",
   meta_description: "",
+  compare_page_slug: "",
   duration: "",
   emi_duration: "",
   duration_unit: "",
@@ -558,6 +559,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         h1Tag: merged.h1Tag || "",
         meta_title: merged.meta_title || "",
         meta_description: merged.meta_description || "",
+        compare_page_slug: merged.compare_page_slug || "",
         duration: merged.duration ?? "",
         emi_duration: merged.emi_duration ?? "",
         duration_unit: durationUnit,
@@ -1161,10 +1163,10 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               )}
             </div>
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">Course Slug</Label>
+              <Label className="text-sm font-medium text-gray-700">Course Page Slug</Label>
               <Input 
-                {...register("slug", { required: "Course slug is required" })} 
-                placeholder="Enter course slug"
+                {...register("slug", { required: "Course Page slug is required" })} 
+                placeholder="Enter Page course slug"
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
               />
               {errors.slug && (
@@ -1204,6 +1206,14 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               {errors.meta_description && (
                 <p className="text-sm text-red-500 mt-1">{errors.meta_description.message}</p>
               )}
+            </div>
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700">Compare Page Slug</Label>
+              <Input
+                {...register("compare_page_slug")}
+                placeholder="Enter compare page slug"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
+              />
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">Label</Label>

@@ -76,6 +76,7 @@ const defaultValues = {
   h1Tag: "",
   meta_title: "",
   meta_description: "",
+  compare_page_slug: "",
   duration: "",
   emi_duration: "",
   duration_unit: "",
@@ -665,6 +666,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         h1Tag: merged.h1Tag || "",
         meta_title: merged.meta_title || "",
         meta_description: merged.meta_description || "",
+        compare_page_slug: merged.compare_page_slug || "",
         duration: merged.duration ?? "",
         emi_duration: merged.emi_duration ?? "",
         duration_unit: durationUnit,
@@ -1285,8 +1287,8 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
               )}
             </div>
             <div className="space-y-2">
-              <Label>Specialization Slug</Label>
-              <Input className="h-8" {...register("slug", { required: "Slug is required" })} placeholder="Enter specialization slug" />
+              <Label>Specialization Page Slug</Label>
+              <Input className="h-8" {...register("slug", { required: "Specialization Page slug is required" })} placeholder="Enter specialization page slug" />
               {errors.slug && (
                 <p className="text-xs text-red-500">{errors.slug.message}</p>
               )}
@@ -1327,6 +1329,14 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
             {errors.meta_description && (
               <p className="text-sm text-red-500">{errors.meta_description.message}</p>
             )}
+          </div>
+          <div className="space-y-2">
+            <Label>Compare Page Slug</Label>
+            <Input
+              className="h-8"
+              {...register("compare_page_slug")}
+              placeholder="Enter compare page slug"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
