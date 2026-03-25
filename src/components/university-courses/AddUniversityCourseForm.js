@@ -1210,10 +1210,13 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
             <div className="space-y-2 col-span-1 md:col-span-2">
               <Label className="text-sm font-medium text-gray-700">Compare Page Slug</Label>
               <Input
-                {...register("compare_page_slug")}
+                {...register("compare_page_slug", { required: "Compare page slug is required" })}
                 placeholder="Enter compare page slug"
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7 "
               />
+              {errors.compare_page_slug && (
+                <p className="text-sm text-red-500 mt-1">{errors.compare_page_slug.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">Label</Label>

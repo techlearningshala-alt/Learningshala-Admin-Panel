@@ -1334,9 +1334,12 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
             <Label>Compare Page Slug</Label>
             <Input
               className="h-8"
-              {...register("compare_page_slug")}
+              {...register("compare_page_slug", { required: "Compare page slug is required" })}
               placeholder="Enter compare page slug"
             />
+            {errors.compare_page_slug && (
+              <p className="text-sm text-red-500 mt-1">{errors.compare_page_slug.message}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
