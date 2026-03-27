@@ -11,6 +11,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import FormActionButtons from "@/components/common/FormActionButtons";
+import SafeCKEditor from "../CKEditor";
 
 export default function AddAuthorForm({ author, onCancel, onSuccess }) {
   const [preview, setPreview] = useState(null);
@@ -130,13 +131,11 @@ export default function AddAuthorForm({ author, onCancel, onSuccess }) {
         {/* Author Details */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">Author Details</Label>
-          <Textarea
-            {...register("author_details")}
-            placeholder="Enter author details"
-            rows={5}
+          <SafeCKEditor
+            value={watch("author_details") || ""}
+            onChange={(html) => setValue("author_details", html)}
             className="resize-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
-          {errors.author_details && <p className="text-red-500 text-sm mt-1">{errors.author_details.message}</p>}
         </div>
 
         {/* Meta Title */}
@@ -155,6 +154,37 @@ export default function AddAuthorForm({ author, onCancel, onSuccess }) {
           <Textarea
             {...register("meta_description")}
             placeholder="Enter meta description (SEO)"
+            rows={4}
+            className="resize-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
+
+        {/* LinkedIn Profile Link */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">LinkedIn Profile Link</Label>
+          <Input
+            {...register("linkedin_profile_link")}
+            placeholder="https://www.linkedin.com/in/username"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
+
+        {/* Designation */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Designation</Label>
+          <Input
+            {...register("designation")}
+            placeholder="Enter designation"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
+
+        {/* Education Background */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Education Background</Label>
+          <Textarea
+            {...register("education_background")}
+            placeholder="Enter education background"
             rows={4}
             className="resize-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />

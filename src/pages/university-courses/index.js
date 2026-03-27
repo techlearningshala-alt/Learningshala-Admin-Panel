@@ -9,6 +9,7 @@ import {
   fetchAllUniversities,
   toggleUniversityCourseStatus,
   toggleUniversityCoursePageCreated,
+  toggleUniversityCourseCompare,
 } from "@/lib/universityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
@@ -92,6 +93,15 @@ export default function UniversityCoursesPage() {
     onError: (err) => notifyError(err.response?.data?.message || "Page created status update failed"),
   });
 
+  const toggleCompareMutation = useMutation({
+    mutationFn: ({ id, compare }) => toggleUniversityCourseCompare(id, compare),
+    onSuccess: () => {
+      notifySuccess("Course compare status updated successfully");
+      queryClient.invalidateQueries(["university-courses"]);
+    },
+    onError: (err) => notifyError(err.response?.data?.message || "Compare status update failed"),
+  });
+
   const courses = courseResponse?.data?.data || [];
   const total = courseResponse?.data?.total || 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -146,6 +156,10 @@ export default function UniversityCoursesPage() {
     togglePageCreatedMutation.mutate({ id, isPageCreated });
   };
 
+  const handleToggleCompare = (id, compare) => {
+    toggleCompareMutation.mutate({ id, compare });
+  };
+
   return (
     <div className="p-1 bg-gray-100 min-h-screen">
       <FiltersSection
@@ -193,6 +207,7 @@ export default function UniversityCoursesPage() {
           onDelete={handleDelete}
           onToggleStatus={handleToggleStatus}
           onTogglePageCreated={handleTogglePageCreated}
+          onToggleCompare={handleToggleCompare}
         />
       </TableContainer>
 

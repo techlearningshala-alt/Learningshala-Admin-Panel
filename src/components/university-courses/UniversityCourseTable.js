@@ -78,6 +78,7 @@ export default function UniversityCourseTable({
   onDelete,
   onToggleStatus,
   onTogglePageCreated,
+  onToggleCompare,
 }) {
   const { canRead, canUpdate } = usePermissions();
 
@@ -194,6 +195,27 @@ export default function UniversityCourseTable({
       ) : (
         <span className={row.is_page_created ? "text-green-600" : "text-gray-500"}>
           {row.is_page_created ? "Yes" : "No"}
+        </span>
+      ),
+  },
+  {
+    key: "compare",
+    label: "Compare",
+    render: (row) =>
+      canUpdate ? (
+        <Button
+          size="sm"
+          variant={row.compare ? "default" : "outline"}
+          className={row.compare
+            ? "bg-gradient-to-r from-blue-400 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 shadow-sm"
+            : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"}
+          onClick={() => onToggleCompare?.(row.id, !row.compare)}
+        >
+          {row.compare ? "On" : "Off"}
+        </Button>
+      ) : (
+        <span className={row.compare ? "text-green-600" : "text-gray-500"}>
+          {row.compare ? "On" : "Off"}
         </span>
       ),
   },

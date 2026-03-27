@@ -80,6 +80,12 @@ export const toggleUniversityProvideEmi = async (id, provideEmi) => {
   return res.data;
 };
 
+// ✅ Toggle university compare flag
+export const toggleUniversityCompare = async (id, compare) => {
+  const res = await api.patch(`/universities/${id}/toggle-compare`, { compare });
+  return res.data;
+};
+
 // ✅ Search universities (Elasticsearch)
 export const searchUniversitiesApi = async (query, { page = 1, limit = 10 } = {}) => {
   const res = await api.get(`/universities/search`, { params: { q: query, page, limit } });
@@ -270,6 +276,11 @@ export const toggleUniversityCoursePageCreated = async (id, isPageCreated) => {
   return res.data;
 };
 
+export const toggleUniversityCourseCompare = async (id, compare) => {
+  const res = await api.patch(`/university-courses/${id}/toggle-compare`, { compare });
+  return res.data;
+};
+
 // ========================================
 // University Course Specializations API
 // ========================================
@@ -280,11 +291,13 @@ export async function fetchUniversityCourseSpecializations({
   university_id,
   university_course_id,
   search,
+  course_search,
 } = {}) {
   const params = { page, limit };
   if (university_id) params.university_id = university_id;
   if (university_course_id) params.university_course_id = university_course_id;
   if (search) params.search = search;
+  if (course_search) params.course_search = course_search;
 
   const res = await api.get(`/university-course-specializations`, { params });
   return res.data;
@@ -333,6 +346,11 @@ export const deleteUniversityCourseSpecialization = async (id) => {
 
 export const toggleUniversityCourseSpecializationPageCreated = async (id, isPageCreated) => {
   const res = await api.patch(`/university-course-specializations/${id}/toggle-page-created`, { is_page_created: isPageCreated });
+  return res.data;
+};
+
+export const toggleUniversityCourseSpecializationCompare = async (id, compare) => {
+  const res = await api.patch(`/university-course-specializations/${id}/toggle-compare`, { compare });
   return res.data;
 };
 

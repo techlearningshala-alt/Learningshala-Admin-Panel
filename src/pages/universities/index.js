@@ -10,6 +10,7 @@ import {
   toggleUniversityPageCreated,
   toggleUniversityMenuVisibility,
   toggleUniversityProvideEmi,
+  toggleUniversityCompare,
   fetchApprovals,
   fetchAllPlacementPartners,
   fetchAllEmiPartners,
@@ -117,6 +118,15 @@ export default function UniversitiesPage() {
     onError: (err) => notifyError(err.response?.data?.message || "Provide EMI update failed"),
   });
 
+  const toggleCompareMutation = useMutation({
+    mutationFn: ({ id, compare }) => toggleUniversityCompare(id, compare),
+    onSuccess: () => {
+      notifySuccess("University compare status updated successfully");
+      queryClient.invalidateQueries(["universities"]);
+    },
+    onError: (err) => notifyError(err.response?.data?.message || "Compare update failed"),
+  });
+
   const handleAdd = () => {
     router.push("/universities/add");
   };
@@ -146,6 +156,10 @@ export default function UniversitiesPage() {
 
   const handleToggleProvideEmi = (id, provideEmi) => {
     toggleProvideEmiMutation.mutate({ id, provideEmi });
+  };
+
+  const handleToggleCompare = (id, compare) => {
+    toggleCompareMutation.mutate({ id, compare });
   };
 
   // Calculate total and items (before any early returns)
@@ -224,6 +238,7 @@ export default function UniversitiesPage() {
               onTogglePageCreated={handleTogglePageCreated}
               onToggleMenuVisibility={handleToggleMenuVisibility}
               onToggleProvideEmi={handleToggleProvideEmi}
+              onToggleCompare={handleToggleCompare}
             />
       </TableContainer>
 

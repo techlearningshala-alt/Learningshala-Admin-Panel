@@ -9,10 +9,12 @@ import {
   fetchAllUniversities,
   toggleUniversityCourseSpecializationStatus,
   toggleUniversityCourseSpecializationPageCreated,
+  toggleUniversityCourseSpecializationCompare,
 } from "@/lib/universityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Plus, X } from "lucide-react";
 import UniversityCourseSpecializationTable from "@/components/university-course-specializations/UniversityCourseSpecializationTable";
 import AddUniversityCourseSpecializationForm from "@/components/university-course-specializations/AddUniversityCourseSpecializationForm";
 import FiltersSection from "@/components/common/FiltersSection";
@@ -37,6 +39,7 @@ export default function UniversityCourseSpecializationsPage() {
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [courseSearch, setCourseSearch] = useState("");
   const [selectedUniversity, setSelectedUniversity] = useState(""); 
 
   const { data: universitiesResponse } = useQuery({
@@ -54,6 +57,7 @@ export default function UniversityCourseSpecializationsPage() {
       page,
       selectedUniversity,
       search,
+      courseSearch,
     ],
     queryFn: () =>
       fetchUniversityCourseSpecializations({
@@ -61,6 +65,7 @@ export default function UniversityCourseSpecializationsPage() {
         limit: PAGE_SIZE,
         university_id: selectedUniversity || undefined,
         search: search || undefined,
+        course_search: courseSearch || undefined,
       }),
     keepPreviousData: true,
   });
@@ -90,6 +95,15 @@ export default function UniversityCourseSpecializationsPage() {
       queryClient.invalidateQueries(["university-course-specializations"]);
     },
     onError: (err) => notifyError(err.response?.data?.message || "Page created status update failed"),
+  });
+
+  const toggleCompareMutation = useMutation({
+    mutationFn: ({ id, compare }) => toggleUniversityCourseSpecializationCompare(id, compare),
+    onSuccess: () => {
+      notifySuccess("Specialization compare status updated successfully");
+      queryClient.invalidateQueries(["university-course-specializations"]);
+    },
+    onError: (err) => notifyError(err.response?.data?.message || "Compare status update failed"),
   });
 
   const specializations = specializationResponse?.data?.data || [];
@@ -142,6 +156,10 @@ export default function UniversityCourseSpecializationsPage() {
     togglePageCreatedMutation.mutate({ id, isPageCreated });
   };
 
+  const handleToggleCompare = (id, compare) => {
+    toggleCompareMutation.mutate({ id, compare });
+  };
+
   return (
     <div className="p-1 bg-gray-100 min-h-screen">
       <FiltersSection
@@ -151,13 +169,38 @@ export default function UniversityCourseSpecializationsPage() {
           setPage(1);
         }}
         searchPlaceholder="Search by specialization name..."
-        showClearButton={!!(selectedUniversity || search)}
-          onClearFilters={() => {
+        showClearButton={!!(selectedUniversity || search || courseSearch)}
+        onClearFilters={() => {
           setSelectedUniversity("");
           setSearch("");
+          setCourseSearch("");
           setPage(1);
         }}
       >
+        <div className="relative">
+          <Input
+            value={courseSearch}
+            onChange={(e) => {
+              setCourseSearch(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Search by course name..."
+            className="h-8 min-w-[220px] pr-8"
+          />
+          {courseSearch ? (
+            <button
+              type="button"
+              onClick={() => {
+                setCourseSearch("");
+                setPage(1);
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              aria-label="Clear course search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          ) : null}
+        </div>
         <div className="relative">
           <select
             value={selectedUniversity}
@@ -189,6 +232,7 @@ export default function UniversityCourseSpecializationsPage() {
           onDelete={handleDelete}
           onToggleStatus={handleToggleStatus}
           onTogglePageCreated={handleTogglePageCreated}
+          onToggleCompare={handleToggleCompare}
         />
       </TableContainer>
 
