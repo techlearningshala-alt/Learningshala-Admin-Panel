@@ -20,6 +20,14 @@ import TableContainer from "@/components/common/TableContainer";
 import FiltersSection from "@/components/common/FiltersSection";
 import { useHeader } from "@/context/HeaderContext";
 
+const normalizeApiList = (payload) => {
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.data?.data)) return payload.data.data;
+  return [];
+};
+
 export default function BlogCategoriesPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -28,6 +36,22 @@ export default function BlogCategoriesPage() {
   const [search, setSearch] = useState("");
   const { setActionButton, setTotalCount } = useHeader();
 
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+
+  const loadCategories = async () => {
+    setCategoriesLoading(true);
+    try {
+      const res = await fetchBlogCategories({ page: 1, limit: 20 });
+      setCategories(normalizeApiList(res));
+    } catch (err) {
+      console.error("Failed to load blog categories:", err);
+      setCategories([]);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
+
   // Reset state when route changes
   useEffect(() => {
     setShowForm(false);
@@ -35,20 +59,18 @@ export default function BlogCategoriesPage() {
     setSearch("");
   }, [router.pathname]);
 
-  // Fetch Categories
-  const { data: categoriesData } = useQuery({
-    queryKey: ["blogCategories"],
-    queryFn: () => fetchBlogCategories({ page: 1, limit: 1000 }),
-    keepPreviousData: true,
-  });
-  const categories = categoriesData?.data?.data || [];
+  // Load categories on mount (useEffect to guarantee request on reload)
+  useEffect(() => {
+    loadCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Category mutations
   const deleteCategoryMutation = useMutation({
     mutationFn: deleteBlogCategory,
     onSuccess: () => {
       notifySuccess("Blog category deleted successfully");
-      queryClient.invalidateQueries(["blogCategories"]);
+      loadCategories();
     },
     onError: (err) => notifyError(err.response?.data?.message || "Delete failed"),
   });
@@ -57,7 +79,7 @@ export default function BlogCategoriesPage() {
     mutationFn: addBlogCategory,
     onSuccess: () => {
       notifySuccess("Blog category added successfully");
-      queryClient.invalidateQueries(["blogCategories"]);
+      loadCategories();
     },
     onError: (err) => notifyError(err.response?.data?.message || "Add failed"),
   });
@@ -66,7 +88,7 @@ export default function BlogCategoriesPage() {
     mutationFn: ({ id, data }) => updateBlogCategory(id, data),
     onSuccess: () => {
       notifySuccess("Blog category updated successfully");
-      queryClient.invalidateQueries(["blogCategories"]);
+      loadCategories();
     },
     onError: (err) => notifyError(err.response?.data?.message || "Update failed"),
   });
@@ -75,7 +97,7 @@ export default function BlogCategoriesPage() {
     mutationFn: ({ id, visible }) => toggleBlogCategoryVisibility(id, visible),
     onSuccess: () => {
       notifySuccess("Category visibility updated successfully");
-      queryClient.invalidateQueries(["blogCategories"]);
+      loadCategories();
     },
     onError: (err) =>
       notifyError(err.response?.data?.message || "Visibility update failed"),
@@ -187,8 +209,8 @@ export default function BlogCategoriesPage() {
       />
 
       <TableContainer
-        isLoading={categoriesData?.isLoading}
-        isEmpty={!categoriesData?.isLoading && filteredCategories.length === 0}
+        isLoading={categoriesLoading}
+        isEmpty={!categoriesLoading && filteredCategories.length === 0}
         loadingText="Loading blog categories..."
         emptyText="No blog categories found."
       >

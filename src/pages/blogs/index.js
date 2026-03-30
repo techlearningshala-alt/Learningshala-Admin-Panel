@@ -9,6 +9,7 @@ import PermissionGuard from "@/components/common/PermissionGuard";
 import BlogTable from "@/components/blogs/BlogTable";
 import {
   fetchBlogs,
+  fetchBlogCategories,
   deleteBlog,
   toggleBlogVerified,
 } from "@/lib/api";
@@ -35,12 +36,30 @@ export default function BlogsPage() {
   const limit = 20;
   const { setActionButton, setTotalCount } = useHeader();
 
-  // Fetch blog categories for filter
-  const { data: categoriesData } = useQuery({
-    queryKey: ["blogCategories"],
-    queryFn: () => fetchBlogCategories({ page: 1, limit: 1000 }),
-  });
-  const categories = normalizeApiList(categoriesData?.data?.data || []);
+  // Fetch blog categories for filter (useEffect to guarantee the request on reload)
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  useEffect(() => {
+    let mounted = true;
+    const loadCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+        const res = await fetchBlogCategories({ page: 1, limit: 20 });
+        if (!mounted) return;
+        setCategories(normalizeApiList(res));
+      } catch (err) {
+        if (!mounted) return;
+        console.error("Failed to load blog categories:", err);
+        setCategories([]);
+      } finally {
+        if (mounted) setCategoriesLoading(false);
+      }
+    };
+    loadCategories();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Fetch Blogs
   const { data: blogsData, isLoading } = useQuery({
@@ -151,6 +170,7 @@ export default function BlogsPage() {
                 {cat.title}
               </option>
             ))}
+            {categoriesLoading ? <option disabled>Loading...</option> : null}
           </select>
         </div>
         </FiltersSection>

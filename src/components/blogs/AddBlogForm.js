@@ -40,6 +40,19 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [stagedFaqs, setStagedFaqs] = useState([]);
   const blogId = item?.id;
+  const [hasToken] = useState(() => {
+    try {
+      if (typeof window === "undefined") return false;
+      const envToken = process.env.NEXT_PUBLIC_JWT_TOKEN;
+      return Boolean(
+        localStorage.getItem("token") ||
+          sessionStorage.getItem("token") ||
+          envToken
+      );
+    } catch {
+      return false;
+    }
+  });
 
   const {
     register,
@@ -66,7 +79,10 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
   // Fetch blog categories for dropdown
   const { data: categoriesData } = useQuery({
     queryKey: ["blogCategories"],
-    queryFn: () => fetchBlogCategories({ page: 1, limit: 1000 }),
+    queryFn: () => fetchBlogCategories({ page: 1, limit: 20 }),
+    enabled: true,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
   });
   const categories = normalizeApiList(categoriesData?.data?.data || []);
 
