@@ -83,6 +83,14 @@ const navItemsData = [
       // },
     ],
   },
+  {
+    name: "News",
+    roles: ["admin", "mentor"],
+    subItems: [
+      { name: "All News", href: "/news", roles: ["admin", "mentor"] },
+      { name: "Categories", href: "/news-categories", roles: ["admin", "mentor"] },
+    ],
+  },
   { name: "Landing Page Leads", href: "/leads", roles: ["lead"] },
   { name: "Website Leads", href: "/website-leads", roles: ["lead"] },
   { name: "Contact Us", href: "/contact-us", roles: ["lead"] },

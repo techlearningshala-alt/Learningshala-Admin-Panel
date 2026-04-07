@@ -487,6 +487,103 @@ export async function fetchBlogFaqsByBlogId(blogId) {
   return res.data;
 }
 
+// ===== News categories APIs =====
+
+export async function fetchNewsCategories({ page = 1, limit = 10 } = {}) {
+  const res = await api.get(`/news-categories`, { params: { page, limit } });
+  return res.data;
+}
+
+export async function addNewsCategory(payload) {
+  const res = await api.post(`/news-categories`, payload);
+  return res.data;
+}
+
+export async function updateNewsCategory(id, payload) {
+  const res = await api.put(`/news-categories/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteNewsCategory(id) {
+  const res = await api.delete(`/news-categories/${id}`);
+  return res.data;
+}
+
+export async function toggleNewsCategoryVisibility(id, visible) {
+  const res = await api.patch(`/news-categories/${id}/toggle-visibility`, {
+    visible,
+  });
+  return res.data;
+}
+
+// ===== News APIs =====
+
+export async function fetchNews({ page = 1, limit = 10, search, category_id } = {}) {
+  const params = { page, limit };
+  if (search) params.search = search;
+  if (category_id) params.category_id = category_id;
+  const res = await api.get(`/news`, { params });
+  return res.data;
+}
+
+export async function fetchNewsById(id) {
+  const res = await api.get(`/news/${id}`);
+  return res.data;
+}
+
+export async function addNews(formData) {
+  const res = await api.post(`/news`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+}
+
+export async function updateNews(id, formData) {
+  const res = await api.put(`/news/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+}
+
+export async function deleteNews(id) {
+  const res = await api.delete(`/news/${id}`);
+  return res.data;
+}
+
+export async function toggleNewsVerified(id, verified) {
+  const res = await api.patch(`/news/${id}/toggle-verified`, { verified });
+  return res.data;
+}
+
+// ===== News FAQ APIs =====
+
+export async function fetchNewsFaqs({ page = 1, limit = 10, news_id } = {}) {
+  const params = { page, limit };
+  if (news_id) params.news_id = news_id;
+  const res = await api.get(`/news/faqs/`, { params });
+  return res.data;
+}
+
+export async function addNewsFaq(payload) {
+  const res = await api.post(`/news/faqs/questions`, payload);
+  return res.data;
+}
+
+export async function updateNewsFaq(id, payload) {
+  const res = await api.put(`/news/faqs/questions/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteNewsFaq(id) {
+  const res = await api.delete(`/news/faqs/questions/${id}`);
+  return res.data;
+}
+
+export async function fetchNewsFaqsByNewsId(newsId) {
+  const res = await api.get(`/news/faqs/news/${newsId}/questions`);
+  return res.data;
+}
+
 // ===== Contact Us APIs =====
 
 // Fetch contact us messages (paginated)
