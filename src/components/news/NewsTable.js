@@ -55,7 +55,7 @@ export default function NewsTable({ items, onEdit, onDelete, onToggleVerified })
   const columnsAfterActions = [
     {
       key: "verified",
-      label: "Verified",
+      label: "Act/Deact",
       render: (row) =>
         canUpdate && onToggleVerified ? (
           <Button
@@ -68,11 +68,20 @@ export default function NewsTable({ items, onEdit, onDelete, onToggleVerified })
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
             }
           >
-            {row.verified ? "Verified" : "Not Verified"}
+            {row.verified ? "Active" : "Inactive"}
           </Button>
         ) : (
-          <span className="text-gray-700">{row.verified ? "Verified" : "Not Verified"}</span>
+          <span className="text-gray-700">{row.verified ? "Active" : "Inactive"}</span>
         ),
+    },
+    {
+      key: "created_at",
+      label: "Created",
+      render: (row) => (
+        <span>
+          {row.created_at ? new Date(row.created_at).toLocaleDateString() : "-"}
+        </span>
+      ),
     },
     {
       key: "updated_at",
