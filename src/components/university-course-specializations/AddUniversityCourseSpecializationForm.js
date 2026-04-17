@@ -307,6 +307,59 @@ const defaultSections = [
     section.id !== "Other-Popular-Universities"
 );
 
+const sectionTemplates = defaultSections.reduce((acc, section) => {
+  const template = section?.props || {};
+  if (section?.section_key) acc[`key:${sanitizeSectionKey(section.section_key)}`] = template;
+  if (section?.component) acc[`component:${section.component}`] = template;
+  if (section?.id) acc[`id:${section.id}`] = template;
+  return acc;
+}, {});
+
+const resolveSectionTemplate = (section = {}) => {
+  const key = sanitizeSectionKey(section.section_key || "");
+  if (key && sectionTemplates[`key:${key}`]) return sectionTemplates[`key:${key}`];
+  if (section.component && sectionTemplates[`component:${section.component}`]) {
+    return sectionTemplates[`component:${section.component}`];
+  }
+  if (section.id && sectionTemplates[`id:${section.id}`]) return sectionTemplates[`id:${section.id}`];
+  return null;
+};
+
+const sanitizePropsByTemplate = (template, source) => {
+  if (template === undefined || template === null) return source ?? template;
+  if (source instanceof FileList || source instanceof File) return source;
+
+  if (Array.isArray(template)) {
+    const templateItem = template[0];
+    if (!Array.isArray(source)) return [];
+    if (templateItem === undefined) return source;
+    return source.map((item) => sanitizePropsByTemplate(templateItem, item));
+  }
+
+  if (typeof template === "object") {
+    if (!source || typeof source !== "object" || Array.isArray(source)) {
+      return JSON.parse(JSON.stringify(template));
+    }
+    const cleaned = {};
+    Object.keys(template).forEach((key) => {
+      cleaned[key] = sanitizePropsByTemplate(template[key], source[key]);
+    });
+    return cleaned;
+  }
+
+  if (typeof template === "string") {
+    return typeof source === "string" ? source : template;
+  }
+  if (typeof template === "number") {
+    return typeof source === "number" ? source : template;
+  }
+  if (typeof template === "boolean") {
+    return typeof source === "boolean" ? source : template;
+  }
+
+  return source ?? template;
+};
+
 const normalizeApiList = (payload) => {
   if (!payload) return [];
   if (Array.isArray(payload)) return payload;
@@ -591,16 +644,15 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
             }
           }
 
-          // Merge API props with default props (API props take precedence)
+          // Keep only section-allowed props to avoid cross-section key pollution.
+          const sanitizedProps = sanitizePropsByTemplate(baseSection.props || {}, parsedProps || {});
+
           return {
             id: apiSection.id || baseSection.id,
             section_key: apiSection.section_key || baseSection.section_key,
             title: apiSection.title || baseSection.title,
             component: apiSection.component || baseSection.component,
-            props: {
-              ...baseSection.props, // Start with defaults
-              ...parsedProps, // Override with API data
-            },
+            props: sanitizedProps,
           };
         }
 
@@ -1061,13 +1113,24 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
     // Handle sections with section_key generation
     const formSections = getValues("sections") || [];
 
-    const sectionsWithKeys = formSections.map((section) => ({
-      id: section.id,
-      section_key: section.section_key || generateSectionKey(section.title || ""),
-      title: section.title || "",
-      component: section.component || "",
-      props: section.props || {},
-    }));
+    const sectionsWithKeys = formSections.map((section) => {
+      const normalizedSection = {
+        id: section.id,
+        section_key: section.section_key || generateSectionKey(section.title || ""),
+        title: section.title || "",
+        component: section.component || "",
+      };
+
+      const template = resolveSectionTemplate(normalizedSection);
+      const sanitizedProps = template
+        ? sanitizePropsByTemplate(template, section.props || {})
+        : (section.props || {});
+
+      return {
+        ...normalizedSection,
+        props: sanitizedProps,
+      };
+    });
 
     const processedSections = processSectionFiles(sectionsWithKeys, formData, generateSectionKey);
 
