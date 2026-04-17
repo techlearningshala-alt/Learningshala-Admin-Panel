@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -335,7 +335,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     clearErrors,
     getValues,
     watch,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting, errors, isDirty },
   } = useForm({
     defaultValues: {
       ...defaultValues,
@@ -356,6 +356,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
 
   const courseId = course?.id;
   const isEdit = Boolean(courseId);
+  const lastHydratedCourseIdRef = useRef(courseId ?? null);
 
   const [previewCourseThumbnail, setPreviewCourseThumbnail] = useState(null);
   const [thumbnailRemoved, setThumbnailRemoved] = useState(false);
@@ -714,12 +715,21 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
 
   useEffect(() => {
     if (course && course.id) {
+      const sameCourse = lastHydratedCourseIdRef.current === course.id;
+      if (sameCourse && isDirty) return;
+
+      if (!sameCourse) {
+        setStagedFaqs([]);
+      }
       applyCourseData(course);
+      lastHydratedCourseIdRef.current = course.id;
+      return;
     }
-    if (courseId) {
-      setStagedFaqs([]);
+
+    if (!courseId) {
+      lastHydratedCourseIdRef.current = null;
     }
-  }, [course, applyCourseData, courseId]);
+  }, [course, applyCourseData, courseId, isDirty]);
 
 
   useEffect(() => {
@@ -786,9 +796,13 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
 
   useEffect(() => {
     if (fetchedCourse && fetchedCourse.id) {
+      const sameCourse = lastHydratedCourseIdRef.current === fetchedCourse.id;
+      if (sameCourse && isDirty) return;
+
       applyCourseData(fetchedCourse);
+      lastHydratedCourseIdRef.current = fetchedCourse.id;
     }
-  }, [fetchedCourse, isLoadingCourse, fetchError, courseId, applyCourseData]);
+  }, [fetchedCourse, isLoadingCourse, fetchError, courseId, applyCourseData, isDirty]);
 
   const persistStagedFaqs = async (newCourseId) => {
     if (!stagedFaqs.length || !newCourseId) return;
