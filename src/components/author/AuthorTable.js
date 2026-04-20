@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DataTable from "../table/DataTable";
 import { createTableActions } from "@/utils/tableActions";
+import { htmlToPlainText, truncatePlainText } from "@/utils/html";
 import { usePermissions } from "@/hooks/usePermissions";
 
 export default function AuthorTable({ authors, onEdit, onDelete }) {
@@ -35,8 +36,9 @@ export default function AuthorTable({ authors, onEdit, onDelete }) {
       key: "author_details",
       label: "Author Details",
       render: (row) => {
-        const details = row.author_details || "";
-        return details.length > 50 ? `${details.substring(0, 50)}...` : details || "-";
+        const plain = htmlToPlainText(row.author_details || "");
+        if (!plain) return "-";
+        return truncatePlainText(plain, 50);
       },
     },
     {
