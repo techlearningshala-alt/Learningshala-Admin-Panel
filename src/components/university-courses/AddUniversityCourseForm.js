@@ -72,6 +72,7 @@ const defaultValues = {
   fee_type_values: {},
   fees_note: "",
   credit_points: "",
+  scholarship_provides: "",
   why_choose: [""],
   sections: [], // Will be initialized with defaultSections in useEffect
 };
@@ -576,6 +577,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         fee_type_values: feeMap,
         fees_note: merged.fees_note ?? "",
         credit_points: merged.credit_points ?? "",
+        scholarship_provides: merged.scholarship_provides ?? "",
         why_choose: Array.isArray(merged.why_choose) && merged.why_choose.length > 0 
           ? merged.why_choose 
           : [""],
@@ -882,7 +884,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
 
     Object.entries(data).forEach(([key, value]) => {
       if (key === "fee_type_values" || key === "duration_unit" || key === "duration_schema_value" || 
-          key === "fees_note" || key === "credit_points" || key === "why_choose") return;
+          key === "fees_note" || key === "credit_points" || key === "scholarship_provides" || key === "why_choose") return;
 
       if (FILE_FIELDS.includes(key)) {
         if (value instanceof FileList && value.length > 0) {
@@ -945,18 +947,19 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     );
     formData.append("fee_type_values", JSON.stringify(feeEntries));
 
-    // Add new fields
+    // Add new fields (always send compare fields when defined so clearing a value persists as null in DB)
     if (data.fees_note !== undefined && data.fees_note !== null) {
       formData.append("fees_note", data.fees_note);
     }
-    if (data.credit_points !== undefined && data.credit_points !== null && data.credit_points !== "") {
+    if (data.credit_points !== undefined && data.credit_points !== null) {
       formData.append("credit_points", String(data.credit_points));
     }
-    if (data.why_choose !== undefined && Array.isArray(data.why_choose) && data.why_choose.length > 0) {
-      const filtered = data.why_choose.filter(item => item && String(item).trim());
-      if (filtered.length > 0) {
-        formData.append("why_choose", JSON.stringify(filtered));
-      }
+    if (data.scholarship_provides !== undefined && data.scholarship_provides !== null) {
+      formData.append("scholarship_provides", String(data.scholarship_provides));
+    }
+    if (data.why_choose !== undefined && Array.isArray(data.why_choose)) {
+      const filtered = data.why_choose.filter((item) => item && String(item).trim());
+      formData.append("why_choose", JSON.stringify(filtered));
     }
 
     // Process banners - include all banners that have content or are being removed
@@ -1717,6 +1720,17 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                 type="text"
                 placeholder="Enter credit points"
                 {...register("credit_points")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+              />
+            </div>
+
+            {/* Scholarship Provides */}
+            <div className="space-y-2 mb-4">
+              <Label className="text-sm font-medium text-gray-700">Scholarship Provides</Label>
+              <Input
+                type="text"
+                placeholder="Enter scholarship details"
+                {...register("scholarship_provides")}
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
               />
             </div>

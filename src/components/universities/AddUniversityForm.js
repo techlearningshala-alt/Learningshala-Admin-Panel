@@ -333,7 +333,9 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       emi_provides: false,
       university_features: [""],
       education_mode: "",
+      admission_mode: "",
       examination_mode: "",
+      scholarship_provides: "",
       alumni_status: "",
       online_classes: false,
       placement_assistance: false,
@@ -521,7 +523,9 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         ? item.university_features 
         : [""],
       education_mode: item.education_mode ?? "",
+      admission_mode: item.admission_mode ?? "",
       examination_mode: item.examination_mode ?? "",
+      scholarship_provides: item.scholarship_provides ?? "",
       alumni_status: item.alumni_status ?? "",
       online_classes: item.online_classes === true || item.online_classes === "true" || item.online_classes === 1,
       placement_assistance: item.placement_assistance === true || item.placement_assistance === "true" || item.placement_assistance === 1,
@@ -754,8 +758,14 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     if (data.education_mode !== undefined && data.education_mode !== null && data.education_mode !== "") {
       formData.append("education_mode", String(data.education_mode));
     }
+    if (data.admission_mode !== undefined && data.admission_mode !== null && data.admission_mode !== "") {
+      formData.append("admission_mode", String(data.admission_mode));
+    }
     if (data.examination_mode !== undefined && data.examination_mode !== null && data.examination_mode !== "") {
       formData.append("examination_mode", String(data.examination_mode));
+    }
+    if (data.scholarship_provides !== undefined && data.scholarship_provides !== null && data.scholarship_provides !== "") {
+      formData.append("scholarship_provides", String(data.scholarship_provides));
     }
     if (data.alumni_status !== undefined && data.alumni_status !== null && data.alumni_status !== "") {
       formData.append("alumni_status", String(data.alumni_status));
@@ -1053,7 +1063,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
 
             {/* Establishment Year */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">Establishment Year</Label>
+              <Label className="text-sm font-medium text-gray-700">Establishment Year (Online / Distance Mode)</Label>
               <Input
                 type="text"
                 placeholder="Enter establishment year"
@@ -1120,6 +1130,36 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                     <option value="Hybrid">Hybrid</option>
                   </select>
                 )}
+              />
+            </div>
+
+            {/* Admission Mode */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Admission Mode</Label>
+              <Controller
+                name="admission_mode"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    className="w-full border border-gray-300 rounded-md px-3 py-1.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+                  >
+                    <option value="">Select Admission Mode</option>
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                  </select>
+                )}
+              />
+            </div>
+
+            {/* Scholarship Provides */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Scholarship Provides</Label>
+              <Input
+                type="text"
+                placeholder="Enter scholarship details"
+                {...register("scholarship_provides")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
             </div>
 
@@ -1210,50 +1250,6 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 onClick={() => {
                   const current = watch("university_features") || [""];
                   setValue("university_features", [...current, ""]);
-                }}
-                className="flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Add More
-              </Button>
-            </div>
-
-            {/* Why Choose */}
-            <div className="space-y-2 col-span-2">
-              <Label className="text-sm font-medium text-gray-700">Why Choose</Label>
-              {watch("why_choose")?.map((item, index) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <Input
-                    type="text"
-                    placeholder="Enter why choose point"
-                    {...register(`why_choose.${index}`)}
-                    className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8 flex-1"
-                  />
-                  {watch("why_choose")?.length > 1 && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => {
-                        const current = watch("why_choose") || [];
-                        setValue(
-                          "why_choose",
-                          current.filter((_, i) => i !== index)
-                        );
-                      }}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  const current = watch("why_choose") || [""];
-                  setValue("why_choose", [...current, ""]);
                 }}
                 className="flex items-center gap-2"
               >
