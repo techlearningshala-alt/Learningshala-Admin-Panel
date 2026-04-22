@@ -187,7 +187,7 @@ const defaultSections = [
   },
     {
       id: "syllabus-curriculum",
-      section_key: "syllabus_curriculum",
+      section_key: "Syllabus_Curriculum",
       title: "Syllabus / Curriculum",
       component: "UniversitySyllabus",
       props: {
@@ -221,7 +221,7 @@ const defaultSections = [
   },
   {
     id: "job-opportunities",
-      section_key: "Job_Opportunities",
+    section_key: "Job_Opportunities",
     title: "Job Opportunities",
     component: "UniversityJobOpportunities",
     props: {
