@@ -5,7 +5,14 @@ import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { addUniversity, updateUniversity } from "@/lib/universityApi";
+import { logEditorActivity } from "@/lib/editorActivityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
+import { useAuth } from "@/context/AuthContext";
+import {
+  flattenDirtyFields,
+  normalizeCommonDirtyLabels,
+  normalizeSectionDirtyPaths,
+} from "@/utils/flattenDirtyFields";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,6 +142,7 @@ function BannerSection({ control, register, previewBanners, setPreviewBanners, s
 }
 
 export default function AddUniversityForm({ item, onCancel, onSuccess, approvals = [], placementPartners = [], emiPartners = [], universityTypes = [] }) {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   // Scroll to top when form component mounts
   useScrollToTop();
@@ -147,6 +155,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
   const [brochureRemoved, setBrochureRemoved] = useState(false);
   const [sectionPreviews, setSectionPreviews] = useState({});
   const [stagedFaqs, setStagedFaqs] = useState([]);
+  const [faqChanged, setFaqChanged] = useState(false);
 
   const defaultSections = [
     {
@@ -312,7 +321,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     clearErrors,
     control,
     watch,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting, isDirty, dirtyFields },
   } = useForm({
     defaultValues: {
       university_type_id: null,
@@ -649,9 +658,13 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
   };
 
   const mutation = useMutation({
-    mutationFn: async (formData) =>
-      item?.id ? updateUniversity(item.id, formData) : addUniversity(formData),
-    onSuccess: async (response) => {
+    mutationFn: async ({ formData, changedFieldPaths }) => {
+      const response = item?.id
+        ? await updateUniversity(item.id, formData)
+        : await addUniversity(formData);
+      return { response, changedFieldPaths };
+    },
+    onSuccess: async ({ response, changedFieldPaths }) => {
       if (!item && stagedFaqs.length) {
         const createdUniversityId =
           response?.data?.id ??
@@ -669,6 +682,29 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         } else {
           notifyError("Could not detect the new university ID to save staged FAQs. Please add FAQs after saving.");
         }
+      }
+
+      try {
+        const paths =
+          changedFieldPaths && changedFieldPaths.length ? changedFieldPaths : [];
+        if (user?.role === "mentor" && paths.length) {
+          const entityId =
+            item?.id ??
+            response?.data?.id ??
+            response?.data?.data?.id ??
+            response?.data?.insertId ??
+            response?.insertId;
+          if (entityId != null && entityId !== "") {
+            await logEditorActivity({
+              entity_type: "university",
+              entity_id: Number(entityId),
+              page_key: item ? "university-edit" : "university-create",
+              changed_fields: paths,
+            });
+          }
+        }
+      } catch (logErr) {
+        console.warn("Editor activity log failed (non-blocking):", logErr);
       }
 
       notifySuccess(item ? "University updated successfully" : "University added successfully");
@@ -895,7 +931,38 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     
     formData.append("sections", JSON.stringify(processedSections));
 
-    mutation.mutate(formData);
+    const changedFieldPaths = normalizeCommonDirtyLabels(
+      normalizeSectionDirtyPaths(
+        flattenDirtyFields(dirtyFields),
+        data.sections || [],
+        "title"
+      )
+    );
+
+    const extraActivityLabels = [];
+    if (stagedFaqs.length > 0 || faqChanged) {
+      extraActivityLabels.push("FAQ");
+    }
+    const universityLogoChanged = Boolean(
+      (data.university_logo && data.university_logo[0]) ||
+        (item && existingLogo && !previewLogo)
+    );
+    if (universityLogoChanged) {
+      extraActivityLabels.push("University Logo");
+    }
+    const bannerImageChanged = (data.banners || []).some(
+      (banner) =>
+        banner?.remove_image ||
+        (banner?.banner_image instanceof FileList && banner.banner_image[0])
+    );
+    if (bannerImageChanged) {
+      extraActivityLabels.push("Banner Image");
+    }
+
+    const finalChangedFieldPaths = [
+      ...new Set([...changedFieldPaths, ...extraActivityLabels]),
+    ];
+    mutation.mutate({ formData, changedFieldPaths: finalChangedFieldPaths });
   };
 
   return (
@@ -1502,6 +1569,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             universityName={watch("university_name")}
             stagedFaqs={stagedFaqs}
             setStagedFaqs={setStagedFaqs}
+            onFaqMutated={() => setFaqChanged(true)}
           />
         </div>
 

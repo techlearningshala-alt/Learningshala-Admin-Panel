@@ -40,6 +40,7 @@ export default function App({ Component, pageProps }) {
     "/fee-types",
     "/leads",
     "/website-leads",
+    "/editor-activity",
     "/course-images",
     "/specialization-images",
     "/blogs",

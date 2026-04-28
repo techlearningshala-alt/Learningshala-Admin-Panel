@@ -15,6 +15,13 @@ import {
 } from "@/lib/universityApi";
 import { fetchAllCourseImages } from "@/lib/menuApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
+import { logEditorActivity } from "@/lib/editorActivityApi";
+import { useAuth } from "@/context/AuthContext";
+import {
+  flattenDirtyFields,
+  normalizeCommonDirtyLabels,
+  normalizeSectionDirtyPaths,
+} from "@/utils/flattenDirtyFields";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -175,6 +182,15 @@ const defaultSections = [
       },
     },
     {
+      id: "course-fees",
+      section_key: "Course_Fees",
+      title: "Course Fees",
+      component: "UniversityCourseFees",
+      props: {
+        content: "",
+      },
+    },
+    {
       id: "eligibility-criteria",
       section_key: "Eligibility_Criteria",
       title: "Eligibility Criteria / Who can Enroll",
@@ -326,6 +342,7 @@ const defaultSections = [
 
 export default function AddUniversityCourseForm({ course, onCancel, onSuccess }) {
   useScrollToTop();
+  const { user } = useAuth();
   const {
     register,
     control,
@@ -336,7 +353,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     clearErrors,
     getValues,
     watch,
-    formState: { isSubmitting, errors, isDirty },
+    formState: { isSubmitting, errors, isDirty, dirtyFields },
   } = useForm({
     defaultValues: {
       ...defaultValues,
@@ -371,7 +388,9 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
   const [feeKeyLookup, setFeeKeyLookup] = useState({});
   const [feeLabelLookup, setFeeLabelLookup] = useState({});
   const [banners, setBanners] = useState([]);
+  const [initialBannerSnapshot, setInitialBannerSnapshot] = useState([]);
   const [stagedFaqs, setStagedFaqs] = useState([]);
+  const [faqChanged, setFaqChanged] = useState(false);
   const [sectionPreviews, setSectionPreviews] = useState({});
 
   const {
@@ -606,6 +625,12 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       }
 
       setBanners(loadedBanners);
+      setInitialBannerSnapshot(
+        loadedBanners.map((banner) => ({
+          video_id: (banner.video_id || "").trim(),
+          video_title: (banner.video_title || "").trim(),
+        }))
+      );
 
       // Filter out banner images - only use thumbnail images
       const thumbnailPath = merged.course_thumbnail && !merged.course_thumbnail.includes('banners')
@@ -631,18 +656,43 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       setBrochureFile(null);
       setBrochureRemoved(false);
 
-      // Load sections if available, otherwise use defaultSections
+      // Load sections by merging DB values over default template so newly added
+      // default sections appear in edit mode for older records too.
       const sectionsArray = Array.isArray(merged.sections) ? merged.sections : [];
       let loadedSections = [];
       
       if (sectionsArray.length > 0) {
-        loadedSections = sectionsArray.map((section) => ({
-          id: section.id,
-          section_key: section.section_key || generateSectionKey(section.title),
-          title: section.title || "",
-          component: section.component || "",
-          props: section.props || {},
-        }));
+        loadedSections = defaultSections.map((defaultSection) => {
+          const dbSection = sectionsArray.find(
+            (s) =>
+              (s?.component && s.component === defaultSection.component) ||
+              (s?.section_key && s.section_key === defaultSection.section_key)
+          );
+
+          if (!dbSection) {
+            return {
+              id: defaultSection.id,
+              section_key: defaultSection.section_key || generateSectionKey(defaultSection.title),
+              title: defaultSection.title,
+              component: defaultSection.component,
+              props: structuredClone(defaultSection.props || {}),
+            };
+          }
+
+          return {
+            id: dbSection.id || defaultSection.id,
+            section_key:
+              defaultSection.section_key ||
+              dbSection.section_key ||
+              generateSectionKey(dbSection.title || defaultSection.title),
+            title: defaultSection.title || dbSection.title || "",
+            component: defaultSection.component || dbSection.component || "",
+            props: {
+              ...(structuredClone(defaultSection.props || {})),
+              ...(dbSection.props || {}),
+            },
+          };
+        });
       } else {
         // If no sections from backend, initialize with defaultSections
         loadedSections = defaultSections.map((section) => ({
@@ -754,7 +804,14 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       setFeeKeyLookup(keyMap);
       setFeeLabelLookup(labelMap);
       if (banners.length === 0) {
-        setBanners([createNewBanner()]);
+        const next = [createNewBanner()];
+        setBanners(next);
+        setInitialBannerSnapshot(
+          next.map((banner) => ({
+            video_id: (banner.video_id || "").trim(),
+            video_title: (banner.video_title || "").trim(),
+          }))
+        );
       }
       setPreviewCourseThumbnail(null);
       setThumbnailRemoved(false);
@@ -831,13 +888,13 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
   };
 
   const mutation = useMutation({
-    mutationFn: async (formData) => {
-      if (courseId) {
-        return updateUniversityCourseApi(courseId, formData);
-      }
-      return createUniversityCourse(formData);
+    mutationFn: async ({ formData, changedFieldPaths }) => {
+      const response = courseId
+        ? await updateUniversityCourseApi(courseId, formData)
+        : await createUniversityCourse(formData);
+      return { response, changedFieldPaths };
     },
-    onSuccess: async (response) => {
+    onSuccess: async ({ response, changedFieldPaths }) => {
       if (!courseId && stagedFaqs.length) {
         const createdCourseId =
           response?.data?.id ??
@@ -857,7 +914,31 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         }
       }
 
+      try {
+        const paths =
+          changedFieldPaths && changedFieldPaths.length ? changedFieldPaths : [];
+        if (user?.role === "mentor" && paths.length) {
+          const entityId =
+            courseId ??
+            response?.data?.id ??
+            response?.data?.data?.id ??
+            response?.data?.insertId ??
+            response?.insertId;
+          if (entityId != null && entityId !== "") {
+            await logEditorActivity({
+              entity_type: "university_course",
+              entity_id: Number(entityId),
+              page_key: courseId ? "university-course-edit" : "university-course-create",
+              changed_fields: paths,
+            });
+          }
+        }
+      } catch (logErr) {
+        console.warn("Editor activity log failed (non-blocking):", logErr);
+      }
+
       notifySuccess(`University course ${isEdit ? "updated" : "created"} successfully`);
+      setFaqChanged(false);
       onSuccess?.();
     },
     onError: (err) => {
@@ -1052,7 +1133,54 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       formData.append("saveWithDate", saveWithDate ? "true" : "false");
     }
 
-    mutation.mutate(formData);
+    const changedFieldPaths = normalizeCommonDirtyLabels(
+      normalizeSectionDirtyPaths(
+        flattenDirtyFields(dirtyFields),
+        formSections,
+        "title"
+      )
+    );
+    const extraActivityLabels = [];
+    if (stagedFaqs.length > 0 || faqChanged) {
+      extraActivityLabels.push("FAQ");
+    }
+
+    const existingCourseThumbnail = String(course?.course_thumbnail || "");
+    const currentCourseThumbnail = String(data.course_thumbnail || "");
+    const courseThumbnailChanged = thumbnailRemoved
+      ? Boolean(existingCourseThumbnail)
+      : isEdit
+      ? currentCourseThumbnail !== existingCourseThumbnail
+      : Boolean(currentCourseThumbnail);
+    if (courseThumbnailChanged) {
+      extraActivityLabels.push("Course Thumbnail");
+    }
+
+    const bannerImageChanged = banners.some(
+      (banner) =>
+        banner?.bannerRemoved ||
+        (typeof banner?.previewBanner === "string" && banner.previewBanner.startsWith("blob:"))
+    );
+    if (bannerImageChanged) {
+      extraActivityLabels.push("Banner Image");
+    }
+    const bannerVideoChanged = banners.some((banner, index) => {
+      const initial = initialBannerSnapshot[index] || { video_id: "", video_title: "" };
+      const currentVideoId = (banner?.video_id || "").trim();
+      const currentVideoTitle = (banner?.video_title || "").trim();
+      return (
+        currentVideoId !== String(initial.video_id || "").trim() ||
+        currentVideoTitle !== String(initial.video_title || "").trim()
+      );
+    });
+    if (bannerVideoChanged) {
+      extraActivityLabels.push("Video ID", "Video Title");
+    }
+
+    const finalChangedFieldPaths = [
+      ...new Set([...changedFieldPaths, ...extraActivityLabels]),
+    ];
+    mutation.mutate({ formData, changedFieldPaths: finalChangedFieldPaths });
   };
 
   const handleSave = (saveWithDate = true) => {
@@ -1896,6 +2024,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               courseName={watch("name")}
               stagedFaqs={stagedFaqs}
               setStagedFaqs={setStagedFaqs}
+              onFaqMutated={() => setFaqChanged(true)}
               type="course"
             />
           </div>

@@ -53,6 +53,7 @@ export const renderPropsInputs = (
     // Handle image/file inputs
     if (isImageField(key)) {
       const previewURL = buildPreviewURL(value, sectionPreviews, fieldName);
+      const fileRegister = register(fieldName);
 
       return (
         <div key={fieldName} className="mb-4">
@@ -60,8 +61,10 @@ export const renderPropsInputs = (
           <Input
             type="file"
             accept="image/*"
-            {...register(fieldName)}
+            {...fileRegister}
             onChange={(e) => {
+              // Preserve react-hook-form tracking for dirty state and submitted value.
+              fileRegister.onChange(e);
               const file = e.target.files?.[0];
               if (file) {
                 setSectionPreviews((prev) => ({

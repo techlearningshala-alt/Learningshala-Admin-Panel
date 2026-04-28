@@ -13,6 +13,13 @@ import {
   fetchFeeTypes,
 } from "@/lib/universityApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
+import { logEditorActivity } from "@/lib/editorActivityApi";
+import { useAuth } from "@/context/AuthContext";
+import {
+  flattenDirtyFields,
+  normalizeCommonDirtyLabels,
+  normalizeSectionDirtyPaths,
+} from "@/utils/flattenDirtyFields";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -153,6 +160,15 @@ const defaultSections = [
     section_key: "Key_Highlights",
     title: "Key Highlights of Course",
     component: "UniversityKeyBenefits",
+    props: {
+      content: "",
+    },
+  },
+  {
+    id: "course-fees",
+    section_key: "Course_Fees",
+    title: "Course Fees",
+    component: "UniversityCourseFees",
     props: {
       content: "",
     },
@@ -389,6 +405,7 @@ const createNewBanner = () => ({
 export default function AddUniversityCourseSpecializationForm({ specialization, onCancel, onSuccess }) {
   useScrollToTop();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   
   const {
     register,
@@ -400,7 +417,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
     clearErrors,
     getValues,
     watch,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting, errors, dirtyFields },
   } = useForm({
     defaultValues: {
       ...defaultValues,
@@ -434,7 +451,9 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
   const [feeKeyLookup, setFeeKeyLookup] = useState({});
   const [feeLabelLookup, setFeeLabelLookup] = useState({});
   const [banners, setBanners] = useState([]);
+  const [initialBannerSnapshot, setInitialBannerSnapshot] = useState([]);
   const [stagedFaqs, setStagedFaqs] = useState([]);
+  const [faqChanged, setFaqChanged] = useState(false);
   const [sectionPreviews, setSectionPreviews] = useState({});
   const [selectedUniversity, setSelectedUniversity] = useState("");
 
@@ -649,9 +668,13 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
 
           return {
             id: apiSection.id || baseSection.id,
-            section_key: apiSection.section_key || baseSection.section_key,
-            title: apiSection.title || baseSection.title,
-            component: apiSection.component || baseSection.component,
+            // Preserve default section identity so newly added defaults stay consistent in edit mode.
+            section_key:
+              baseSection.section_key ||
+              apiSection.section_key ||
+              generateSectionKey(apiSection.title || baseSection.title),
+            title: baseSection.title || apiSection.title,
+            component: baseSection.component || apiSection.component,
             props: sanitizedProps,
           };
         }
@@ -767,6 +790,12 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
       }
 
       setBanners(loadedBanners);
+      setInitialBannerSnapshot(
+        loadedBanners.map((banner) => ({
+          video_id: (banner.video_id || "").trim(),
+          video_title: (banner.video_title || "").trim(),
+        }))
+      );
       
       if (thumbnailPath) {
         setPreviewCourseThumbnail(buildAssetUrl(thumbnailPath));
@@ -876,7 +905,14 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
       setFeeKeyLookup(keyMap);
       setFeeLabelLookup(labelMap);
       if (banners.length === 0) {
-        setBanners([createNewBanner()]);
+        const next = [createNewBanner()];
+        setBanners(next);
+        setInitialBannerSnapshot(
+          next.map((banner) => ({
+            video_id: (banner.video_id || "").trim(),
+            video_title: (banner.video_title || "").trim(),
+          }))
+        );
       }
       setPreviewCourseThumbnail(null);
       setThumbnailRemoved(false);
@@ -948,13 +984,13 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
   };
 
   const mutation = useMutation({
-    mutationFn: async (formData) => {
-      if (specializationId) {
-        return updateUniversityCourseSpecialization(specializationId, formData);
-      }
-      return createUniversityCourseSpecialization(formData);
+    mutationFn: async ({ formData, changedFieldPaths }) => {
+      const response = specializationId
+        ? await updateUniversityCourseSpecialization(specializationId, formData)
+        : await createUniversityCourseSpecialization(formData);
+      return { response, changedFieldPaths };
     },
-    onSuccess: async (response) => {
+    onSuccess: async ({ response, changedFieldPaths }) => {
       if (!specializationId && stagedFaqs.length) {
         const createdSpecializationId =
           response?.data?.id ??
@@ -974,7 +1010,33 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         }
       }
 
+      try {
+        const paths =
+          changedFieldPaths && changedFieldPaths.length ? changedFieldPaths : [];
+        if (user?.role === "mentor" && paths.length) {
+          const entityId =
+            specializationId ??
+            response?.data?.id ??
+            response?.data?.data?.id ??
+            response?.data?.insertId ??
+            response?.insertId;
+          if (entityId != null && entityId !== "") {
+            await logEditorActivity({
+              entity_type: "university_course_specialization",
+              entity_id: Number(entityId),
+              page_key: specializationId
+                ? "university-course-specialization-edit"
+                : "university-course-specialization-create",
+              changed_fields: paths,
+            });
+          }
+        }
+      } catch (logErr) {
+        console.warn("Editor activity log failed (non-blocking):", logErr);
+      }
+
       notifySuccess(`University course specialization ${isEdit ? "updated" : "created"} successfully`);
+      setFaqChanged(false);
       onSuccess?.();
     },
     onError: (err) => {
@@ -1163,7 +1225,54 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
       formData.append("saveWithDate", saveWithDate ? "true" : "false");
     }
 
-    mutation.mutate(formData);
+    const changedFieldPaths = normalizeCommonDirtyLabels(
+      normalizeSectionDirtyPaths(
+        flattenDirtyFields(dirtyFields),
+        sectionsWithKeys,
+        "title"
+      )
+    );
+    const extraActivityLabels = [];
+    if (stagedFaqs.length > 0 || faqChanged) {
+      extraActivityLabels.push("FAQ");
+    }
+
+    const existingCourseThumbnail = String(specialization?.course_thumbnail || "");
+    const currentCourseThumbnail = String(data.course_thumbnail || "");
+    const courseThumbnailChanged = thumbnailRemoved
+      ? Boolean(existingCourseThumbnail)
+      : isEdit
+      ? currentCourseThumbnail !== existingCourseThumbnail
+      : Boolean(currentCourseThumbnail);
+    if (courseThumbnailChanged) {
+      extraActivityLabels.push("Course Thumbnail");
+    }
+
+    const bannerImageChanged = banners.some(
+      (banner) =>
+        banner?.bannerRemoved ||
+        (typeof banner?.previewBanner === "string" && banner.previewBanner.startsWith("blob:"))
+    );
+    if (bannerImageChanged) {
+      extraActivityLabels.push("Banner Image");
+    }
+    const bannerVideoChanged = banners.some((banner, index) => {
+      const initial = initialBannerSnapshot[index] || { video_id: "", video_title: "" };
+      const currentVideoId = (banner?.video_id || "").trim();
+      const currentVideoTitle = (banner?.video_title || "").trim();
+      return (
+        currentVideoId !== String(initial.video_id || "").trim() ||
+        currentVideoTitle !== String(initial.video_title || "").trim()
+      );
+    });
+    if (bannerVideoChanged) {
+      extraActivityLabels.push("Video ID", "Video Title");
+    }
+
+    const finalChangedFieldPaths = [
+      ...new Set([...changedFieldPaths, ...extraActivityLabels]),
+    ];
+    mutation.mutate({ formData, changedFieldPaths: finalChangedFieldPaths });
   };
 
   const handleSave = (saveWithDate = true) => {
@@ -2038,6 +2147,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
               specializationName={watch("name")}
               stagedFaqs={stagedFaqs}
               setStagedFaqs={setStagedFaqs}
+              onFaqMutated={() => setFaqChanged(true)}
               type="specialization"
             />
           </div>

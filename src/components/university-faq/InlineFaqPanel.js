@@ -238,6 +238,7 @@ export default function UniversityFaqInlinePanel({
   specializationName,
   stagedFaqs,
   setStagedFaqs,
+  onFaqMutated,
   type = "university", // "university", "course", or "specialization"
 }) {
   const queryClient = useQueryClient();
@@ -363,6 +364,7 @@ export default function UniversityFaqInlinePanel({
           )
         );
         notifySuccess("FAQ updated locally");
+        onFaqMutated?.();
       } else {
         const tempId = `temp-${Date.now()}-${Math.random().toString(16).slice(2)}`;
         setStagedFaqs((prev = []) => [
@@ -375,6 +377,7 @@ export default function UniversityFaqInlinePanel({
         ]);
         const entityType = type === "course" ? "course" : type === "specialization" ? "specialization" : "university";
         notifySuccess(`FAQ staged. It will be saved after the ${entityType} is created.`);
+        onFaqMutated?.();
       }
       if (!addAnother) {
         handleCloseFaqForm();
@@ -392,12 +395,14 @@ export default function UniversityFaqInlinePanel({
           [apiFunctions.entityIdKey]: entityId,
         });
         notifySuccess("FAQ updated successfully");
+        onFaqMutated?.();
       } else {
         await apiFunctions.addFaq({
           ...finalPayload,
           [apiFunctions.entityIdKey]: entityId,
         });
         notifySuccess("FAQ added successfully");
+        onFaqMutated?.();
       }
       queryClient.invalidateQueries([apiFunctions.queryKey, entityId]);
       if (!addAnother) {
@@ -418,6 +423,7 @@ export default function UniversityFaqInlinePanel({
     if (!isExistingEntity) {
       setStagedFaqs((prev = []) => prev.filter((item) => item.tempId !== faq.id));
       notifySuccess("FAQ removed from staged list");
+      onFaqMutated?.();
       return;
     }
 
@@ -427,6 +433,7 @@ export default function UniversityFaqInlinePanel({
       await apiFunctions.deleteFaq(faq.id);
       notifySuccess("FAQ deleted successfully");
       queryClient.invalidateQueries([apiFunctions.queryKey, entityId]);
+      onFaqMutated?.();
     } catch (error) {
       console.error("Failed to delete FAQ", error);
       notifyError(error.response?.data?.message || "Failed to delete FAQ");
