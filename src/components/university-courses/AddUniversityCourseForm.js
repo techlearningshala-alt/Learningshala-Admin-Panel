@@ -112,6 +112,50 @@ const getFileName = (path) => {
   return segments[segments.length - 1];
 };
 
+const deepMergeSectionProps = (template, incoming) => {
+  if (Array.isArray(incoming)) {
+    if (!Array.isArray(template)) return incoming;
+    const templateItem = template[0];
+    if (!templateItem || typeof templateItem !== "object" || Array.isArray(templateItem)) {
+      return incoming;
+    }
+    return incoming.map((item) => {
+      if (!item || typeof item !== "object" || Array.isArray(item)) return item;
+      return deepMergeSectionProps(templateItem, item);
+    });
+  }
+
+  if (!incoming || typeof incoming !== "object") {
+    return incoming !== undefined ? incoming : template;
+  }
+  if (!template || typeof template !== "object" || Array.isArray(template)) {
+    return incoming;
+  }
+
+  const merged = { ...incoming };
+  Object.keys(template).forEach((key) => {
+    if (!(key in incoming)) {
+      merged[key] = template[key];
+      return;
+    }
+    const tVal = template[key];
+    const iVal = incoming[key];
+    if (
+      tVal &&
+      iVal &&
+      typeof tVal === "object" &&
+      typeof iVal === "object" &&
+      !Array.isArray(tVal) &&
+      !Array.isArray(iVal)
+    ) {
+      merged[key] = deepMergeSectionProps(tVal, iVal);
+    } else if (Array.isArray(tVal) && Array.isArray(iVal)) {
+      merged[key] = deepMergeSectionProps(tVal, iVal);
+    }
+  });
+  return merged;
+};
+
 const FILE_FIELDS = ["syllabus_file", "brochure_file"];
 
 const createNewBanner = () => ({
@@ -688,10 +732,10 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               generateSectionKey(dbSection.title || defaultSection.title),
             title: defaultSection.title || dbSection.title || "",
             component: defaultSection.component || dbSection.component || "",
-            props: {
-              ...(structuredClone(defaultSection.props || {})),
-              ...(dbSection.props || {}),
-            },
+            props: deepMergeSectionProps(
+              structuredClone(defaultSection.props || {}),
+              dbSection.props || {}
+            ),
           };
         });
       } else {
