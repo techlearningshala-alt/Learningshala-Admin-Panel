@@ -504,6 +504,21 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         };
         if (merged.props) {
           applyLinkedFieldMappings(merged.props);
+          // Hard backfill for older UniversityFaculties rows:
+          // ensure newly added faculty keys (e.g. Linkedin Profile) appear in edit mode.
+          if (
+            defaultSection.component === "UniversityFaculties" &&
+            Array.isArray(defaultSection.props?.faculties)
+          ) {
+            const facultyTemplate = defaultSection.props.faculties[0] || {};
+            const currentFaculties = Array.isArray(merged.props.faculties)
+              ? merged.props.faculties
+              : [];
+            merged.props.faculties = currentFaculties.map((faculty) => ({
+              ...structuredClone(facultyTemplate),
+              ...(faculty || {}),
+            }));
+          }
         }
         return merged;
       }

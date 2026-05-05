@@ -20,8 +20,30 @@ const isEmpty = (val) => val === undefined || val === null || isStringEmpty(val)
  * Handles nested objects and arrays properly
  */
 export const deepMergeProps = (oldObj, newObj) => {
-  // If newObj is an array, use it directly
+  // If newObj is an array, merge each item with old template item (if available)
+  // so newly added keys inside array objects (e.g. faculties[]."Linkedin Profile")
+  // appear for existing records in edit mode.
   if (Array.isArray(newObj)) {
+    if (!Array.isArray(oldObj)) return newObj;
+    if (!newObj.length) return newObj;
+
+    const templateItem = oldObj[0];
+    if (!templateItem || typeof templateItem !== "object" || Array.isArray(templateItem)) {
+      return newObj;
+    }
+
+    return newObj.map((item) => {
+      if (!item || typeof item !== "object" || Array.isArray(item)) return item;
+      return deepMergeProps(templateItem, item);
+    });
+  }
+
+  // Preserve old array if newObj is absent
+  if (Array.isArray(oldObj) && (newObj === undefined || newObj === null)) {
+    return oldObj;
+  }
+
+  if (Array.isArray(oldObj) && Array.isArray(newObj)) {
     return newObj;
   }
 
