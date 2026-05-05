@@ -276,44 +276,7 @@ const defaultSections = [
         },
       ],
     },
-  },
-
-  // {
-  //   id: "fees-detail",
-  //   section_key: "fee_details",
-  //   title: "Fee Details",
-  //   component: "UniversityFeeDetail",
-  //   props: {
-  //     content: "",
-  //   },
-  // },   
-  // {
-  //   id: "popular-courses",
-  //   section_key: "popular_courses",
-  //   title: "Popular Courses",
-  //   component: "UniversityCourses",
-  //   props: {
-  //     coursesList: "Yes",
-  //   },
-  // }, 
-  // {
-  //   id: "Other-Popular-Universities",
-  //   section_key: "other_popular_universities",  
-  //   title: "Other Popular Universities",
-  //   component: "UniversityOtherPopularColleges",
-  //   props: {
-  //     otherUniversityList: "Yes",
-  //   },
-  // },   
-  // {
-  //   id: "university-faq",
-  //   section_key: "faqs",
-  //   title: "Faqs",
-  //   component: "UniversityFaq",
-  //   props: {
-  //     faqData: "Yes",
-  //   },
-  // },
+  }
 ].filter(
   (section) =>
     section.id !== "approval-logo" &&

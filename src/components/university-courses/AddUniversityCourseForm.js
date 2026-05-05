@@ -274,6 +274,7 @@ const defaultSections = [
             designation: "",
             desc: "",
             "faculty Qualification": "",
+            "Linkedin Profile": "",
           },
         ],
       },

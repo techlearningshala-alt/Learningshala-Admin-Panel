@@ -264,6 +264,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
               "",
             desc: "",
             "faculty Qualification": "",
+            "Linkedin Profile": "",
           }
         ]
       }
@@ -281,12 +282,12 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         ]
       }
     },
-    {
-      id: "fees-detail", section_key: "Fee_Details", title: "Fee Details", component: "UniversityFeeDetail",
-      props: {
-        content: "",
-      }
-    },
+    // {
+    //   id: "fees-detail", section_key: "Fee_Details", title: "Fee Details", component: "UniversityFeeDetail",
+    //   props: {
+    //     content: "",
+    //   }
+    // },
     {
       id: "popular-courses", section_key: "Popular_Courses", title: "Popular Courses", component: "UniversityCourses",
       props: {
