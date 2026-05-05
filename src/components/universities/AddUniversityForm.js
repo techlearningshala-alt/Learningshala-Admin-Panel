@@ -350,6 +350,18 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       online_classes: false,
       placement_assistance: false,
       why_choose: [""],
+      exam_evaluation: "",
+      lms_portal: "",
+      naac_score: "",
+      nirf_ranking: "",
+      wes_approval: "",
+      famous_alumni: "",
+      job_portal_access: "",
+      industry_exposures: "",
+      campus_immersion: "",
+      startup_support: "",
+      interview_preparation: "",
+      webinar_provides: "",
     },
   });
 
@@ -433,6 +445,30 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         approval_ids: [],
         placement_partner_ids: [],
         emi_partner_ids: [],
+        university_tag_line: "",
+        establishment_year: "",
+        emi_provides: false,
+        university_features: [""],
+        education_mode: "",
+        admission_mode: "",
+        examination_mode: "",
+        scholarship_provides: "",
+        alumni_status: "",
+        online_classes: false,
+        placement_assistance: false,
+        why_choose: [""],
+        exam_evaluation: "",
+        lms_portal: "",
+        naac_score: "",
+        nirf_ranking: "",
+        wes_approval: "",
+        famous_alumni: "",
+        job_portal_access: "",
+        industry_exposures: "",
+        campus_immersion: "",
+        startup_support: "",
+        interview_preparation: "",
+        webinar_provides: "",
       });
       setPreviewLogo(null);
       setPreviewBanners([]);
@@ -531,6 +567,9 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     });
 
     const formValues = {
+      ...(item?.compare_information && typeof item.compare_information === "object"
+        ? item.compare_information
+        : {}),
       university_type_id: item.university_type_id ? Number(item.university_type_id) : null,
       university_name: item.university_name || "",
       university_slug: item.university_slug || "",
@@ -557,6 +596,30 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       why_choose: Array.isArray(item.why_choose) && item.why_choose.length > 0 
         ? item.why_choose 
         : [""],
+      exam_evaluation:
+        (item?.compare_information && item.compare_information.exam_evaluation) || "",
+      lms_portal:
+        (item?.compare_information && item.compare_information.lms_portal) || "",
+      naac_score:
+        (item?.compare_information && item.compare_information.naac_score) || "",
+      nirf_ranking:
+        (item?.compare_information && item.compare_information.nirf_ranking) || "",
+      wes_approval:
+        (item?.compare_information && item.compare_information.wes_approval) || "",
+      famous_alumni:
+        (item?.compare_information && item.compare_information.famous_alumni) || "",
+      job_portal_access:
+        (item?.compare_information && item.compare_information.job_portal_access) || "",
+      industry_exposures:
+        (item?.compare_information && item.compare_information.industry_exposures) || "",
+      campus_immersion:
+        (item?.compare_information && item.compare_information.campus_immersion) || "",
+      startup_support:
+        (item?.compare_information && item.compare_information.startup_support) || "",
+      interview_preparation:
+        (item?.compare_information && item.compare_information.interview_preparation) || "",
+      webinar_provides:
+        (item?.compare_information && item.compare_information.webinar_provides) || "",
       banners: Array.isArray(item.banners) && item.banners.length
         ? item.banners.map(b => ({
             banner_image: null,
@@ -834,6 +897,24 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         formData.append("why_choose", JSON.stringify(filtered));
       }
     }
+
+    formData.append(
+      "compare_information",
+      JSON.stringify({
+        exam_evaluation: data.exam_evaluation || "",
+        lms_portal: data.lms_portal || "",
+        naac_score: data.naac_score || "",
+        nirf_ranking: data.nirf_ranking || "",
+        wes_approval: data.wes_approval || "",
+        famous_alumni: data.famous_alumni || "",
+        job_portal_access: data.job_portal_access || "",
+        industry_exposures: data.industry_exposures || "",
+        campus_immersion: data.campus_immersion || "",
+        startup_support: data.startup_support || "",
+        interview_preparation: data.interview_preparation || "",
+        webinar_provides: data.webinar_provides || "",
+      })
+    );
     
     // MultiSelect returns arrays of IDs directly, no need to map
     const approvalIds = Array.isArray(data.approval_ids) ? data.approval_ids : [];
@@ -1339,6 +1420,115 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 <Plus className="h-4 w-4" />
                 Add More
               </Button>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Exam Evaluation</Label>
+              <Input
+                type="text"
+                placeholder="Enter exam evaluation"
+                {...register("exam_evaluation")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">LMS Portal</Label>
+              <Input
+                type="text"
+                placeholder="Enter LMS portal info"
+                {...register("lms_portal")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">NAAC Score</Label>
+              <Input
+                type="text"
+                placeholder="Enter NAAC score"
+                {...register("naac_score")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">NIRF Ranking</Label>
+              <Input
+                type="text"
+                placeholder="Enter NIRF ranking"
+                {...register("nirf_ranking")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">WES Approval</Label>
+              <Input
+                type="text"
+                placeholder="Enter WES approval details"
+                {...register("wes_approval")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Famous Alumni</Label>
+              <Input
+                type="text"
+                placeholder="Enter famous alumni"
+                {...register("famous_alumni")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Job Portal Access</Label>
+              <Input
+                type="text"
+                placeholder="Enter job portal access details"
+                {...register("job_portal_access")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Industry Exposures</Label>
+              <Input
+                type="text"
+                placeholder="Enter industry exposures"
+                {...register("industry_exposures")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Campus Immersion</Label>
+              <Input
+                type="text"
+                placeholder="Enter campus immersion details"
+                {...register("campus_immersion")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Startup Support</Label>
+              <Input
+                type="text"
+                placeholder="Enter startup support details"
+                {...register("startup_support")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Interview Preparation</Label>
+              <Input
+                type="text"
+                placeholder="Enter interview preparation details"
+                {...register("interview_preparation")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Webinar Provides</Label>
+              <Input
+                type="text"
+                placeholder="Enter webinar details"
+                {...register("webinar_provides")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
             </div>
           </div>
         </div>
