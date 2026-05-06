@@ -81,6 +81,10 @@ const defaultValues = {
   credit_points: "",
   scholarship_provides: "",
   why_choose: [""],
+  ai_based_curriculam: "",
+  add_on_certification: "",
+  technical_tools_training: "",
+  industry_collabration: "",
   sections: [], // Will be initialized with defaultSections in useEffect
 };
 
@@ -568,6 +572,12 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         ...defaultValues,
         ...source,
       };
+      const compareInformation =
+        merged.compare_information &&
+        typeof merged.compare_information === "object" &&
+        !Array.isArray(merged.compare_information)
+          ? merged.compare_information
+          : {};
 
       const keyMap = {};
       const labelMap = {};
@@ -645,6 +655,10 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         why_choose: Array.isArray(merged.why_choose) && merged.why_choose.length > 0 
           ? merged.why_choose 
           : [""],
+        ai_based_curriculam: compareInformation.ai_based_curriculam ?? "",
+        add_on_certification: compareInformation.add_on_certification ?? "",
+        technical_tools_training: compareInformation.technical_tools_training ?? "",
+        industry_collabration: compareInformation.industry_collabration ?? "",
       });
 
       setFeeKeyLookup(keyMap);
@@ -1010,7 +1024,8 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
 
     Object.entries(data).forEach(([key, value]) => {
       if (key === "fee_type_values" || key === "duration_unit" || key === "duration_schema_value" || 
-          key === "fees_note" || key === "credit_points" || key === "scholarship_provides" || key === "why_choose") return;
+          key === "fees_note" || key === "credit_points" || key === "scholarship_provides" || key === "why_choose" ||
+          key === "ai_based_curriculam" || key === "add_on_certification" || key === "technical_tools_training" || key === "industry_collabration") return;
 
       if (FILE_FIELDS.includes(key)) {
         if (value instanceof FileList && value.length > 0) {
@@ -1087,6 +1102,15 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
       const filtered = data.why_choose.filter((item) => item && String(item).trim());
       formData.append("why_choose", JSON.stringify(filtered));
     }
+    formData.append(
+      "compare_information",
+      JSON.stringify({
+        ai_based_curriculam: data.ai_based_curriculam || "",
+        add_on_certification: data.add_on_certification || "",
+        technical_tools_training: data.technical_tools_training || "",
+        industry_collabration: data.industry_collabration || "",
+      })
+    );
 
     // Process banners - include all banners that have content or are being removed
     const bannersData = banners
@@ -1904,6 +1928,46 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                 type="text"
                 placeholder="Enter scholarship details"
                 {...register("scholarship_provides")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+              />
+            </div>
+
+            <div className="space-y-2 mb-4">
+              <Label className="text-sm font-medium text-gray-700">AI Based Curriculam</Label>
+              <Input
+                type="text"
+                placeholder="Enter AI based curriculam"
+                {...register("ai_based_curriculam")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+              />
+            </div>
+
+            <div className="space-y-2 mb-4">
+              <Label className="text-sm font-medium text-gray-700">Add On Certification</Label>
+              <Input
+                type="text"
+                placeholder="Enter add on certification details"
+                {...register("add_on_certification")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+              />
+            </div>
+
+            <div className="space-y-2 mb-4">
+              <Label className="text-sm font-medium text-gray-700">Technical Tools & Training</Label>
+              <Input
+                type="text"
+                placeholder="Enter technical tools & training details"
+                {...register("technical_tools_training")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+              />
+            </div>
+
+            <div className="space-y-2 mb-4">
+              <Label className="text-sm font-medium text-gray-700">Industry Collabration</Label>
+              <Input
+                type="text"
+                placeholder="Enter industry collabration details"
+                {...register("industry_collabration")}
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
               />
             </div>
