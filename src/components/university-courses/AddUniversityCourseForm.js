@@ -180,6 +180,7 @@ const defaultSections = [
       title: "Latest Updates",
       component: "UniversityLatestUpdate",
       props: {
+        heading: "",
         content: "",
       },
     },
@@ -189,6 +190,7 @@ const defaultSections = [
       title: "About University Course",
       component: "UniversityDesc",
       props: {
+        heading: "",
         content: "",
         videoID: "",
         videoTitle: "",
@@ -200,6 +202,7 @@ const defaultSections = [
       title: "Why Choose",
       component: "UniversityWhyChoose",
       props: {
+        heading: "",
         content: "",
         gridContent: [
           {
@@ -226,6 +229,7 @@ const defaultSections = [
       title: "Key Highlights of Course",
       component: "UniversityKeyBenefits",
       props: {
+        heading: "",
         content: "",
       },
     },
@@ -235,6 +239,7 @@ const defaultSections = [
       title: "Course Fees",
       component: "UniversityCourseFees",
       props: {
+        heading: "",
         content: "",
       },
     },
@@ -244,6 +249,7 @@ const defaultSections = [
       title: "Eligibility Criteria / Who can Enroll",
       component: "UniversityEligibilityCriteria",
       props: {
+        heading: "",
         content: "",
       },
     },
@@ -253,6 +259,7 @@ const defaultSections = [
       title: "EMI & Financial Support",
       component: "UniversityEmi",
       props: {
+        heading: "",
         content: "",
         emiPartners: "Yes",
       },
@@ -263,6 +270,7 @@ const defaultSections = [
       title: "Scholarships",
       component: "UniversityScholarship",
       props: {
+        heading: "",
         content: "",
       },
     },
@@ -272,6 +280,7 @@ const defaultSections = [
       title: "Syllabus / Curriculum",
       component: "UniversitySyllabus",
       props: {
+        heading: "",
         content: "",
       },
     },
@@ -281,6 +290,7 @@ const defaultSections = [
       title: "LMS & Study Materials",
       component: "UniversityLMS",
       props: {
+        heading: "",
         content: "",
       },
     },
@@ -289,7 +299,11 @@ const defaultSections = [
       section_key: "Admission_Process",
       title: "Admission Process",
       component: "UniversityAdmissionProcess",
-      props: { image: "", content: "" },
+      props: {
+        heading: "",
+        image: "",
+        content: "",
+      },
     },
     {
       id: "university-examination",
@@ -297,6 +311,7 @@ const defaultSections = [
       title: "Examination",
       component: "UniversityExamination",
       props: {
+        heading: "",
         content: "",
       },
     },
@@ -306,6 +321,7 @@ const defaultSections = [
       title: "Job Opportunities",
       component: "UniversityJobOpportunities",
       props: {
+        heading: "",
         content: "",
       },
     },
@@ -315,6 +331,7 @@ const defaultSections = [
       title: "Faculty",
       component: "UniversityFaculties",
       props: {
+        heading: "",
         faculties: [
           {
             name: "",
@@ -333,6 +350,7 @@ const defaultSections = [
       title: "Student Reviews",
       component: "UniversityReviews",
       props: {
+        heading: "",
         allReviews: [
           {
             name: "",

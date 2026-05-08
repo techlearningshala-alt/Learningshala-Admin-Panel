@@ -164,6 +164,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       title: "Latest Updates",
       component: "UniversityLatestUpdate",
       props: {
+        heading: "",
         content: "",
       },
     },
@@ -173,6 +174,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       title: "About University",
       component: "UniversityDesc",
       props: {
+        heading: "",
         content:
           "",
         videoID: "",
@@ -186,6 +188,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       title: "Why Choose",
       component: "UniversityWhyChoose",
       props: {
+        heading: "",
         content:
           "",
         gridContent: [
@@ -210,13 +213,15 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     {
       id: "key-benefits", section_key: "Key_Highlights", title: "Key Highlights", component: "UniversityKeyBenefits",
       props: {
+        heading: "",
         content: "",
       }
     },
-    { id: "admission-process", section_key: "Admission_Process", title: "Admission Process", component: "UniversityAdmissionProcess", props: {image:"", content: "" } },
+    { id: "admission-process", section_key: "Admission_Process", title: "Admission Process", component: "UniversityAdmissionProcess", props: {heading:"", image:"", content: "" } },
     {
       id: "university-Emi", section_key: "University_Emi", title: "EMI & Financial Support", component: "UniversityEmi",
       props: {
+        heading: "",
         content: "",
         emiPartners: "Yes"
       },
@@ -224,24 +229,28 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     {
       id: "scholarship-program", section_key: "Scholarships_Program", title: "Scholarship", component: "UniversityScholarship",
       props: {
+        heading: "",
         content: "",
       }
     },
     {
       id: "university-lms", section_key: "Learning_Management_SystemLMS", title: "LMS & Study Materials", component: "UniversityLMS",
       props: {
+        heading: "",
         content: ""
       }
     },  
     {
       id: "university-examination", section_key: "Examination_Pattern", title: "Examination", component: "UniversityExamination",
       props: {
+        heading: "",
         content: "" 
       }
     },
     {
       id: "sample-certificate", section_key: "Sample_Certificate", title: "Sample Certificate", component: "UniversitySampleCertificate",
       props: {
+        heading: "",
         content: "",  
         sampleImg: "",
       }
@@ -256,6 +265,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     {
       id: "university-faculties", section_key: "University_Faculties", title: "Faculties", component: "UniversityFaculties",
       props: {
+        heading: "",
         faculties: [
           {
             name: "",
@@ -272,6 +282,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     {
       id: "university-reviews", section_key: "Student_Ratings", title: "Student Reviews", component: "UniversityReviews",
       props: {
+        heading: "",
         allReviews: [
           {
             name: "",
