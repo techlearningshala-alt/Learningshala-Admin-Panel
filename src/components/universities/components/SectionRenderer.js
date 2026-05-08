@@ -41,8 +41,23 @@ export const renderPropsInputs = (
   if (!props || typeof props !== "object" || Array.isArray(props)) {
     return null;
   }
-  
-  return Object.entries(props).map(([key, value]) => {
+
+  // Ensure important fields appear first (prevents "heading" showing below "content")
+  const priorityOrder = ["heading", "title", "subheading"];
+  const entries = Object.entries(props).sort(([a], [b]) => {
+    const aIdx = priorityOrder.indexOf(a);
+    const bIdx = priorityOrder.indexOf(b);
+    const aRank = aIdx === -1 ? Number.POSITIVE_INFINITY : aIdx;
+    const bRank = bIdx === -1 ? Number.POSITIVE_INFINITY : bIdx;
+    if (aRank !== bRank) return aRank - bRank;
+
+    // Keep "content" (usually CKEditor) after heading/title when both are present.
+    if (a === "content") return 1;
+    if (b === "content") return -1;
+    return 0;
+  });
+
+  return entries.map(([key, value]) => {
     const fieldName = `${path}.${key}`;
 
     // 🚫 Skip rendering certain fields (will be auto-set)
