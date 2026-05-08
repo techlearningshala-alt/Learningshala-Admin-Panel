@@ -258,6 +258,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     {
       id: "placement-detail", section_key: "Placements_Details", title: "Career & Placement Details", component: "UniversityPlacement",
       props: {
+        heading: "",
         content: "",
         placementPartners: "Yes"
       },
