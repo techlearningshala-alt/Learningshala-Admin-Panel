@@ -122,10 +122,13 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
       }
       hydratedBlogIdRef.current = incomingBlogId;
     } else {
-      reset();
-      setPreviewThumbnail(null);
-      setThumbnailFile(null);
-      hydratedBlogIdRef.current = null;
+      // In add mode, avoid resetting on every keystroke (effect re-runs when isDirty changes).
+      if (hydratedBlogIdRef.current !== null) {
+        reset();
+        setPreviewThumbnail(null);
+        setThumbnailFile(null);
+        hydratedBlogIdRef.current = null;
+      }
     }
   }, [item, reset, setValue, isDirty]);
 

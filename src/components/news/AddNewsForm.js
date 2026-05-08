@@ -104,10 +104,13 @@ export default function AddNewsForm({ item, onCancel, onSuccess }) {
       }
       hydratedNewsIdRef.current = incomingNewsId;
     } else {
-      reset();
-      setPreviewThumbnail(null);
-      setThumbnailFile(null);
-      hydratedNewsIdRef.current = null;
+      // In add mode, avoid resetting on every keystroke (effect re-runs when isDirty changes).
+      if (hydratedNewsIdRef.current !== null) {
+        reset();
+        setPreviewThumbnail(null);
+        setThumbnailFile(null);
+        hydratedNewsIdRef.current = null;
+      }
     }
   }, [item, reset, setValue, isDirty]);
 
