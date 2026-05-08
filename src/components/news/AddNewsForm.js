@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ export default function AddNewsForm({ item, onCancel, onSuccess }) {
   const [previewThumbnail, setPreviewThumbnail] = useState(null);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [stagedFaqs, setStagedFaqs] = useState([]);
+  const hydratedNewsIdRef = useRef(null);
   const newsId = item?.id;
 
   const {
@@ -48,7 +49,7 @@ export default function AddNewsForm({ item, onCancel, onSuccess }) {
     reset,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm({
     defaultValues: item || {
       category_id: "",
@@ -80,6 +81,14 @@ export default function AddNewsForm({ item, onCancel, onSuccess }) {
 
   useEffect(() => {
     if (item) {
+      const incomingNewsId = item.id ?? null;
+      const isSameNews = hydratedNewsIdRef.current === incomingNewsId;
+
+      // Prevent refetches (e.g. FAQ updates) from overriding unsaved form edits.
+      if (isDirty && isSameNews) {
+        return;
+      }
+
       setValue("category_id", item.category_id);
       setValue("h1_tag", item.h1_tag || "");
       setValue("slug", item.slug || "");
@@ -93,12 +102,14 @@ export default function AddNewsForm({ item, onCancel, onSuccess }) {
         const imageUrl = buildAssetUrl(item.thumbnail);
         setPreviewThumbnail(imageUrl);
       }
+      hydratedNewsIdRef.current = incomingNewsId;
     } else {
       reset();
       setPreviewThumbnail(null);
       setThumbnailFile(null);
+      hydratedNewsIdRef.current = null;
     }
-  }, [item, reset, setValue]);
+  }, [item, reset, setValue, isDirty]);
 
   const persistStagedFaqs = async (newNewsId) => {
     if (!stagedFaqs.length || !newNewsId) return;

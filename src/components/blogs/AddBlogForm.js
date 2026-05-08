@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
   const [previewThumbnail, setPreviewThumbnail] = useState(null);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [stagedFaqs, setStagedFaqs] = useState([]);
+  const hydratedBlogIdRef = useRef(null);
   const blogId = item?.id;
   const [hasToken] = useState(() => {
     try {
@@ -61,7 +62,7 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
     reset,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm({
     defaultValues: item || {
       category_id: "",
@@ -96,6 +97,14 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
   // Reset form when item changes
   useEffect(() => {
     if (item) {
+      const incomingBlogId = item.id ?? null;
+      const isSameBlog = hydratedBlogIdRef.current === incomingBlogId;
+
+      // Prevent server refetches (e.g. while editing FAQs) from overriding unsaved form edits.
+      if (isDirty && isSameBlog) {
+        return;
+      }
+
       setValue("category_id", item.category_id);
       setValue("h1_tag", item.h1_tag || "");
       setValue("slug", item.slug || "");
@@ -111,12 +120,14 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
         const imageUrl = buildAssetUrl(item.thumbnail);
         setPreviewThumbnail(imageUrl);
       }
+      hydratedBlogIdRef.current = incomingBlogId;
     } else {
       reset();
       setPreviewThumbnail(null);
       setThumbnailFile(null);
+      hydratedBlogIdRef.current = null;
     }
-  }, [item, reset, setValue]);
+  }, [item, reset, setValue, isDirty]);
 
   const persistStagedFaqs = async (newBlogId) => {
     if (!stagedFaqs.length || !newBlogId) return;
