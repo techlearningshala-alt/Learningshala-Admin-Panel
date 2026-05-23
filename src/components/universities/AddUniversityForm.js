@@ -365,6 +365,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       exam_evaluation: "",
       lms_portal: "",
       naac_score: "",
+      naac_grade: "",
       nirf_ranking: "",
       wes_approval: "",
       famous_alumni: "",
@@ -472,6 +473,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         exam_evaluation: "",
         lms_portal: "",
         naac_score: "",
+        naac_grade: "",
         nirf_ranking: "",
         wes_approval: "",
         famous_alumni: "",
@@ -614,6 +616,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         (item?.compare_information && item.compare_information.lms_portal) || "",
       naac_score:
         (item?.compare_information && item.compare_information.naac_score) || "",
+      naac_grade:
+        (item?.compare_information && item.compare_information.naac_grade) || "",
       nirf_ranking:
         (item?.compare_information && item.compare_information.nirf_ranking) || "",
       wes_approval:
@@ -916,6 +920,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         exam_evaluation: data.exam_evaluation || "",
         lms_portal: data.lms_portal || "",
         naac_score: data.naac_score || "",
+        naac_grade: data.naac_grade || "",
         nirf_ranking: data.nirf_ranking || "",
         wes_approval: data.wes_approval || "",
         famous_alumni: data.famous_alumni || "",
@@ -1456,8 +1461,17 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
               <Label className="text-sm font-medium text-gray-700">NAAC Score</Label>
               <Input
                 type="text"
-                placeholder="Enter NAAC score"
+                placeholder="Enter data like 3.4/4"
                 {...register("naac_score")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">NAAC Grade</Label>
+              <Input
+                type="text"
+                placeholder="Enter grade like A+"
+                {...register("naac_grade")}
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
             </div>
