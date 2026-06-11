@@ -281,6 +281,14 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       }
     },
     {
+      id: "worth-it", section_key: "Worth_It", title: "Worth It ", component: "UniversityWorthItUniversity",
+      props: {
+        heading: "",
+        content: "",
+
+      },
+    },
+    {
       id: "university-reviews", section_key: "Student_Ratings", title: "Student Reviews", component: "UniversityReviews",
       props: {
         heading: "",

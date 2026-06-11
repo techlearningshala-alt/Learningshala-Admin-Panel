@@ -346,6 +346,13 @@ const defaultSections = [
       },
     },
     {
+      id: "worth-it", section_key: "Worth_It", title: "Worth It", component: "UniversityWorthItCourse",
+      props: {
+        heading: "",
+        content: "",
+      },
+    },
+    {
       id: "university-reviews",
       section_key: "Student_Ratings",
       title: "Student Reviews",

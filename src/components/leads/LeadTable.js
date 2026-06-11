@@ -181,6 +181,13 @@ const columns = [
       ),
   },
   {
+    key: "reference_number",
+    label: "Reference Number",
+    style: { minWidth: "140px" },
+    cellClassName: defaultCellClass,
+    render: (row) => row.reference_number || "-",
+  },
+  {
     key: "created_on",
     label: "Created On",
     style: { minWidth: "160px" },
