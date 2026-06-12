@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addDomain, updateDomain } from "@/lib/menuApi";
 import { notifySuccess, notifyError } from "@/lib/notify";
@@ -9,23 +9,61 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import FormActionButtons from "@/components/common/FormActionButtons";
+
+const emptyQuestion = () => ({
+  question: "",
+  note: "",
+  answers: [
+    { answer: "", note: "" },
+    { answer: "", note: "" },
+    { answer: "", note: "" },
+    { answer: "", note: "" },
+  ],
+});
+
+// Questions may arrive from the API as a JSON string; always hand RHF an array
+const parseQuestions = (value) => {
+  let questions = value;
+  if (typeof questions === "string") {
+    try { questions = JSON.parse(questions); } catch { questions = []; }
+  }
+  if (!Array.isArray(questions)) return [];
+  return questions.map((q) => {
+    const answers = Array.isArray(q?.answers) ? q.answers.slice(0, 4) : [];
+    while (answers.length < 4) answers.push({ answer: "", note: "" });
+    return {
+      question: q?.question || "",
+      note: q?.note || "",
+      answers: answers.map((a) => ({ answer: a?.answer || "", note: a?.note || "" })),
+    };
+  });
+};
 
 export default function AddDomainForm({ item, onCancel, onSuccess }) {
   const queryClient = useQueryClient();
   const [saveWithoutDate, setSaveWithoutDate] = useState(false);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm({
-    defaultValues: item || {},
+  const { register, handleSubmit, reset, setValue, control, formState: { errors, isSubmitting } } = useForm({
+    defaultValues: item ? { ...item, questions: parseQuestions(item.questions) } : { questions: [] },
+  });
+
+  const { fields: questionFields, append: appendQuestion, remove: removeQuestion } = useFieldArray({
+    control,
+    name: "questions",
   });
 
   useEffect(() => {
     if (item) {
-      Object.keys(item).forEach(key => setValue(key, item[key]));
+      Object.keys(item).forEach(key => {
+        if (key === "questions") return;
+        setValue(key, item[key]);
+      });
+      setValue("questions", parseQuestions(item.questions));
       setSaveWithoutDate(false);
     } else {
-      reset();
+      reset({ questions: [] });
       setSaveWithoutDate(false);
     }
   }, [item, reset, setValue]);
@@ -66,12 +104,24 @@ export default function AddDomainForm({ item, onCancel, onSuccess }) {
   const handleSave = (shouldRedirect = true, saveWithoutDateFlag = undefined) => {
     handleSubmit((data) => {
       const shouldSaveWithDate = item ? !(saveWithoutDateFlag !== undefined ? saveWithoutDateFlag : saveWithoutDate) : true;
+      // Drop question blocks left completely empty
+      const questions = (data.questions || [])
+        .filter((q) => q.question && q.question.trim())
+        .map((q) => ({
+          question: q.question.trim(),
+          note: q.note || "",
+          answers: (q.answers || []).slice(0, 4).map((a) => ({
+            answer: a?.answer || "",
+            note: a?.note || "",
+          })),
+        }));
       const formData = {
         ...data,
         label: data.label || "",
         priority: Number(data.priority),
         is_active: Boolean(data.is_active),
         menu_visibility: Boolean(data.menu_visibility),
+        questions,
         saveWithDate: shouldSaveWithDate
       };
       // Pass formData and shouldRedirect separately
@@ -131,6 +181,98 @@ export default function AddDomainForm({ item, onCancel, onSuccess }) {
             className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
           {errors.priority && <p className="text-red-500 text-sm mt-1">{errors.priority.message}</p>}
+        </div>
+
+        {/* Questions */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium text-gray-700">Questions</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => appendQuestion(emptyQuestion())}
+              className="border-blue-300 text-blue-700 hover:bg-blue-50"
+            >
+              <Plus className="mr-1 h-4 w-4" />
+              Add Question
+            </Button>
+          </div>
+
+          {questionFields.length === 0 && (
+            <p className="text-sm text-gray-400 border border-dashed border-gray-300 rounded-md p-4 text-center">
+              No questions added yet. Click "Add Question" to add one.
+            </p>
+          )}
+
+          {questionFields.map((field, qIndex) => (
+            <div key={field.id} className="border border-gray-200 rounded-lg p-4 space-y-4 bg-gray-50/60">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-700">Question {qIndex + 1}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeQuestion(qIndex)}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="mr-1 h-4 w-4" />
+                  Remove
+                </Button>
+              </div>
+
+              {/* Question + its note */}
+              <div className="space-y-2">
+                <Input
+                  {...register(`questions.${qIndex}.question`, { required: "Question is required" })}
+                  placeholder={`Enter question ${qIndex + 1}`}
+                  className="bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                />
+                {errors.questions?.[qIndex]?.question && (
+                  <p className="text-red-500 text-sm">{errors.questions[qIndex].question.message}</p>
+                )}
+                <Input
+                  {...register(`questions.${qIndex}.note`)}
+                  placeholder="Note for this question (optional)"
+                  className="bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                />
+              </div>
+
+              {/* 4 answers, each with its own note */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[0, 1, 2, 3].map((aIndex) => (
+                  <div key={aIndex} className="space-y-2 border border-gray-200 rounded-md p-3 bg-white">
+                    <Label className="text-xs font-medium text-gray-500">Answer {aIndex + 1}</Label>
+                    <Input
+                      {...register(`questions.${qIndex}.answers.${aIndex}.answer`)}
+                      placeholder={`Enter answer ${aIndex + 1}`}
+                      className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    />
+                    <Input
+                      {...register(`questions.${qIndex}.answers.${aIndex}.note`)}
+                      placeholder={`Note for answer ${aIndex + 1} (optional)`}
+                      className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {questionFields.length > 0 && (
+            <div className="flex justify-center pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => appendQuestion(emptyQuestion())}
+                className="border-blue-300 text-blue-700 hover:bg-blue-50 w-full border-dashed"
+              >
+                <Plus className="mr-1 h-4 w-4" />
+                Add Question
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Active */}
