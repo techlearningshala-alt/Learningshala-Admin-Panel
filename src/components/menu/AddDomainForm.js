@@ -201,7 +201,7 @@ export default function AddDomainForm({ item, onCancel, onSuccess }) {
 
           {questionFields.length === 0 && (
             <p className="text-sm text-gray-400 border border-dashed border-gray-300 rounded-md p-4 text-center">
-              No questions added yet. Click "Add Question" to add one.
+              No questions added yet. Click &quot;Add Question&quot; to add one.
             </p>
           )}
 
