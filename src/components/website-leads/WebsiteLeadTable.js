@@ -73,9 +73,23 @@ const columns = [
   {
     key: "lead_url",
     label: "Lead URL",
-    style: { minWidth: "90px" },
-    cellClassName: defaultCellClass,
-    render: (row) => row.lead_url || "-",
+    style: { minWidth: "220px" },
+    cellClassName:
+      "border px-2 py-1 align-middle text-sm text-muted-foreground max-w-[280px] overflow-hidden",
+    render: (row) =>
+      row.lead_url ? (
+        <a
+          href={row.lead_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={row.lead_url}
+          className="text-primary hover:underline block max-w-[260px] truncate"
+        >
+          {row.lead_url}
+        </a>
+      ) : (
+        "-"
+      ),
   },
   {
     key: "click_source",
