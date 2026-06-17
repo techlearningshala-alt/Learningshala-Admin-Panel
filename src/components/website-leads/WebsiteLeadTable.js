@@ -71,6 +71,20 @@ const columns = [
     render: (row) => row.sub_source || "-",
   },
   {
+    key: "lead_url",
+    label: "Lead URL",
+    style: { minWidth: "90px" },
+    cellClassName: defaultCellClass,
+    render: (row) => row.lead_url || "-",
+  },
+  {
+    key: "click_source",
+    label: "Click Source",
+    style: { minWidth: "90px" },
+    cellClassName: defaultCellClass,
+    render: (row) => row.click_source || "-",
+  },
+  {
     key: "utm_source",
     label: "UTM Source",
     style: { minWidth: "90px" },
