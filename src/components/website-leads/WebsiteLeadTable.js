@@ -94,9 +94,21 @@ const columns = [
   {
     key: "click_source",
     label: "Click Source",
-    style: { minWidth: "90px" },
-    cellClassName: defaultCellClass,
-    render: (row) => row.click_source || "-",
+    style: { minWidth: "220px" },
+    cellClassName: "border px-2 py-1 align-middle text-sm text-muted-foreground max-w-[280px] overflow-hidden",
+    render: (row) => row.click_source ? (
+      <a
+        href={row.click_source}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={row.click_source}
+        className="text-primary hover:underline block max-w-[260px] truncate"
+      >
+        {row.click_source.length > 26 ? `${row.click_source.slice(0, 26)}...` : row.click_source}
+      </a>
+    ) : (
+      "-"
+    ),
   },
   {
     key: "utm_source",

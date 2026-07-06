@@ -74,6 +74,8 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
       short_description: "",
       thumbnail: null,
       content: "",
+      content_1: "",
+      content_2: "",
     },
   });
 
@@ -114,6 +116,8 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
       setValue("title", item.title || "");
       setValue("short_description", item.short_description || "");
       setValue("content", item.content || "");
+      setValue("content_1", item.content_1 || "");
+      setValue("content_2", item.content_2 || "");
       
       // Set thumbnail preview if exists
       if (item.thumbnail) {
@@ -167,6 +171,8 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
     formData.append("title", data.title);
     formData.append("short_description", data.short_description || "");
     formData.append("content", data.content || "");
+    formData.append("content_1", data.content_1 || "");
+    formData.append("content_2", data.content_2 || "");
 
     // Add thumbnail file if new file is selected
     if (thumbnailFile) {
@@ -380,11 +386,45 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
           />
         </div>
 
-        {/* Long Content */}
+        {/* Long Content 1 */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium text-gray-700">Long Content</Label>
+          <Label className="text-sm font-medium text-gray-700">Long Content 1</Label>
           <Controller
             name="content"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <SafeCKEditor
+                  value={field.value || ""}
+                  onChange={(value) => field.onChange(value)}
+                />
+              </div>
+            )}
+          />
+        </div>
+
+        {/* Long Content 2 */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Long Content 2</Label>
+          <Controller
+            name="content_1"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <SafeCKEditor
+                  value={field.value || ""}
+                  onChange={(value) => field.onChange(value)}
+                />
+              </div>
+            )}
+          />
+        </div>
+
+        {/* Long Content 3 */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Long Content 3</Label>
+          <Controller
+            name="content_2"
             control={control}
             render={({ field }) => (
               <div>
