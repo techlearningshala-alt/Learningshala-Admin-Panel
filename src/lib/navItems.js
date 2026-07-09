@@ -10,6 +10,7 @@ const navItemsData = [
       { name: "Dashboard", href: "/dashboard", roles: ["admin", "mentor"] },
       { name: "Banners", href: "/website-banners", roles: ["admin", "editor"] },
       { name: "Mentors", href: "/mentors", roles: ["admin", "mentor"] },
+      { name: "Post Admission Team", href: "/post-admission-team", roles: ["admin", "mentor"] },
       { name: "Media Spotlight", href: "/media-spotlight", roles: ["admin", "editor","mentor"] },
       { name: "Testimonials", href: "/testimonials", roles: ["admin", "editor","mentor"] },
       {

@@ -126,6 +126,26 @@ export const deleteUser = async (id) => {
 // Delete a mentor
 export const deleteMentor = (id) => api.delete(`/mentors/${id}`);
 
+// ==================== Post Admission Team API ====================
+export async function fetchPostAdmissionTeam({ page = 1, limit = 10 } = {}) {
+  const res = await api.get("/post-admission-team", {
+    params: { page, limit },
+  });
+  return res.data;
+}
+
+export const addPostAdmissionTeamMember = (formData) =>
+  api.post("/post-admission-team", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+export const updatePostAdmissionTeamMember = (id, formData) =>
+  api.put(`/post-admission-team/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+export const deletePostAdmissionTeamMember = (id) => api.delete(`/post-admission-team/${id}`);
+
 // ==================== Authors API ====================
 export async function fetchAuthors({ page = 1, limit = 10 }) {
   const res = await api.get("/authors", {

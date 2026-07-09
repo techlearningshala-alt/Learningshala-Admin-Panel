@@ -19,6 +19,7 @@ export default function App({ Component, pageProps }) {
 
   const cmsPages = [
     "/mentors",
+    "/post-admission-team",
     "/faqs",
     "/media-spotlight",
     "/faq-category",
