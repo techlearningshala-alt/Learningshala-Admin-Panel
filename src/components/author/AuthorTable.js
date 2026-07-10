@@ -33,6 +33,12 @@ export default function AuthorTable({ authors, onEdit, onDelete }) {
     },
     { key: "label", label: "Label" },
     {
+      key: "tag",
+      label: "Tag",
+      render: (row) =>
+        row.tag ? row.tag.charAt(0).toUpperCase() + row.tag.slice(1) : "-",
+    },
+    {
       key: "author_details",
       label: "Author Details",
       render: (row) => {

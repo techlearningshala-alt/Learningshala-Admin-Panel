@@ -107,6 +107,7 @@ const defaultFormValues = {
   label: "",
   priority: "",
   author_name: "",
+  verifier_name: "",
    emi_facility: false,
   learning_mode: "",
   podcast_embed: "",
@@ -396,6 +397,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
         label: source.label || "",
         priority: source.priority ?? "",
         author_name: source.author_name ?? "",
+        verifier_name: source.verifier_name ?? "",
         emi_facility:
           typeof source.emi_facility === "boolean"
             ? source.emi_facility
@@ -658,6 +660,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
     appendIfPresent("label", values.label);
     appendIfPresent("priority", values.priority);
     appendIfPresent("author_name", values.author_name);
+    appendIfPresent("verifier_name", values.verifier_name);
     appendIfPresent("emi_facility", values.emi_facility);
     appendIfPresent("learning_mode", values.learning_mode);
     appendIfPresent("podcast_embed", values.podcast_embed);
@@ -964,6 +967,15 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
               register={register}
               requiredMessage="Author name is required"
               error={errors.author_name}
+            />
+            <AuthorSelect
+              label="Verifier Name"
+              name="verifier_name"
+              register={register}
+              tag="verifier"
+              placeholder="Select Verifier"
+              loadingText="Loading verifiers..."
+              error={errors.verifier_name}
             />
 
 

@@ -12,10 +12,13 @@ export default function AuthorSelect({
   requiredMessage,
   error,
   className = "w-full border rounded px-3 py-2",
+  tag,
+  placeholder = "Select Author",
+  loadingText = "Loading authors...",
 }) {
   const { data: authorResponse, isLoading: isLoadingAuthors } = useQuery({
-    queryKey: ["authors", "all-for-shared-author-select"],
-    queryFn: () => fetchAuthors({ page: 1, limit: 500 }),
+    queryKey: ["authors", "select", tag || "all"],
+    queryFn: () => fetchAuthors({ page: 1, limit: 500, tag }),
   });
 
   const authors = useMemo(
@@ -27,13 +30,13 @@ export default function AuthorSelect({
     <div className="space-y-2">
       <Label>{label}</Label>
       {isLoadingAuthors ? (
-        <p className="text-sm text-muted-foreground">Loading authors...</p>
+        <p className="text-sm text-muted-foreground">{loadingText}</p>
       ) : (
         <select
           className={className}
           {...register(name, requiredMessage ? { required: requiredMessage } : undefined)}
         >
-          <option value="">Select Author</option>
+          <option value="">{placeholder}</option>
           {authors.map((author) => (
             <option key={author.id} value={author.author_name}>
               {author.author_name}
@@ -45,4 +48,3 @@ export default function AuthorSelect({
     </div>
   );
 }
-

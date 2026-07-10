@@ -147,10 +147,10 @@ export const updatePostAdmissionTeamMember = (id, formData) =>
 export const deletePostAdmissionTeamMember = (id) => api.delete(`/post-admission-team/${id}`);
 
 // ==================== Authors API ====================
-export async function fetchAuthors({ page = 1, limit = 10 }) {
-  const res = await api.get("/authors", {
-    params: { page, limit },
-  });
+export async function fetchAuthors({ page = 1, limit = 10, tag } = {}) {
+  const params = { page, limit };
+  if (tag) params.tag = tag;
+  const res = await api.get("/authors", { params });
   return res.data;
 }
 

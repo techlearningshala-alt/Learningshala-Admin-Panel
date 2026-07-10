@@ -19,7 +19,7 @@ export default function AddAuthorForm({ author, onCancel, onSuccess }) {
   const queryClient = useQueryClient();
 
   const { register, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm({
-    defaultValues: author || {},
+    defaultValues: author || { tag: "writer" },
   });
   const authorName = watch("author_name");
   const authorSlug = watch("author_slug");
@@ -28,12 +28,13 @@ export default function AddAuthorForm({ author, onCancel, onSuccess }) {
   useEffect(() => {
     if (author) {
       Object.keys(author).forEach((key) => setValue(key, author[key]));
+      setValue("tag", author.tag || "writer");
       if (author.image) {
         setExistingImage(author.image);
         setPreview(`${process.env.NEXT_PUBLIC_thumbnail_URL}${author.image}`);
       }
     } else {
-      reset();
+      reset({ tag: "writer" });
       setPreview(null);
       setExistingImage(null);
     }
@@ -126,6 +127,19 @@ export default function AddAuthorForm({ author, onCancel, onSuccess }) {
             className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
           {errors.label && <p className="text-red-500 text-sm mt-1">{errors.label.message}</p>}
+        </div>
+
+        {/* Tag */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Tag</Label>
+          <select
+            {...register("tag", { required: "Tag is required" })}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+          >
+            <option value="writer">Writer</option>
+            <option value="verifier">Verifier</option>
+          </select>
+          {errors.tag && <p className="text-red-500 text-sm mt-1">{errors.tag.message}</p>}
         </div>
 
         {/* Author Details */}
