@@ -110,12 +110,21 @@ export default function AddPostAdmissionTeamForm({ member, onCancel, onSuccess }
           </Label>
           <Input
             type="number"
-            {...register("assist_student", { required: "Assist students required", min: 0 })}
+            {...register("assist_student", { min: 0 })}
             className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
           {errors.assist_student && (
             <p className="text-red-500 text-sm mt-1">{errors.assist_student.message}</p>
           )}
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Qualification</Label>
+          <Input
+            {...register("qualification")}
+            placeholder="Enter qualification"
+            className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
         </div>
 
         <div className="space-y-2">

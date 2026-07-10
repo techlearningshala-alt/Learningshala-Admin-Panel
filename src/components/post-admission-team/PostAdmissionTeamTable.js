@@ -31,6 +31,11 @@ export default function PostAdmissionTeamTable({ members, onEdit, onDelete }) {
     },
     { key: "experience", label: "Experience", render: (row) => `${row.experience} yrs` },
     { key: "assist_student", label: "Student Assist" },
+    {
+      key: "qualification",
+      label: "Qualification",
+      render: (row) => row.qualification || "-",
+    },
     { key: "label", label: "Label" },
     { key: "verified", label: "Verified", render: (row) => (row.verified ? "Yes" : "No") },
     {
