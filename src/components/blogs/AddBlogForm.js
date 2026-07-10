@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import SafeCKEditor from "@/components/CKEditor";
 import { fetchBlogCategories, addBlogFaq, fetchAuthors } from "@/lib/api";
+import AuthorSelect from "@/components/common/AuthorSelect";
 import BlogFaqInlinePanel from "@/components/blog-faq/InlineFaqPanel";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import FormActionButtons from "@/components/common/FormActionButtons";
@@ -71,6 +72,7 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
       meta_title: "",
       meta_description: "",
       author_id: "",
+      verifier_name: "",
       short_description: "",
       thumbnail: null,
       content: "",
@@ -113,6 +115,7 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
       setValue("meta_title", item.meta_title || "");
       setValue("meta_description", item.meta_description || "");
       setValue("author_id", item.author_id || "");
+      setValue("verifier_name", item.verifier_name || "");
       setValue("title", item.title || "");
       setValue("short_description", item.short_description || "");
       setValue("content", item.content || "");
@@ -168,6 +171,7 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
     formData.append("meta_title", data.meta_title || "");
     formData.append("meta_description", data.meta_description || "");
     formData.append("author_id", data.author_id || "");
+    formData.append("verifier_name", data.verifier_name || "");
     formData.append("title", data.title);
     formData.append("short_description", data.short_description || "");
     formData.append("content", data.content || "");
@@ -374,6 +378,17 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
             <p className="text-red-500 text-sm mt-1">{errors.author_id.message}</p>
           )}
         </div>
+
+        <AuthorSelect
+          label="Verifier Name"
+          name="verifier_name"
+          register={register}
+          tag="verifier"
+          placeholder="Select Verifier"
+          loadingText="Loading verifiers..."
+          error={errors.verifier_name}
+          className="w-full border rounded px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+        />
 
         {/* Short Intro */}
         <div className="space-y-2">
