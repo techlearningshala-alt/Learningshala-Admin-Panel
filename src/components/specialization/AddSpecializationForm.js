@@ -106,6 +106,7 @@ const defaultFormValues = {
   label: "",
   priority: "",
   author_name: "",
+  verifier_name: "",
   learning_mode: "",
   podcast_embed: "",
   specialization_intro: "",
@@ -350,6 +351,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
       label: source.label || "",
       priority: source.priority ?? "",
       author_name: source.author_name ?? "",
+      verifier_name: source.verifier_name ?? "",
       learning_mode: source.learning_mode ?? "",
       podcast_embed: source.podcast_embed ?? "",
       specialization_intro: source.specialization_intro ?? source.description ?? "",
@@ -620,6 +622,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
     appendIfPresent("label", values.label);
     appendIfPresent("priority", values.priority);
     appendIfPresent("author_name", values.author_name);
+    appendIfPresent("verifier_name", values.verifier_name);
     appendIfPresent("emi_facility", values.emi_facility ? "true" : "false");
     appendIfPresent("learning_mode", values.learning_mode);
     appendIfPresent("podcast_embed", values.podcast_embed);
@@ -843,6 +846,15 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
               register={register}
               requiredMessage="Author name is required"
               error={errors.author_name}
+            />
+            <AuthorSelect
+              label="Verifier Name"
+              name="verifier_name"
+              register={register}
+              tag="verifier"
+              placeholder="Select Verifier"
+              loadingText="Loading verifiers..."
+              error={errors.verifier_name}
             />
 
             <div className="space-y-2">
