@@ -36,6 +36,13 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
         ),
     },
     {
+      key: "priority",
+      label: "Priority",
+      render: (row) => (
+        <span className="text-gray-700">{row.priority ?? "—"}</span>
+      ),
+    },
+    {
       key: "university_slug",
       label: "University Slug", 
       render: (row) =>

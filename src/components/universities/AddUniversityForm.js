@@ -348,6 +348,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       university_type_id: null,
       university_name: "",
       university_slug: "",
+      priority: "",
       meta_title: "",
       meta_description: "",
       university_logo: null,
@@ -454,6 +455,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         university_type_id: null,
         university_name: "",
         university_slug: "",
+        priority: "",
         meta_title: "",
         meta_description: "",
         university_logo: null,
@@ -595,6 +597,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       university_type_id: item.university_type_id ? Number(item.university_type_id) : null,
       university_name: item.university_name || "",
       university_slug: item.university_slug || "",
+      priority: item.priority ?? "",
       meta_title: item.meta_title ?? "",
       meta_description: item.meta_description ?? "",
       university_logo: null,
@@ -873,6 +876,9 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     }
     formData.append("university_name", data.university_name);
     formData.append("university_slug", data.university_slug);
+    if (data.priority !== undefined && data.priority !== null && data.priority !== "") {
+      formData.append("priority", String(data.priority));
+    }
     formData.append("meta_title", data.meta_title || "");
     formData.append("meta_description", data.meta_description || "");
     formData.append("university_location", data.university_location || "");
@@ -1149,6 +1155,24 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
               {errors.university_slug && <p className="text-red-500 text-sm mt-1">{errors.university_slug.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">
+                Priority <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                type="number"
+                min={1}
+                {...register("priority", {
+                  required: "Priority is required",
+                  valueAsNumber: true,
+                  validate: (value) =>
+                    (Number.isFinite(value) && value >= 1) || "Priority must be 1 or higher",
+                })}
+                placeholder="Enter priority (1, 2, 3...)"
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+              {errors.priority && <p className="text-red-500 text-sm mt-1">{errors.priority.message}</p>}
             </div>
             <div className="space-y-2 col-span-1 md:col-span-2">
               <Label className="text-sm font-medium text-gray-700">Meta Title</Label>

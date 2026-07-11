@@ -136,12 +136,20 @@ export default function AddUploadForm({ item, onCancel, onSuccess }) {
 
       <form className="space-y-6 max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-sm">
         <div className="space-y-2">
-          <Label className="text-sm font-medium text-gray-700">Name (optional)</Label>
+          <Label className="text-sm font-medium text-gray-700">
+            Name <span className="text-red-500">*</span>
+          </Label>
           <Input
-            {...register("name")}
+            {...register("name", {
+              required: "Name is required",
+              validate: (value) =>
+                (typeof value === "string" && value.trim().length > 0) ||
+                "Name is required",
+            })}
             placeholder="Enter name"
             className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
+          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
         </div>
 
         <div className="space-y-2">
