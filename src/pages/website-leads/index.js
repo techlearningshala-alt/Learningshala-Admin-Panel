@@ -18,10 +18,11 @@ function WebsiteLeadsPageContent() {
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [trafficType, setTrafficType] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(20);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["website-leads", page, rowsPerPage, search, fromDate, toDate],
+    queryKey: ["website-leads", page, rowsPerPage, search, fromDate, toDate, trafficType],
     queryFn: () =>
       fetchWebsiteLeads({
         page,
@@ -29,6 +30,7 @@ function WebsiteLeadsPageContent() {
         search: search || undefined,
         fromDate: fromDate || undefined,
         toDate: toDate || undefined,
+        trafficType: trafficType || undefined,
       }),
     keepPreviousData: true,
   });
@@ -50,6 +52,7 @@ function WebsiteLeadsPageContent() {
         search: search || undefined,
         fromDate: fromDate || undefined,
         toDate: toDate || undefined,
+        trafficType: trafficType || undefined,
       });
       const filename = `Website_Leads_${new Date().toISOString().split("T")[0]}.xlsx`;
       downloadFile(blob, filename);
@@ -86,7 +89,7 @@ function WebsiteLeadsPageContent() {
       </div>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-1">
             <label htmlFor="website-lead-search" className="text-sm font-medium text-muted-foreground">
               Search
@@ -101,6 +104,25 @@ function WebsiteLeadsPageContent() {
                 setPage(1);
               }}
             />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="traffic-type" className="text-sm font-medium text-muted-foreground">
+              Traffic Type
+            </label>
+            <select
+              id="traffic-type"
+              value={trafficType}
+              onChange={(event) => {
+                setTrafficType(event.target.value);
+                setPage(1);
+              }}
+              className="w-full bg-white border rounded-md px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm"
+            >
+              <option value="">All</option>
+              <option value="paid">Paid</option>
+              <option value="organic">Organic</option>
+              <option value="referral">Referral</option>
+            </select>
           </div>
           <div className="space-y-1">
             <label htmlFor="from-date" className="text-sm font-medium text-muted-foreground">
@@ -133,7 +155,7 @@ function WebsiteLeadsPageContent() {
             />
           </div>
         </div>
-        {(fromDate || toDate) && (
+        {(fromDate || toDate || trafficType) && (
           <div className="flex justify-end">
             <Button
               variant="outline"
@@ -141,10 +163,11 @@ function WebsiteLeadsPageContent() {
               onClick={() => {
                 setFromDate("");
                 setToDate("");
+                setTrafficType("");
                 setPage(1);
               }}
             >
-              Clear Date Filters
+              Clear Filters
             </Button>
           </div>
         )}

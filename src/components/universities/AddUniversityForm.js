@@ -384,6 +384,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       startup_support: "",
       interview_preparation: "",
       webinar_provides: "",
+      blog_url: "",
+      student_faculty_ratio: "",
     },
   });
 
@@ -493,6 +495,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         startup_support: "",
         interview_preparation: "",
         webinar_provides: "",
+        blog_url: "",
+        student_faculty_ratio: "",
       });
       setPreviewLogo(null);
       setPreviewBanners([]);
@@ -647,6 +651,10 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         (item?.compare_information && item.compare_information.interview_preparation) || "",
       webinar_provides:
         (item?.compare_information && item.compare_information.webinar_provides) || "",
+      blog_url:
+        (item?.compare_information && item.compare_information.blog_url) || "",
+      student_faculty_ratio:
+        (item?.compare_information && item.compare_information.student_faculty_ratio) || "",
       banners: Array.isArray(item.banners) && item.banners.length
         ? item.banners.map(b => ({
             banner_image: null,
@@ -944,6 +952,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         startup_support: data.startup_support || "",
         interview_preparation: data.interview_preparation || "",
         webinar_provides: data.webinar_provides || "",
+        blog_url: data.blog_url || "",
+        student_faculty_ratio: data.student_faculty_ratio || "",
       })
     );
     
@@ -1585,6 +1595,24 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 type="text"
                 placeholder="Enter webinar details"
                 {...register("webinar_provides")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700">Blog URL</Label>
+              <Input
+                type="url"
+                placeholder="Enter blog URL"
+                {...register("blog_url")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Student:Faculty Ratio</Label>
+              <Input
+                type="text"
+                placeholder="e.g. 20:1"
+                {...register("student_faculty_ratio")}
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
             </div>

@@ -71,6 +71,17 @@ const columns = [
     render: (row) => row.sub_source || "-",
   },
   {
+    key: "traffic_type",
+    label: "Traffic Type",
+    style: { minWidth: "100px" },
+    cellClassName: defaultCellClass,
+    render: (row) => {
+      const value = String(row.traffic_type || "organic").toLowerCase();
+      const label = value.charAt(0).toUpperCase() + value.slice(1);
+      return label || "-";
+    },
+  },
+  {
     key: "lead_url",
     label: "Lead URL",
     style: { minWidth: "220px" },

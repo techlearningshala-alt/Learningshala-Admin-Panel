@@ -86,6 +86,7 @@ const defaultValues = {
   technical_tools_training: "",
   industry_collabration: "",
   nirf_placement_data: "",
+  blog_url: "",
   sections: [], // Will be initialized with defaultSections in useEffect
 };
 
@@ -686,6 +687,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         technical_tools_training: compareInformation.technical_tools_training ?? "",
         industry_collabration: compareInformation.industry_collabration ?? "",
         nirf_placement_data: compareInformation.nirf_placement_data ?? "",
+        blog_url: compareInformation.blog_url ?? "",
       });
 
       setFeeKeyLookup(keyMap);
@@ -1052,7 +1054,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
     Object.entries(data).forEach(([key, value]) => {
       if (key === "fee_type_values" || key === "duration_unit" || key === "duration_schema_value" || 
           key === "fees_note" || key === "credit_points" || key === "scholarship_provides" || key === "why_choose" ||
-          key === "ai_based_curriculam" || key === "add_on_certification" || key === "technical_tools_training" || key === "industry_collabration" || key === "nirf_placement_data") return;
+          key === "ai_based_curriculam" || key === "add_on_certification" || key === "technical_tools_training" || key === "industry_collabration" || key === "nirf_placement_data" || key === "blog_url") return;
 
       if (FILE_FIELDS.includes(key)) {
         if (value instanceof FileList && value.length > 0) {
@@ -1137,6 +1139,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         technical_tools_training: data.technical_tools_training || "",
         industry_collabration: data.industry_collabration || "",
         nirf_placement_data: data.nirf_placement_data || "",
+        blog_url: data.blog_url || "",
       })
     );
 
@@ -1961,10 +1964,10 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
             </div>
 
             <div className="space-y-2 mb-4">
-              <Label className="text-sm font-medium text-gray-700">AI Based Curriculam</Label>
+              <Label className="text-sm font-medium text-gray-700">AI Based Curriculum</Label>
               <Input
                 type="text"
-                placeholder="Enter AI based curriculam"
+                placeholder="Enter AI based curriculum"
                 {...register("ai_based_curriculam")}
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
               />
@@ -2006,6 +2009,16 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
                 type="text"
                 placeholder="Enter NIRF placement data"
                 {...register("nirf_placement_data")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
+              />
+            </div>
+
+            <div className="space-y-2 mb-4">
+              <Label className="text-sm font-medium text-gray-700">Blog URL</Label>
+              <Input
+                type="url"
+                placeholder="Enter blog URL"
+                {...register("blog_url")}
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-7"
               />
             </div>
