@@ -223,10 +223,19 @@ export async function fetchUniversityCourses({
   limit = 10,
   university_id,
   search,
+  is_page_created,
 } = {}) {
   const params = { page, limit };
   if (university_id) params.university_id = university_id;
   if (search) params.search = search;
+  if (
+    is_page_created === true ||
+    is_page_created === false ||
+    is_page_created === "true" ||
+    is_page_created === "false"
+  ) {
+    params.is_page_created = String(is_page_created);
+  }
 
   const res = await api.get(`/university-courses`, { params });
   return res.data;

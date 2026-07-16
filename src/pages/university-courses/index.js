@@ -39,6 +39,7 @@ export default function UniversityCoursesPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedUniversity, setSelectedUniversity] = useState("");
+  const [pageLiveFilter, setPageLiveFilter] = useState("");
 
   const { data: universitiesResponse } = useQuery({
     queryKey: ["universities", "all"],
@@ -55,6 +56,7 @@ export default function UniversityCoursesPage() {
       page,
       selectedUniversity,
       search,
+      pageLiveFilter,
     ],
     queryFn: () =>
       fetchUniversityCourses({
@@ -62,6 +64,8 @@ export default function UniversityCoursesPage() {
         limit: PAGE_SIZE,
         university_id: selectedUniversity || undefined,
         search: search || undefined,
+        is_page_created:
+          pageLiveFilter === "true" ? true : pageLiveFilter === "false" ? false : undefined,
       }),
     keepPreviousData: true,
   });
@@ -169,9 +173,10 @@ export default function UniversityCoursesPage() {
           setPage(1);
         }}
         searchPlaceholder="Search by course name..."
-        showClearButton={!!(selectedUniversity || search)}
+        showClearButton={!!(selectedUniversity || search || pageLiveFilter)}
         onClearFilters={() => {
           setSelectedUniversity("");
+          setPageLiveFilter("");
           setSearch("");
           setPage(1);
         }}
@@ -191,6 +196,20 @@ export default function UniversityCoursesPage() {
                 {uni.university_name || uni.name || uni.title}
               </option>
             ))}
+          </select>
+        </div>
+        <div className="relative">
+          <select
+            value={pageLiveFilter}
+            onChange={(e) => {
+              setPageLiveFilter(e.target.value);
+              setPage(1);
+            }}
+            className="border border-gray-300 rounded-md px-4 py-0.5 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-700 min-w-[160px]"
+          >
+            <option value="">All Page Live</option>
+            <option value="true">Page Live: Yes</option>
+            <option value="false">Page Live: No</option>
           </select>
         </div>
       </FiltersSection>
