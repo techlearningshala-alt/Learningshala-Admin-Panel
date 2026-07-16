@@ -9,6 +9,7 @@ export default function AuthorSelect({
   label = "Author Name",
   name = "author_name",
   register,
+  watch,
   requiredMessage,
   error,
   className = "w-full border rounded px-3 py-2",
@@ -26,24 +27,29 @@ export default function AuthorSelect({
     [authorResponse]
   );
 
+  const registerProps = register(
+    name,
+    requiredMessage ? { required: requiredMessage } : undefined
+  );
+  const selectedValue = watch ? watch(name) || "" : undefined;
+
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
-      {isLoadingAuthors ? (
-        <p className="text-sm text-muted-foreground">{loadingText}</p>
-      ) : (
-        <select
-          className={className}
-          {...register(name, requiredMessage ? { required: requiredMessage } : undefined)}
-        >
-          <option value="">{placeholder}</option>
-          {authors.map((author) => (
-            <option key={author.id} value={author.author_name}>
-              {author.author_name}
-            </option>
-          ))}
-        </select>
-      )}
+      {/* Keep select mounted so edit values are not lost while options load */}
+      <select
+        className={className}
+        disabled={isLoadingAuthors}
+        {...registerProps}
+        {...(selectedValue !== undefined ? { value: selectedValue } : {})}
+      >
+        <option value="">{isLoadingAuthors ? loadingText : placeholder}</option>
+        {authors.map((author) => (
+          <option key={author.id} value={author.author_name}>
+            {author.author_name}
+          </option>
+        ))}
+      </select>
       {error && <p className="text-xs text-red-500">{error.message}</p>}
     </div>
   );

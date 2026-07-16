@@ -68,6 +68,7 @@ const defaultValues = {
   eligibility_info: "",
   label: "",
   author_name: "",
+  verifier_name: "",
   is_active: true,
   is_page_created: true,
   course_banner: null,
@@ -671,6 +672,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         eligibility_info: merged.eligibility_info ?? "",
         label: merged.label ?? "",
         author_name: merged.author_name ?? "",
+        verifier_name: merged.verifier_name ?? "",
         is_active: merged.is_active !== undefined ? Boolean(merged.is_active) : true,
         is_page_created: merged.is_page_created !== undefined ? Boolean(merged.is_page_created) : true,
         course_thumbnail: null,
@@ -1475,6 +1477,17 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
               register={register}
               className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-9 w-full border rounded px-3 py-2"
               error={errors.author_name}
+            />
+            <AuthorSelect
+              label="Verifier Name"
+              name="verifier_name"
+              register={register}
+              watch={watch}
+              tag="verifier"
+              placeholder="Select Verifier"
+              loadingText="Loading verifiers..."
+              className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-9 w-full border rounded px-3 py-2"
+              error={errors.verifier_name}
             />
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">Course Duration (Years/Months)</Label>

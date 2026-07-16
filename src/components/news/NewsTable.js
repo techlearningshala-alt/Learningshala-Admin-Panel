@@ -46,6 +46,11 @@ export default function NewsTable({ items, onEdit, onDelete, onToggleVerified })
         return row.author_name ? row.author_name : "-";
       },
     },
+    {
+      key: "verifier_name",
+      label: "Verifier",
+      render: (row) => row.verifier_name || "-",
+    },
   ];
 
   const actions = createTableActions(onEdit, onDelete, {

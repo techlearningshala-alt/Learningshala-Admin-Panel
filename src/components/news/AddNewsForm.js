@@ -13,6 +13,7 @@ import { fetchNewsCategories, addNewsFaq, fetchAuthors } from "@/lib/api";
 import NewsFaqInlinePanel from "@/components/news-faq/InlineNewsFaqPanel";
 import { notifySuccess, notifyError } from "@/lib/notify";
 import FormActionButtons from "@/components/common/FormActionButtons";
+import AuthorSelect from "@/components/common/AuthorSelect";
 
 const buildAssetUrl = (value) => {
   if (!value) return null;
@@ -58,6 +59,7 @@ export default function AddNewsForm({ item, onCancel, onSuccess }) {
       meta_title: "",
       meta_description: "",
       author_id: "",
+      verifier_name: "",
       short_description: "",
       thumbnail: null,
       content: "",
@@ -95,6 +97,7 @@ export default function AddNewsForm({ item, onCancel, onSuccess }) {
       setValue("meta_title", item.meta_title || "");
       setValue("meta_description", item.meta_description || "");
       setValue("author_id", item.author_id || "");
+      setValue("verifier_name", item.verifier_name || "");
       setValue("short_description", item.short_description || "");
       setValue("content", item.content || "");
 
@@ -145,6 +148,7 @@ export default function AddNewsForm({ item, onCancel, onSuccess }) {
     formData.append("meta_title", data.meta_title || "");
     formData.append("meta_description", data.meta_description || "");
     formData.append("author_id", data.author_id || "");
+    formData.append("verifier_name", data.verifier_name || "");
     // Blogs UI doesn't show a separate Title input; keep parity by deriving it from H1 Tag.
     formData.append("title", data.h1_tag || "");
     formData.append("short_description", data.short_description || "");
@@ -334,6 +338,18 @@ export default function AddNewsForm({ item, onCancel, onSuccess }) {
             <p className="text-red-500 text-sm mt-1">{errors.author_id.message}</p>
           )}
         </div>
+
+        <AuthorSelect
+          label="Verifier Name"
+          name="verifier_name"
+          register={register}
+          watch={watch}
+          tag="verifier"
+          placeholder="Select Verifier"
+          loadingText="Loading verifiers..."
+          error={errors.verifier_name}
+          className="w-full border rounded px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+        />
 
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">Short Intro</Label>

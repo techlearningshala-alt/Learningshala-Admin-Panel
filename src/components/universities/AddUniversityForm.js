@@ -355,6 +355,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       university_location: "",
       university_brochure: null,
       author_name: "",
+      verifier_name: "",
       is_active: null,
       banners: [{ banner_image: null, video_id: "", video_title: "", existing_banner_image: "", remove_image: false }],
       sections: defaultSections,
@@ -465,6 +466,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
         university_brochure: null,
         brochureRemoved: false,
         author_name: "",
+        verifier_name: "",
         banners: [{ banner_image: null, video_id: "", video_title: "", existing_banner_image: "", remove_image: false }],
         sections: defaultSections,
         approval_ids: [],
@@ -608,6 +610,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       university_location: item.university_location || "",
       university_brochure: null,
       author_name: item.author_name || "",
+      verifier_name: item.verifier_name || "",
       // Compare Information fields
       university_tag_line: item.university_tag_line ?? "",
       establishment_year: item.establishment_year ?? "",
@@ -891,6 +894,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
     formData.append("meta_description", data.meta_description || "");
     formData.append("university_location", data.university_location || "");
     formData.append("author_name", data.author_name || "");
+    formData.append("verifier_name", data.verifier_name || "");
     
     // Compare Information fields
     if (data.university_tag_line !== undefined && data.university_tag_line !== null && data.university_tag_line !== "") {
@@ -1214,6 +1218,17 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
               register={register}
               className="w-full border rounded px-3 py-2"
               error={errors.author_name}
+            />
+            <AuthorSelect
+              label="Verifier Name"
+              name="verifier_name"
+              register={register}
+              watch={watch}
+              tag="verifier"
+              placeholder="Select Verifier"
+              loadingText="Loading verifiers..."
+              className="w-full border rounded px-3 py-2"
+              error={errors.verifier_name}
             />
             <div className="space-y-2 col-span-1 md:col-span-2">
               <Label className="text-sm font-medium text-gray-700">Approvals</Label>
@@ -1598,21 +1613,21 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
             </div>
-            <div className="space-y-2 col-span-1 md:col-span-2">
-              <Label className="text-sm font-medium text-gray-700">Blog URL</Label>
-              <Input
-                type="url"
-                placeholder="Enter blog URL"
-                {...register("blog_url")}
-                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
-              />
-            </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700">Student:Faculty Ratio</Label>
               <Input
                 type="text"
                 placeholder="e.g. 20:1"
                 {...register("student_faculty_ratio")}
+                className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
+              />
+            </div>
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <Label className="text-sm font-medium text-gray-700">Blog URL</Label>
+              <Input
+                type="url"
+                placeholder="Enter blog URL"
+                {...register("blog_url")}
                 className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8"
               />
             </div>

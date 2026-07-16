@@ -1,13 +1,22 @@
 import api from "./header"; // Use shared axios instance with token interceptor
 
 // ✅ Fetch all universities (paginated)
-export const fetchUniversities = async ({ page = 1, limit = 10, university_type_id, search } = {}) => {
+export const fetchUniversities = async ({
+  page = 1,
+  limit = 10,
+  university_type_id,
+  search,
+  is_page_created,
+} = {}) => {
   const params = { page, limit };
   if (university_type_id) {
     params.university_type_id = university_type_id;
   }
   if (search && search.trim()) {
     params.search = search.trim();
+  }
+  if (is_page_created === true || is_page_created === false || is_page_created === "true" || is_page_created === "false") {
+    params.is_page_created = String(is_page_created);
   }
   const res = await api.get(`/universities`, { params });
   return res.data; // { success, data, total, page, pages }

@@ -92,6 +92,7 @@ const defaultValues = {
   eligibility_info: "",
   label: "",
   author_name: "",
+  verifier_name: "",
   is_active: true,
   is_page_created: true,
   course_banner: null,
@@ -734,6 +735,7 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
         eligibility_info: merged.eligibility_info ?? "",
         label: merged.label ?? "",
         author_name: merged.author_name ?? "",
+        verifier_name: merged.verifier_name ?? "",
         is_active: merged.is_active !== undefined ? Boolean(merged.is_active) : true,
         is_page_created: merged.is_page_created !== undefined ? Boolean(merged.is_page_created) : true,
         course_thumbnail: thumbnailPath,
@@ -1507,6 +1509,17 @@ export default function AddUniversityCourseSpecializationForm({ specialization, 
               register={register}
               className="h-9 w-full border rounded px-3 py-2"
               error={errors.author_name}
+            />
+            <AuthorSelect
+              label="Verifier Name"
+              name="verifier_name"
+              register={register}
+              watch={watch}
+              tag="verifier"
+              placeholder="Select Verifier"
+              loadingText="Loading verifiers..."
+              className="h-9 w-full border rounded px-3 py-2"
+              error={errors.verifier_name}
             />
           </div>
 
