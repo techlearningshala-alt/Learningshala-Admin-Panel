@@ -74,10 +74,12 @@ export default function BlogsPage() {
     keepPreviousData: true,
   });
   const blogs = blogsData?.data?.data || [];
-  const totalPages = blogsData?.data?.pages || 1;
-
   // Calculate total (before any early returns)
   const total = blogsData?.data?.total || 0;
+  const totalPages = Math.max(
+    1,
+    blogsData?.data?.pages || Math.ceil(total / limit) || 1
+  );
 
   // Blog mutations
   const deleteBlogMutation = useMutation({
@@ -189,13 +191,11 @@ export default function BlogsPage() {
         />
       </TableContainer>
 
-      {totalPages > 1 && !search && !categoryFilter && (
-        <PaginationControls
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
-        />
-      )}
+      <PaginationControls
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

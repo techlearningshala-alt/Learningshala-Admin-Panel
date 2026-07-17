@@ -310,12 +310,21 @@ export async function fetchUniversityCourseSpecializations({
   university_course_id,
   search,
   course_search,
+  is_page_created,
 } = {}) {
   const params = { page, limit };
   if (university_id) params.university_id = university_id;
   if (university_course_id) params.university_course_id = university_course_id;
   if (search) params.search = search;
   if (course_search) params.course_search = course_search;
+  if (
+    is_page_created === true ||
+    is_page_created === false ||
+    is_page_created === "true" ||
+    is_page_created === "false"
+  ) {
+    params.is_page_created = String(is_page_created);
+  }
 
   const res = await api.get(`/university-course-specializations`, { params });
   return res.data;
