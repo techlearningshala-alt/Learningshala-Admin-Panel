@@ -304,7 +304,7 @@ export default function BlogFaqInlinePanel({
     } catch (error) {
       console.error("Failed to save FAQ", error);
       notifyError(error.response?.data?.message || "Failed to save FAQ");
-      return false;
+      return false; 
     }
   };
 

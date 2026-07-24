@@ -43,4 +43,3 @@ export default function UniversityTypeTable({ items, onEdit, onDelete }) {
 
   return <DataTable columns={columns} data={items} actions={actions} />;
 }
-

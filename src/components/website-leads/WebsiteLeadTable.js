@@ -169,6 +169,42 @@ const columns = [
       ),
   },
   {
+    key: "preferred_date",
+    label: "Preferred Date",
+    style: { minWidth: "120px" },
+    cellClassName: defaultCellClass,
+    render: (row) => row.preferred_date || "-",
+  },
+  {
+    key: "preferred_time",
+    label: "Preferred Time",
+    style: { minWidth: "120px" },
+    cellClassName: defaultCellClass,
+    render: (row) => row.preferred_time || "-",
+  },
+  {
+    key: "budget",
+    label: "Budget",
+    style: { minWidth: "100px" },
+    cellClassName: defaultCellClass,
+    render: (row) => row.budget || "-",
+  },
+  {
+    key: "message",
+    label: "Message",
+    style: { minWidth: "200px" },
+    cellClassName:
+      "border px-2 py-1 align-middle text-sm text-muted-foreground max-w-[280px] overflow-hidden",
+    render: (row) =>
+      row.message ? (
+        <span title={row.message} className="block max-w-[260px] truncate">
+          {row.message}
+        </span>
+      ) : (
+        "-"
+      ),
+  },
+  {
     key: "created_at",
     label: "Created On",
     style: { minWidth: "160px" },
