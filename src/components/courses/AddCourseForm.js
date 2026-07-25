@@ -107,7 +107,7 @@ const defaultFormValues = {
   label: "",
   priority: "",
   author_name: "",
-  verifier_name: "",
+  verifier_name: "Priya Pandey",
    emi_facility: false,
   learning_mode: "",
   podcast_embed: "",
@@ -397,7 +397,7 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
         label: source.label || "",
         priority: source.priority ?? "",
         author_name: source.author_name ?? "",
-        verifier_name: source.verifier_name ?? "",
+        verifier_name: source.verifier_name || "Priya Pandey",
         emi_facility:
           typeof source.emi_facility === "boolean"
             ? source.emi_facility
