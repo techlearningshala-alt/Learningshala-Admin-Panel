@@ -45,6 +45,25 @@ export default function UserTable({ items, onEdit, onDelete, page = 1, limit = 1
       },
     },
     {
+      key: "section_access",
+      label: "Section Access",
+      render: (row) => {
+        if (row.role === "admin") {
+          return <span className="text-green-600 font-semibold">All Sections</span>;
+        }
+        const sections = Array.isArray(row.section_access)
+          ? row.section_access
+          : [];
+        if (!sections.length) {
+          return <span className="text-gray-600">None</span>;
+        }
+        const labels = sections.map((s) =>
+          s === "blog" ? "Blog" : s === "news" ? "News" : s === "university" ? "University" : s
+        );
+        return <span className="text-gray-600">{labels.join(", ")}</span>;
+      },
+    },
+    {
       key: "created_at",
       label: "Created At",
       render: (row) =>

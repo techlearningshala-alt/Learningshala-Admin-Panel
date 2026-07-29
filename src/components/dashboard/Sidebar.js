@@ -6,6 +6,10 @@ import { useRouter } from "next/router";
 import { ChevronDown } from "lucide-react";
 import navItemsData from "@/lib/navItems";
 import { useAuth } from "@/context/AuthContext";
+import {
+  isSectionRestrictedUser,
+  userHasSectionAccess,
+} from "@/lib/sectionAccess";
 
 export default function Sidebar({ mobile = false, onClose }) {
   const [expanded, setExpanded] = useState({});
@@ -24,13 +28,14 @@ export default function Sidebar({ mobile = false, onClose }) {
     setExpanded((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
-  // Filter nav items based on user role
+  // Filter nav items based on user role + section access
   const filterNavItemsByRole = (items) => {
     // Don't filter if still loading or no user
     if (loading || !user || !user.role) return [];
     
     // Normalize user role (trim and lowercase for comparison)
     const userRole = String(user.role).trim().toLowerCase();
+    const sectionRestricted = isSectionRestrictedUser(user);
     
     return items
       .filter((item) => {
@@ -38,7 +43,17 @@ export default function Sidebar({ mobile = false, onClose }) {
         if (!item.roles || item.roles.length === 0) return true;
         // Normalize roles for comparison
         const normalizedRoles = item.roles.map(r => String(r).trim().toLowerCase());
-        return normalizedRoles.includes(userRole);
+        if (!normalizedRoles.includes(userRole)) return false;
+
+        // Section-restricted users (e.g. mentor): only their allowed section tabs
+        if (sectionRestricted) {
+          if (!item.section) return false;
+          return userHasSectionAccess(user, item.section);
+        }
+
+        // Admin/lead: section tags still respected if present (admin always has access)
+        if (item.section && !userHasSectionAccess(user, item.section)) return false;
+        return true;
       })
       .map((item) => {
         // If item has subItems, filter them too

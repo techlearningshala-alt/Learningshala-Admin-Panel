@@ -3,6 +3,10 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/header";
+import {
+  getDefaultSectionHome,
+  isSectionRestrictedUser,
+} from "@/lib/sectionAccess";
 
 const AuthContext = createContext();
 
@@ -109,9 +113,11 @@ export const AuthProvider = ({ children }) => {
     
     setUser(user);
     
-    // Redirect based on user role
+    // Redirect based on user role / section access
     if (user.role === "lead") {
       router.push("/leads");
+    } else if (isSectionRestrictedUser(user)) {
+      router.push(getDefaultSectionHome(user));
     } else {
       router.push("/dashboard");
     }

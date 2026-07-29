@@ -37,16 +37,17 @@ const navItemsData = [
   {
     name: "Universities",
     roles: ["admin", "mentor"],
+    section: "university",
     subItems: [
-      { name: "Universities", href: "/universities", roles: ["admin","mentor"] },
-      { name: "University Courses", href: "/university-courses", roles: ["admin","mentor"] },
-      { name: "Course Specializations", href: "/university-course-specializations", roles: ["admin","mentor"] },
-      { name: "Approvals", href: "/universities-approvals", roles: ["admin","mentor"] },
-      { name: "Fee Types", href: "/fee-types", roles: ["admin","mentor"] },
-      { name: "University Types", href: "/university-types", roles: ["admin", "mentor"] },
-      { name: "Placement/Hiring Partners", href: "/placements", roles: ["admin","mentor"] },
-      { name: "EMI/Financing Partners", href: "/emi-partners", roles: ["admin","mentor"] },
-      { name: "FAQs", href: "/university-faqs", roles: ["admin", "mentor"] },
+      { name: "Universities", href: "/universities", roles: ["admin","mentor"], section: "university" },
+      { name: "University Courses", href: "/university-courses", roles: ["admin","mentor"], section: "university" },
+      { name: "Course Specializations", href: "/university-course-specializations", roles: ["admin","mentor"], section: "university" },
+      { name: "Approvals", href: "/universities-approvals", roles: ["admin","mentor"], section: "university" },
+      { name: "Fee Types", href: "/fee-types", roles: ["admin","mentor"], section: "university" },
+      { name: "University Types", href: "/university-types", roles: ["admin", "mentor"], section: "university" },
+      { name: "Placement/Hiring Partners", href: "/placements", roles: ["admin","mentor"], section: "university" },
+      { name: "EMI/Financing Partners", href: "/emi-partners", roles: ["admin","mentor"], section: "university" },
+      { name: "FAQs", href: "/university-faqs", roles: ["admin", "mentor"], section: "university" },
 
       // {
       //   name: "FAQs",
@@ -72,9 +73,10 @@ const navItemsData = [
   {
     name: "Blogs",
     roles: ["admin", "mentor"],
+    section: "blog",
     subItems: [
-      { name: "All Blogs", href: "/blogs", roles: ["admin", "mentor"] },
-      { name: "Categories", href: "/blog-categories", roles: ["admin", "mentor"] },
+      { name: "All Blogs", href: "/blogs", roles: ["admin", "mentor"], section: "blog" },
+      { name: "Categories", href: "/blog-categories", roles: ["admin", "mentor"], section: "blog" },
       // Blog FAQ categories removed - FAQs no longer use categories
       // {
       //   name: "FAQs",
@@ -88,9 +90,10 @@ const navItemsData = [
   {
     name: "News",
     roles: ["admin", "mentor"],
+    section: "news",
     subItems: [
-      { name: "All News", href: "/news", roles: ["admin", "mentor"] },
-      { name: "Categories", href: "/news-categories", roles: ["admin", "mentor"] },
+      { name: "All News", href: "/news", roles: ["admin", "mentor"], section: "news" },
+      { name: "Categories", href: "/news-categories", roles: ["admin", "mentor"], section: "news" },
     ],
   },
   { name: "Landing Page Leads", href: "/leads", roles: ["lead"] },

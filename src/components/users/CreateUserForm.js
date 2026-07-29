@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft } from "lucide-react";
 import FormActionButtons from "@/components/common/FormActionButtons";
+import { SECTION_OPTIONS, parseSectionAccess } from "@/lib/sectionAccess";
 
 const defaultFormValues = {
   name: "",
@@ -21,6 +22,7 @@ const defaultFormValues = {
   can_read: true,
   can_update: false,
   can_delete: false,
+  section_access: [],
 };
 
 export default function CreateUserForm({ item, onCancel, onSuccess }) {
@@ -46,6 +48,7 @@ export default function CreateUserForm({ item, onCancel, onSuccess }) {
       setValue("can_read", item.can_read !== undefined ? item.can_read : true);
       setValue("can_update", item.can_update || false);
       setValue("can_delete", item.can_delete || false);
+      setValue("section_access", parseSectionAccess(item.section_access));
       // Don't set password for edit mode
     } else {
       reset(defaultFormValues);
@@ -81,6 +84,15 @@ export default function CreateUserForm({ item, onCancel, onSuccess }) {
   };
 
   const role = watch("role");
+  const sectionAccess = watch("section_access") || [];
+
+  const toggleSectionAccess = (sectionValue) => {
+    const current = Array.isArray(sectionAccess) ? sectionAccess : [];
+    const next = current.includes(sectionValue)
+      ? current.filter((v) => v !== sectionValue)
+      : [...current, sectionValue];
+    setValue("section_access", next, { shouldDirty: true });
+  };
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen pb-24">
@@ -184,50 +196,76 @@ export default function CreateUserForm({ item, onCancel, onSuccess }) {
           </div>
 
           {(role === "mentor" || (item && item.role === "mentor")) && (
-            <div className="space-y-4 border-t pt-4 mt-4">
-              <Label className="text-sm font-medium text-gray-700">CRUD Permissions</Label>
-              <p className="text-sm text-gray-600">
-                Select which permissions this user should have:
-              </p>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="can_create"
-                    {...register("can_create")}
-                  />
-                  <Label htmlFor="can_create" className="font-normal cursor-pointer">
-                    Create - Allow creating new resources
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="can_read"
-                    {...register("can_read")}
-                  />
-                  <Label htmlFor="can_read" className="font-normal cursor-pointer">
-                    Read - Allow viewing resources
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="can_update"
-                    {...register("can_update")}
-                  />
-                  <Label htmlFor="can_update" className="font-normal cursor-pointer">
-                    Update - Allow editing resources
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="can_delete"
-                    {...register("can_delete")}
-                  />
-                  <Label htmlFor="can_delete" className="font-normal cursor-pointer">
-                    Delete - Allow deleting resources
-                  </Label>
+            <>
+              <div className="space-y-4 border-t pt-4 mt-4">
+                <Label className="text-sm font-medium text-gray-700">Section Access</Label>
+                <p className="text-sm text-gray-600">
+                  Select which admin sections this user can access:
+                </p>
+                <div className="space-y-3">
+                  {SECTION_OPTIONS.map((option) => (
+                    <div key={option.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`section_${option.value}`}
+                        checked={sectionAccess.includes(option.value)}
+                        onChange={() => toggleSectionAccess(option.value)}
+                      />
+                      <Label
+                        htmlFor={`section_${option.value}`}
+                        className="font-normal cursor-pointer"
+                      >
+                        {option.label}
+                      </Label>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
+
+              <div className="space-y-4 border-t pt-4 mt-4">
+                <Label className="text-sm font-medium text-gray-700">CRUD Permissions</Label>
+                <p className="text-sm text-gray-600">
+                  Select which permissions this user should have:
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="can_create"
+                      {...register("can_create")}
+                    />
+                    <Label htmlFor="can_create" className="font-normal cursor-pointer">
+                      Create - Allow creating new resources
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="can_read"
+                      {...register("can_read")}
+                    />
+                    <Label htmlFor="can_read" className="font-normal cursor-pointer">
+                      Read - Allow viewing resources
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="can_update"
+                      {...register("can_update")}
+                    />
+                    <Label htmlFor="can_update" className="font-normal cursor-pointer">
+                      Update - Allow editing resources
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="can_delete"
+                      {...register("can_delete")}
+                    />
+                    <Label htmlFor="can_delete" className="font-normal cursor-pointer">
+                      Delete - Allow deleting resources
+                    </Label>
+                  </div>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </form>
