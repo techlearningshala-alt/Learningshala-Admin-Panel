@@ -66,6 +66,7 @@ const sanitizeSectionKey = (value) => {
 const buildDefaultSections = () =>
   SECTION_TEMPLATES.map((template) => ({
     ...template,
+    heading: "",
     description: "",
     existingImage: null,
     imageFile: null,
@@ -245,6 +246,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
       ...section,
       section_key: normalizedKey,
       title: remote.title || section.title,
+      heading: remote.heading ?? section.heading ?? "",
       description: extractDescription(remote) || section.description || "",
       existingImage: remote.image || section.existingImage || null,
       imagePreview:
@@ -265,6 +267,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
         id: section.id ?? generateLocalId(),
         section_key: sanitizeSectionKey(section.section_key || section.title),
         title: section.title || "Custom Section",
+        heading: section.heading ?? "",
         description: extractDescription(section),
         supportsImage: Boolean(
           base.find(
@@ -483,6 +486,14 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
     );
   };
 
+  const handleSectionHeadingChange = (index, value) => {
+    setSections((prev) =>
+      prev.map((section, idx) =>
+        idx === index ? { ...section, heading: value } : section
+      )
+    );
+  };
+
   const handleSectionImageChange = (index, file) => {
     setSections((prev) =>
       prev.map((section, idx) => {
@@ -648,6 +659,7 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
   const sectionPayload = sections.map((section) => ({
     section_key: section.section_key,
     title: section.title,
+    heading: section.heading || "",
     description: section.description || "",
   }));
     formData.append("sections", JSON.stringify(sectionPayload));
@@ -1267,6 +1279,14 @@ export default function AddSpecializationForm({ item, onCancel, onSuccess }) {
             >
               <div className="flex flex-col gap-1">
                 <h3 className="font-semibold">{section.title}{section.section_key === "course_overview" && " *"}</h3>
+              </div>
+              <div className="space-y-2">
+                <Label>Heading</Label>
+                <Input
+                  value={section.heading || ""}
+                  onChange={(e) => handleSectionHeadingChange(index, e.target.value)}
+                  placeholder="Enter section heading"
+                />
               </div>
               <SafeCKEditor
                 value={section.description}
