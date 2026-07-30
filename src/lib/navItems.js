@@ -6,19 +6,21 @@ const navItemsData = [
   {
     name: "Home",
     roles: ["admin", "mentor"],
+    section: "home",
     subItems: [
-      { name: "Dashboard", href: "/dashboard", roles: ["admin", "mentor"] },
-      { name: "Banners", href: "/website-banners", roles: ["admin", "editor"] },
-      { name: "Mentors", href: "/mentors", roles: ["admin", "mentor"] },
-      { name: "Post Admission Team", href: "/post-admission-team", roles: ["admin", "mentor"] },
-      { name: "Media Spotlight", href: "/media-spotlight", roles: ["admin", "editor","mentor"] },
-      { name: "Testimonials", href: "/testimonials", roles: ["admin", "editor","mentor"] },
+      { name: "Dashboard", href: "/dashboard", roles: ["admin", "mentor"], section: "home" },
+      { name: "Banners", href: "/website-banners", roles: ["admin", "editor"], section: "home" },
+      { name: "Mentors", href: "/mentors", roles: ["admin", "mentor"], section: "home" },
+      { name: "Post Admission Team", href: "/post-admission-team", roles: ["admin", "mentor"], section: "home" },
+      { name: "Media Spotlight", href: "/media-spotlight", roles: ["admin", "editor","mentor"], section: "home" },
+      { name: "Testimonials", href: "/testimonials", roles: ["admin", "editor","mentor"], section: "home" },
       {
         name: "FAQs",
         roles: ["admin", "mentor"],
+        section: "home",
         subItems: [
-          { name: "Categories", href: "/faq-category", roles: ["admin","mentor"] },
-          { name: "All FAQs", href: "/faqs", roles: ["admin", "mentor"] },
+          { name: "Categories", href: "/faq-category", roles: ["admin","mentor"], section: "home" },
+          { name: "All FAQs", href: "/faqs", roles: ["admin", "mentor"], section: "home" },
         ],
       },
     ],
@@ -26,11 +28,12 @@ const navItemsData = [
   {
     name: "Menu",
     roles: ["admin","mentor"],
+    section: "menu",
     subItems: [
-      { name: "Domains", href: "/domains", roles: ["admin","mentor"] },
-      { name: "Courses", href: "/courses", roles: ["admin","mentor"] },
-      { name: "Specializations", href: "/specializations", roles: ["admin","mentor"] },
-      { name: "FAQs", href: "/course-faqs", roles: ["admin","mentor"] },
+      { name: "Domains", href: "/domains", roles: ["admin","mentor"], section: "menu" },
+      { name: "Courses", href: "/courses", roles: ["admin","mentor"], section: "menu" },
+      { name: "Specializations", href: "/specializations", roles: ["admin","mentor"], section: "menu" },
+      { name: "FAQs", href: "/course-faqs", roles: ["admin","mentor"], section: "menu" },
       // { name: "Questions", href: "/questions", roles: ["admin"] }
     ],
   },
@@ -61,13 +64,14 @@ const navItemsData = [
   {
     name: "Miscellaneous",
     roles: ["admin","mentor"],
+    section: "miscellaneous",
     subItems: [
-      { name: "Editor Activity", href: "/editor-activity", roles: ["admin"] },
-      { name: "Course Images", href: "/course-images", roles: ["admin","mentor"] },
-      { name: "Specialization Images", href: "/specialization-images", roles: ["admin","mentor"] },
-      { name: "Authors", href: "/authors", roles: ["admin","mentor"] },
-      { name: "Redirection", href: "/redirections", roles: ["admin","mentor"] },
-      { name: "Uploads", href: "/uploads", roles: ["admin","mentor"] },
+      { name: "Editor Activity", href: "/editor-activity", roles: ["admin"], section: "miscellaneous" },
+      { name: "Course Images", href: "/course-images", roles: ["admin","mentor"], section: "miscellaneous" },
+      { name: "Specialization Images", href: "/specialization-images", roles: ["admin","mentor"], section: "miscellaneous" },
+      { name: "Authors", href: "/authors", roles: ["admin","mentor"], section: "miscellaneous" },
+      { name: "Redirection", href: "/redirections", roles: ["admin","mentor"], section: "miscellaneous" },
+      { name: "Uploads", href: "/uploads", roles: ["admin","mentor"], section: "miscellaneous" },
     ],
   },
   {

@@ -57,9 +57,15 @@ export default function UserTable({ items, onEdit, onDelete, page = 1, limit = 1
         if (!sections.length) {
           return <span className="text-gray-600">None</span>;
         }
-        const labels = sections.map((s) =>
-          s === "blog" ? "Blog" : s === "news" ? "News" : s === "university" ? "University" : s
-        );
+        const labels = sections.map((s) => {
+          if (s === "home") return "Home";
+          if (s === "menu") return "Menu";
+          if (s === "miscellaneous") return "Miscellaneous";
+          if (s === "blog") return "Blog";
+          if (s === "news") return "News";
+          if (s === "university") return "University";
+          return s;
+        });
         return <span className="text-gray-600">{labels.join(", ")}</span>;
       },
     },

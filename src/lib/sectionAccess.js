@@ -1,15 +1,55 @@
 /**
  * Admin panel section access helpers.
- * Values: "blog" | "news" | "university"
+ * Values: "home" | "menu" | "miscellaneous" | "blog" | "news" | "university"
  */
 
+export const ALLOWED_SECTIONS = [
+  "home",
+  "menu",
+  "miscellaneous",
+  "blog",
+  "news",
+  "university",
+];
+
 export const SECTION_OPTIONS = [
+  { value: "home", label: "Home" },
+  { value: "menu", label: "Menu" },
+  { value: "miscellaneous", label: "Miscellaneous" },
   { value: "blog", label: "Blog" },
   { value: "news", label: "News" },
   { value: "university", label: "University" },
 ];
 
 export const SECTION_ROUTE_PREFIXES = [
+  {
+    section: "home",
+    prefixes: [
+      "/dashboard",
+      "/website-banners",
+      "/mentors",
+      "/post-admission-team",
+      "/media-spotlight",
+      "/testimonials",
+      "/faq-category",
+      "/faqs",
+    ],
+  },
+  {
+    section: "menu",
+    prefixes: ["/domains", "/courses", "/specializations", "/course-faqs"],
+  },
+  {
+    section: "miscellaneous",
+    prefixes: [
+      "/editor-activity",
+      "/course-images",
+      "/specialization-images",
+      "/authors",
+      "/redirections",
+      "/uploads",
+    ],
+  },
   {
     section: "blog",
     prefixes: ["/blogs", "/blog-categories"],
@@ -36,6 +76,9 @@ export const SECTION_ROUTE_PREFIXES = [
 ];
 
 const SECTION_HOME_PATH = {
+  home: "/dashboard",
+  menu: "/courses",
+  miscellaneous: "/authors",
   blog: "/blogs",
   news: "/news",
   university: "/universities",
@@ -45,7 +88,7 @@ export function parseSectionAccess(value) {
   if (Array.isArray(value)) {
     return value
       .map((v) => String(v || "").trim().toLowerCase())
-      .filter((v) => ["blog", "news", "university"].includes(v));
+      .filter((v) => ALLOWED_SECTIONS.includes(v));
   }
   if (typeof value === "string" && value.trim()) {
     try {
@@ -55,7 +98,7 @@ export function parseSectionAccess(value) {
       return value
         .split(",")
         .map((v) => v.trim().toLowerCase())
-        .filter((v) => ["blog", "news", "university"].includes(v));
+        .filter((v) => ALLOWED_SECTIONS.includes(v));
     }
   }
   return [];
