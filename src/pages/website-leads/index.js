@@ -121,7 +121,6 @@ function WebsiteLeadsPageContent() {
               <option value="">All</option>
               <option value="paid">Paid</option>
               <option value="organic">Organic</option>
-              <option value="referral">Referral</option>
             </select>
           </div>
           <div className="space-y-1">
