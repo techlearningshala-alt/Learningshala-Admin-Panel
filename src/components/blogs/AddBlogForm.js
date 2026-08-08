@@ -115,7 +115,7 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
       setValue("meta_title", item.meta_title || "");
       setValue("meta_description", item.meta_description || "");
       setValue("author_id", item.author_id || "");
-      setValue("verifier_name", item.verifier_name || "");
+      setValue("verifier_name", item.verifier_name ? String(item.verifier_name).trim() : "");
       setValue("title", item.title || "");
       setValue("short_description", item.short_description || "");
       setValue("content", item.content || "");
@@ -383,6 +383,7 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
           label="Verifier Name"
           name="verifier_name"
           register={register}
+          watch={watch}
           tag="verifier"
           placeholder="Select Verifier"
           loadingText="Loading verifiers..."

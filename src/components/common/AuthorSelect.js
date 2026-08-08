@@ -31,7 +31,12 @@ export default function AuthorSelect({
     name,
     requiredMessage ? { required: requiredMessage } : undefined
   );
-  const selectedValue = watch ? watch(name) || "" : undefined;
+  const selectedValue = watch ? String(watch(name) || "").trim() : undefined;
+  const hasSelectedOption =
+    selectedValue &&
+    authors.some(
+      (author) => String(author.author_name || "").trim() === selectedValue
+    );
 
   return (
     <div className="space-y-2">
@@ -44,6 +49,10 @@ export default function AuthorSelect({
         {...(selectedValue !== undefined ? { value: selectedValue } : {})}
       >
         <option value="">{isLoadingAuthors ? loadingText : placeholder}</option>
+        {/* Keep current edit value visible if it isn't in the loaded options yet */}
+        {selectedValue && !hasSelectedOption ? (
+          <option value={selectedValue}>{selectedValue}</option>
+        ) : null}
         {authors.map((author) => (
           <option key={author.id} value={author.author_name}>
             {author.author_name}
