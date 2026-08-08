@@ -671,8 +671,8 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
         eligibility: merged.eligibility ?? "",
         eligibility_info: merged.eligibility_info ?? "",
         label: merged.label ?? "",
-        author_name: merged.author_name ?? "",
-        verifier_name: merged.verifier_name ?? "",
+        author_name: merged.author_name ? String(merged.author_name).trim() : "",
+        verifier_name: merged.verifier_name ? String(merged.verifier_name).trim() : "",
         is_active: merged.is_active !== undefined ? Boolean(merged.is_active) : true,
         is_page_created: merged.is_page_created !== undefined ? Boolean(merged.is_page_created) : true,
         course_thumbnail: null,
@@ -1475,6 +1475,7 @@ export default function AddUniversityCourseForm({ course, onCancel, onSuccess })
             </div>
             <AuthorSelect
               register={register}
+              watch={watch}
               className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-9 w-full border rounded px-3 py-2"
               error={errors.author_name}
             />
