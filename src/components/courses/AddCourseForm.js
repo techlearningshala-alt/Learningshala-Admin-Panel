@@ -694,12 +694,18 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
       formData.append("ebook_file", existingEbook);
     }
 
-  const sectionPayload = sections.map((section) => ({
-    section_key: section.section_key,
-    title: section.title,
-    heading: section.heading || "",
-    description: section.description || "",
-  }));
+  const sectionPayload = sections.map((section) => {
+    const isWhoCanPursueExtra = /^who_can_pursue_[2-4]$/.test(
+      String(section.section_key || "")
+    );
+    return {
+      section_key: section.section_key,
+      title: section.title,
+      // Heading is only used for Who Can Pursue 1 (and non who-can-pursue sections)
+      heading: isWhoCanPursueExtra ? "" : section.heading || "",
+      description: section.description || "",
+    };
+  });
     formData.append("sections", JSON.stringify(sectionPayload));
 
     sections.forEach((section) => {
@@ -1291,14 +1297,18 @@ export default function AddCourseForm({ item, onCancel, onSuccess }) {
               <div className="flex flex-col gap-1">
                 <h3 className="font-semibold">{section.title}{section.section_key === "course_overview" && " *"}</h3>
               </div>
-              <div className="space-y-2">
-                <Label>Heading</Label>
-                <Input
-                  value={section.heading || ""}
-                  onChange={(e) => handleSectionHeadingChange(index, e.target.value)}
-                  placeholder="Enter section heading"
-                />
-              </div>
+              {/* Heading only for Who Can Pursue 1 (not boxes 2–4) and other sections */}
+              {(section.section_key === "who_can_pursue_1" ||
+                !String(section.section_key || "").startsWith("who_can_pursue_")) && (
+                <div className="space-y-2">
+                  <Label>Heading</Label>
+                  <Input
+                    value={section.heading || ""}
+                    onChange={(e) => handleSectionHeadingChange(index, e.target.value)}
+                    placeholder="Enter section heading"
+                  />
+                </div>
+              )}
               <SafeCKEditor
                 value={section.description}
                 onChange={(value) => {

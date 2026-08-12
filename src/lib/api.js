@@ -33,12 +33,14 @@ export async function fetchWebsiteLeads({
   fromDate,
   toDate,
   trafficType,
+  filterLead,
 } = {}) {
   const params = { page, limit };
   if (search) params.search = search;
   if (fromDate) params.fromDate = fromDate;
   if (toDate) params.toDate = toDate;
   if (trafficType) params.trafficType = trafficType;
+  if (filterLead) params.filterLead = filterLead;
 
   const res = await api.get("/website/leads", { params });
   return res.data;
@@ -60,12 +62,19 @@ export async function exportLeadsToExcel({ search, fromDate, toDate, website_url
 }
 
 // Export website leads to Excel
-export async function exportWebsiteLeadsToExcel({ search, fromDate, toDate, trafficType } = {}) {
+export async function exportWebsiteLeadsToExcel({
+  search,
+  fromDate,
+  toDate,
+  trafficType,
+  filterLead,
+} = {}) {
   const params = {};
   if (search) params.search = search;
   if (fromDate) params.fromDate = fromDate;
   if (toDate) params.toDate = toDate;
   if (trafficType) params.trafficType = trafficType;
+  if (filterLead) params.filterLead = filterLead;
 
   const res = await api.get("/website/leads/export", {
     params,

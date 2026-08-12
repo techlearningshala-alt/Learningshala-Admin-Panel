@@ -102,6 +102,7 @@ const navItemsData = [
   },
   { name: "Landing Page Leads", href: "/leads", roles: ["lead"] },
   { name: "Website Leads", href: "/website-leads", roles: ["lead"] },
+  { name: "B2B Leads", href: "/b2b-leads", roles: ["lead"] },
   { name: "Contact Us", href: "/contact-us", roles: ["lead"] },
   { name: "Create User", href: "/create-user", roles: ["admin"] }
 ];
