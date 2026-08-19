@@ -663,6 +663,33 @@ export async function fetchDashboardStatistics() {
   return res.data; // { success, data: { leads, websiteLeads, ... } }
 }
 
+// ===== Compare APIs (Home > Compare) =====
+
+export async function fetchCompareSets({ page = 1, limit = 10 } = {}) {
+  const res = await api.get("/compares", { params: { page, limit } });
+  return res.data;
+}
+
+export async function fetchCompareSetById(id) {
+  const res = await api.get(`/compares/${id}`);
+  return res.data;
+}
+
+export async function createCompareSet(payload) {
+  const res = await api.post("/compares", payload);
+  return res.data;
+}
+
+export async function updateCompareSet(id, payload) {
+  const res = await api.put(`/compares/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteCompareSet(id) {
+  const res = await api.delete(`/compares/${id}`);
+  return res.data;
+}
+
 // Fetch recent activity
 export async function fetchRecentActivity() {
   const res = await api.get("/dashboard/recent-activity");

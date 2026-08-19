@@ -31,6 +31,7 @@ export const SECTION_ROUTE_PREFIXES = [
       "/post-admission-team",
       "/media-spotlight",
       "/testimonials",
+      "/compare",
       "/faq-category",
       "/faqs",
     ],

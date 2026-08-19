@@ -24,6 +24,7 @@ export default function App({ Component, pageProps }) {
     "/media-spotlight",
     "/faq-category",
     "/testimonials",
+    "/compare",
     "/domains",
     "/courses",
     "/course-faqs",

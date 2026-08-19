@@ -14,6 +14,7 @@ const navItemsData = [
       { name: "Post Admission Team", href: "/post-admission-team", roles: ["admin", "mentor"], section: "home" },
       { name: "Media Spotlight", href: "/media-spotlight", roles: ["admin", "editor","mentor"], section: "home" },
       { name: "Testimonials", href: "/testimonials", roles: ["admin", "editor","mentor"], section: "home" },
+      { name: "Compare", href: "/compare", roles: ["admin", "mentor"], section: "home" },
       {
         name: "FAQs",
         roles: ["admin", "mentor"],
