@@ -42,7 +42,7 @@ export async function fetchWebsiteLeads({
   if (trafficType) params.trafficType = trafficType;
   if (filterLead) params.filterLead = filterLead;
 
-  const res = await api.get("/website/leads", { params });
+  const res = await api.get("/website/leads/admin-list", { params });
   return res.data;
 }
 
@@ -76,7 +76,7 @@ export async function exportWebsiteLeadsToExcel({
   if (trafficType) params.trafficType = trafficType;
   if (filterLead) params.filterLead = filterLead;
 
-  const res = await api.get("/website/leads/export", {
+  const res = await api.get("/website/leads/admin-export", {
     params,
     responseType: "blob",
   });
