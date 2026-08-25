@@ -5,11 +5,11 @@ import DataTable from "@/components/table/DataTable";
 import { createTableActions } from "@/utils/tableActions";
 import { usePermissions } from "@/hooks/usePermissions";
 
-const formatPairLabel = (pair, index) => {
+const formatUniversityLabel = (pair, index) => {
   if (!pair) return null;
   const university = pair.university_name || "-";
   const course = pair.course_name || "-";
-  return `Pair ${index + 1}: ${university} / ${course}`;
+  return `University ${index + 1}: ${university} / ${course}`;
 };
 
 export default function CompareTable({ items, onEdit, onDelete }) {
@@ -35,8 +35,32 @@ export default function CompareTable({ items, onEdit, onDelete }) {
         ),
     },
     {
+      key: "description",
+      label: "Description",
+      wrap: true,
+      render: (row) => row.description || "-",
+    },
+    {
+      key: "university_url",
+      label: "University URL",
+      wrap: true,
+      render: (row) =>
+        row.university_url ? (
+          <a
+            href={row.university_url}
+            target="_blank"
+            rel="noreferrer"
+            className="text-blue-600 underline break-all"
+          >
+            {row.university_url}
+          </a>
+        ) : (
+          "-"
+        ),
+    },
+    {
       key: "pairs",
-      label: "Pairs",
+      label: "Universities",
       wrap: true,
       render: (row) => {
         const pairs = Array.isArray(row.pairs) ? row.pairs : [];
@@ -44,7 +68,9 @@ export default function CompareTable({ items, onEdit, onDelete }) {
         return (
           <div className="space-y-1 text-left">
             {pairs.map((pair, index) => (
-              <div key={pair.id || index}>{formatPairLabel(pair, index)}</div>
+              <div key={pair.id || index}>
+                {formatUniversityLabel(pair, index)}
+              </div>
             ))}
           </div>
         );

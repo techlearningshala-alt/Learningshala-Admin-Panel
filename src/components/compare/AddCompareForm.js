@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import FormActionButtons from "@/components/common/FormActionButtons";
 import {
   fetchAllUniversities,
@@ -29,6 +30,8 @@ const normalizeList = (payload) => {
 
 export default function AddCompareForm({ item, onCancel, onSuccess }) {
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [universityUrl, setUniversityUrl] = useState("");
   const [pairs, setPairs] = useState([emptyPair(), emptyPair()]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
@@ -47,24 +50,34 @@ export default function AddCompareForm({ item, onCancel, onSuccess }) {
   useEffect(() => {
     if (!item) {
       setTitle("");
+      setDescription("");
+      setUniversityUrl("");
       setPairs([emptyPair(), emptyPair()]);
       return;
     }
 
     setTitle(item.title || "");
+    setDescription(item.description || "");
+    setUniversityUrl(item.university_url || "");
     const loadedPairs = Array.isArray(item.pairs) ? item.pairs : [];
-    if (loadedPairs.length >= 2) {
-      setPairs(
-        loadedPairs.map((p) => ({
-          university_id: p.university_id ? String(p.university_id) : "",
-          university_course_id: p.university_course_id
-            ? String(p.university_course_id)
-            : "",
-        }))
-      );
-    } else {
-      setPairs([emptyPair(), emptyPair()]);
-    }
+    setPairs([
+      {
+        university_id: loadedPairs[0]?.university_id
+          ? String(loadedPairs[0].university_id)
+          : "",
+        university_course_id: loadedPairs[0]?.university_course_id
+          ? String(loadedPairs[0].university_course_id)
+          : "",
+      },
+      {
+        university_id: loadedPairs[1]?.university_id
+          ? String(loadedPairs[1].university_id)
+          : "",
+        university_course_id: loadedPairs[1]?.university_course_id
+          ? String(loadedPairs[1].university_course_id)
+          : "",
+      },
+    ]);
   }, [item]);
 
   const updatePair = (index, field, value) => {
@@ -82,15 +95,6 @@ export default function AddCompareForm({ item, onCancel, onSuccess }) {
     );
   };
 
-  const addPair = () => {
-    setPairs((prev) => [...prev, emptyPair()]);
-  };
-
-  const removePair = (index) => {
-    if (pairs.length <= 2) return;
-    setPairs((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const validate = () => {
     const next = {};
     pairs.forEach((pair, index) => {
@@ -101,8 +105,8 @@ export default function AddCompareForm({ item, onCancel, onSuccess }) {
         next[`course_${index}`] = "Course is required";
       }
     });
-    if (pairs.length < 2) {
-      next.pairs = "At least 2 pairs are required";
+    if (pairs.length !== 2) {
+      next.pairs = "Exactly 2 universities are required";
     }
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -113,6 +117,8 @@ export default function AddCompareForm({ item, onCancel, onSuccess }) {
 
     const payload = {
       title: title.trim() || null,
+      description: description.trim() || null,
+      university_url: universityUrl.trim() || null,
       pairs: pairs.map((pair) => ({
         university_id: Number(pair.university_id),
         university_course_id: Number(pair.university_course_id),
@@ -155,38 +161,51 @@ export default function AddCompareForm({ item, onCancel, onSuccess }) {
       </div>
 
       <div className="space-y-6 max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-sm">
-      <div className="space-y-2 max-w-xl">
-        <Label>Title (optional)</Label>
-        <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. Top MBA Comparison"
-          className="bg-white"
-        />
-      </div>
-
-      <div className="space-y-4">
-        {pairs.map((pair, index) => (
-          <ComparePairBlock
-            key={`pair-${index}`}
-            index={index}
-            pair={pair}
-            universities={universities}
-            loadingUniversities={loadingUniversities}
-            errors={errors}
-            canRemove={pairs.length > 2}
-            onChange={updatePair}
-            onRemove={removePair}
+        <div className="space-y-2">
+          <Label>Title (optional)</Label>
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. Top MBA Comparison"
+            className="bg-white w-full"
           />
-        ))}
-        {errors.pairs && <p className="text-sm text-red-500">{errors.pairs}</p>}
-      </div>
+        </div>
 
-      <div>
-        <Button type="button" variant="outline" onClick={addPair}>
-          <Plus className="h-4 w-4 mr-2" /> Add more
-        </Button>
-      </div>
+        <div className="space-y-2">
+          <Label>Description</Label>
+          <Textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter description"
+            rows={4}
+            className="bg-white w-full"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>University URL</Label>
+          <Input
+            value={universityUrl}
+            onChange={(e) => setUniversityUrl(e.target.value)}
+            placeholder="https://..."
+            className="bg-white w-full"
+          />
+        </div>
+
+        <div className="space-y-4">
+          {pairs.map((pair, index) => (
+            <ComparePairBlock
+              key={`university-${index}`}
+              index={index}
+              pair={pair}
+              universities={universities}
+              loadingUniversities={loadingUniversities}
+              errors={errors}
+              onChange={updatePair}
+            />
+          ))}
+          {errors.pairs && <p className="text-sm text-red-500">{errors.pairs}</p>}
+        </div>
       </div>
 
       <FormActionButtons
@@ -207,9 +226,7 @@ function ComparePairBlock({
   universities,
   loadingUniversities,
   errors,
-  canRemove,
   onChange,
-  onRemove,
 }) {
   const { data: coursesRes, isLoading: loadingCourses } = useQuery({
     queryKey: ["university-courses-compare", pair.university_id],
@@ -227,20 +244,7 @@ function ComparePairBlock({
 
   return (
     <div className="rounded-lg border bg-white p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-blue-900">Pair {index + 1}</h3>
-        {canRemove && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-red-600"
-            onClick={() => onRemove(index)}
-          >
-            <Trash2 className="h-4 w-4 mr-1" /> Remove
-          </Button>
-        )}
-      </div>
+      <h3 className="font-semibold text-blue-900">University {index + 1}</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">

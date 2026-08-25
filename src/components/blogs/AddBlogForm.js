@@ -92,11 +92,24 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
   const categories = normalizeApiList(categoriesData?.data?.data || []);
 
   // Fetch authors for dropdown
-  const { data: authorsData } = useQuery({
+  const { data: authorsData, isLoading: isLoadingAuthors } = useQuery({
     queryKey: ["authors"],
     queryFn: () => fetchAuthors({ page: 1, limit: 1000 }),
   });
   const authors = normalizeApiList(authorsData?.data?.data || []);
+
+  const resolveAuthorId = (blogItem, authorList = []) => {
+    if (!blogItem) return "";
+    if (blogItem.author_id !== undefined && blogItem.author_id !== null && blogItem.author_id !== "") {
+      return Number(blogItem.author_id);
+    }
+    const savedName = String(blogItem.author_name || "").trim().toLowerCase();
+    if (!savedName || !authorList.length) return "";
+    const match = authorList.find(
+      (author) => String(author.author_name || "").trim().toLowerCase() === savedName
+    );
+    return match?.id ? Number(match.id) : "";
+  };
 
   // Reset form when item changes
   useEffect(() => {
@@ -114,7 +127,7 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
       setValue("slug", item.slug || "");
       setValue("meta_title", item.meta_title || "");
       setValue("meta_description", item.meta_description || "");
-      setValue("author_id", item.author_id || "");
+      setValue("author_id", resolveAuthorId(item, authors) || "");
       setValue("verifier_name", item.verifier_name ? String(item.verifier_name).trim() : "");
       setValue("title", item.title || "");
       setValue("short_description", item.short_description || "");
@@ -137,7 +150,16 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
         hydratedBlogIdRef.current = null;
       }
     }
-  }, [item, reset, setValue, isDirty]);
+  }, [item, reset, setValue, isDirty, authors]);
+
+  // If authors load after edit hydrate, resolve author_id from saved author_name
+  useEffect(() => {
+    if (!item || isDirty || !authors.length) return;
+    const currentAuthorId = watch("author_id");
+    if (currentAuthorId !== undefined && currentAuthorId !== null && currentAuthorId !== "") return;
+    const resolved = resolveAuthorId(item, authors);
+    if (resolved) setValue("author_id", resolved);
+  }, [item, authors, isDirty, setValue, watch]);
 
   const persistStagedFaqs = async (newBlogId) => {
     if (!stagedFaqs.length || !newBlogId) return;
@@ -171,6 +193,13 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
     formData.append("meta_title", data.meta_title || "");
     formData.append("meta_description", data.meta_description || "");
     formData.append("author_id", data.author_id || "");
+    const selectedAuthor = authors.find(
+      (author) => String(author.id) === String(data.author_id || "")
+    );
+    formData.append(
+      "author_name",
+      selectedAuthor?.author_name || item?.author_name || ""
+    );
     formData.append("verifier_name", data.verifier_name || "");
     formData.append("title", data.title);
     formData.append("short_description", data.short_description || "");
@@ -358,21 +387,42 @@ export default function AddBlogForm({ item, onCancel, onSuccess }) {
           <Controller
             name="author_id"
             control={control}
-            render={({ field }) => (
-              <select
-                {...field}
-                className="w-full border rounded px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                value={field.value || ""}
-                onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : "")}
-              >
-                <option value="">Select Author</option>
-                {authors.map((author) => (
-                  <option key={author.id} value={author.id}>
-                    {author.author_name}
+            render={({ field }) => {
+              const selectedId =
+                field.value === undefined || field.value === null || field.value === ""
+                  ? ""
+                  : String(field.value);
+              const hasSelectedOption = authors.some(
+                (author) => String(author.id) === selectedId
+              );
+              const fallbackLabel =
+                item?.author_name ||
+                (selectedId ? `Author #${selectedId}` : "");
+
+              return (
+                <select
+                  {...field}
+                  className="w-full border rounded px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  value={selectedId}
+                  disabled={isLoadingAuthors}
+                  onChange={(e) =>
+                    field.onChange(e.target.value ? Number(e.target.value) : "")
+                  }
+                >
+                  <option value="">
+                    {isLoadingAuthors ? "Loading authors..." : "Select Author"}
                   </option>
-                ))}
-              </select>
-            )}
+                  {selectedId && !hasSelectedOption ? (
+                    <option value={selectedId}>{fallbackLabel}</option>
+                  ) : null}
+                  {authors.map((author) => (
+                    <option key={author.id} value={String(author.id)}>
+                      {author.author_name}
+                    </option>
+                  ))}
+                </select>
+              );
+            }}
           />
           {errors.author_id && (
             <p className="text-red-500 text-sm mt-1">{errors.author_id.message}</p>
