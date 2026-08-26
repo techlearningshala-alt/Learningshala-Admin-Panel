@@ -33,7 +33,7 @@ export default function AuthorSelect({
   );
   const selectedValue = watch ? String(watch(name) || "").trim() : undefined;
   const hasSelectedOption =
-    selectedValue &&
+    Boolean(selectedValue) &&
     authors.some(
       (author) => String(author.author_name || "").trim() === selectedValue
     );

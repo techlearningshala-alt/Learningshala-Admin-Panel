@@ -609,8 +609,8 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
       university_logo: null,
       university_location: item.university_location || "",
       university_brochure: null,
-      author_name: item.author_name || "",
-      verifier_name: item.verifier_name || "",
+      author_name: item.author_name ? String(item.author_name).trim() : "",
+      verifier_name: item.verifier_name ? String(item.verifier_name).trim() : "",
       // Compare Information fields
       university_tag_line: item.university_tag_line ?? "",
       establishment_year: item.establishment_year ?? "",
@@ -1216,6 +1216,7 @@ export default function AddUniversityForm({ item, onCancel, onSuccess, approvals
             </div>
             <AuthorSelect
               register={register}
+              watch={watch}
               className="w-full border rounded px-3 py-2"
               error={errors.author_name}
             />
