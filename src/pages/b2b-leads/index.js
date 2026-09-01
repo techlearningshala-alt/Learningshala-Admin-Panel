@@ -156,7 +156,7 @@ function B2BLeadsPageContent() {
 
       <h3 className="text-xl font-semibold text-blue-900">B2B Leads Details</h3>
       <div className="rounded-md border bg-white">
-        <WebsiteLeadTable data={leads} isLoading={isLoading} />
+        <WebsiteLeadTable data={leads} isLoading={isLoading} maskContact={false} />
       </div>
 
       <Pagination

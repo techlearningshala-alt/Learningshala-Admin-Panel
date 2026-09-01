@@ -7,7 +7,7 @@ const defaultCellClass =
   "border px-2 py-1 align-middle whitespace-nowrap text-sm text-muted-foreground";
 const defaultColumnStyle = { minWidth: "160px" };
 
-const columns = [
+const getColumns = (maskContact = true) => [
   {
     key: "name",
     label: "Name",
@@ -19,14 +19,16 @@ const columns = [
     label: "Email",
     style: { minWidth: "130px" },
     cellClassName: defaultCellClass,
-    render: (row) => maskEmail(row.email),
+    render: (row) =>
+      maskContact ? maskEmail(row.email) : row.email || "-",
   },
   {
     key: "phone",
     label: "Phone",
     style: { minWidth: "80px" },
     cellClassName: defaultCellClass,
-    render: (row) => maskPhone(row.phone),
+    render: (row) =>
+      maskContact ? maskPhone(row.phone) : row.phone || "-",
   },
   {
     key: "course",
@@ -222,11 +224,15 @@ const columns = [
   },
 ];
 
-export default function WebsiteLeadTable({ data = [], isLoading }) {
+export default function WebsiteLeadTable({
+  data = [],
+  isLoading,
+  maskContact = true,
+}) {
   if (isLoading) {
     return <p>Loading website leads...</p>;
   }
 
-  return <DataTable columns={columns} data={data} />;
+  return <DataTable columns={getColumns(maskContact)} data={data} />;
 }
 
