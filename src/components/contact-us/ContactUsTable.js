@@ -1,10 +1,38 @@
 "use client";
 
+import { useState } from "react";
 import DataTable from "@/components/table/DataTable";
-import { maskEmail, maskPhone } from "@/lib/utils";
 
 const defaultCellClass =
   "border px-2 py-1 align-middle whitespace-nowrap text-sm text-muted-foreground";
+
+const MESSAGE_PREVIEW_LENGTH = 100;
+
+function MessageCell({ message }) {
+  const [expanded, setExpanded] = useState(false);
+  const text = message || "";
+
+  if (!text) return "-";
+
+  const isLong = text.length > MESSAGE_PREVIEW_LENGTH;
+  const displayText =
+    !isLong || expanded ? text : `${text.slice(0, MESSAGE_PREVIEW_LENGTH).trim()}...`;
+
+  return (
+    <div className="max-w-md">
+      <div className="break-words whitespace-pre-wrap">{displayText}</div>
+      {isLong ? (
+        <button
+          type="button"
+          className="mt-1 text-xs font-medium text-blue-600 hover:underline"
+          onClick={() => setExpanded((prev) => !prev)}
+        >
+          {expanded ? "View less" : "View more"}
+        </button>
+      ) : null}
+    </div>
+  );
+}
 
 const columns = [
   {
@@ -18,32 +46,22 @@ const columns = [
     label: "Email",
     style: { minWidth: "150px" },
     cellClassName: defaultCellClass,
-    render: (row) => maskEmail(row.email),
+    render: (row) => row.email || "-",
   },
   {
     key: "phone",
     label: "Phone",
     style: { minWidth: "100px" },
     cellClassName: defaultCellClass,
-    render: (row) => maskPhone(row.phone),
+    render: (row) => row.phone || "-",
   },
   {
     key: "message",
     label: "Message",
     style: { minWidth: "300px" },
-    cellClassName: defaultCellClass,
+    cellClassName: "border px-2 py-1 align-middle text-sm text-muted-foreground",
     contentClassName: "break-words whitespace-pre-wrap",
-    render: (row) => {
-      const message = row.message || "";
-      if (message.length > 100) {
-        return (
-          <div className="max-w-md">
-            <div className="line-clamp-3">{message}</div>
-          </div>
-        );
-      }
-      return message || "-";
-    },
+    render: (row) => <MessageCell message={row.message} />,
   },
   {
     key: "created_at",
@@ -70,4 +88,3 @@ export default function ContactUsTable({ data = [], isLoading }) {
 
   return <DataTable columns={columns} data={data} actions={[]} />;
 }
-
