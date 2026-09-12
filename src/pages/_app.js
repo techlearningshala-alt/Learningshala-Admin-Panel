@@ -52,6 +52,7 @@ export default function App({ Component, pageProps }) {
     "/news-categories",
     "/blog-faq-categories",
     "/contact-us",
+    "/whatsapp",
     "/create-user",
     "/authors",
     "/website-banners",

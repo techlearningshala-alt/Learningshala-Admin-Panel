@@ -105,6 +105,14 @@ const navItemsData = [
   { name: "Website Leads", href: "/website-leads", roles: ["lead"] },
   { name: "B2B Leads", href: "/b2b-leads", roles: ["lead"] },
   { name: "Contact Us", href: "/contact-us", roles: ["lead"] },
+  {
+    name: "WhatsApp",
+    roles: ["admin"],
+    subItems: [
+      { name: "Inbox", href: "/whatsapp", roles: ["admin"] },
+      { name: "Accounts", href: "/whatsapp/accounts", roles: ["admin"] },
+    ],
+  },
   { name: "Create User", href: "/create-user", roles: ["admin"] }
 ];
 

@@ -690,6 +690,54 @@ export async function deleteCompareSet(id) {
   return res.data;
 }
 
+// ==================== WhatsApp Inbox (admin) ====================
+export async function fetchWhatsAppUniversities() {
+  const res = await api.get("/whatsapp/universities");
+  return res.data;
+}
+
+export async function createWhatsAppUniversity(payload) {
+  const res = await api.post("/whatsapp/universities", payload);
+  return res.data;
+}
+
+export async function updateWhatsAppUniversity(id, payload) {
+  const res = await api.put(`/whatsapp/universities/${id}`, payload);
+  return res.data;
+}
+
+export async function fetchWhatsAppConversations({
+  page = 1,
+  limit = 20,
+  university_id,
+  status,
+} = {}) {
+  const params = { page, limit };
+  if (university_id) params.university_id = university_id;
+  if (status) params.status = status;
+  const res = await api.get("/whatsapp/conversations", { params });
+  return res.data;
+}
+
+export async function fetchWhatsAppConversationThread(id) {
+  const res = await api.get(`/whatsapp/conversations/${id}`);
+  return res.data;
+}
+
+export async function sendWhatsAppMessage(conversationId, body) {
+  const res = await api.post(`/whatsapp/conversations/${conversationId}/messages`, {
+    body,
+  });
+  return res.data;
+}
+
+export async function updateWhatsAppConversationStatus(conversationId, status) {
+  const res = await api.patch(`/whatsapp/conversations/${conversationId}/status`, {
+    status,
+  });
+  return res.data;
+}
+
 // Fetch recent activity
 export async function fetchRecentActivity() {
   const res = await api.get("/dashboard/recent-activity");
