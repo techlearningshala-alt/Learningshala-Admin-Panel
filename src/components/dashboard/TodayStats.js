@@ -10,7 +10,7 @@ const colorConfig = {
   purple: { bg: "bg-gradient-to-br from-purple-500 to-purple-600", iconBg: "bg-purple-100", iconColor: "text-purple-600" },
 };
 
-export default function TodayStats({ todayStats, weekStats, statistics, isLoading, userRole }) {
+export default function TodayStats({ todayStats, weekStats, monthStats, statistics, isLoading, userRole }) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -29,6 +29,7 @@ export default function TodayStats({ todayStats, weekStats, statistics, isLoadin
       today: todayStats?.leadsToday || 0,
       yesterday: todayStats?.leadsYesterday || 0,
       week: weekStats?.leadsThisWeek || 0,
+      lastMonth: monthStats?.leadsLastMonth || 0,
       total: statistics?.leads || 0,
       icon: Users,
       colorKey: "blue",
@@ -38,6 +39,7 @@ export default function TodayStats({ todayStats, weekStats, statistics, isLoadin
       today: todayStats?.websiteLeadsToday || 0,
       yesterday: todayStats?.websiteLeadsYesterday || 0,
       week: weekStats?.websiteLeadsThisWeek || 0,
+      lastMonth: monthStats?.websiteLeadsLastMonth || 0,
       total: statistics?.websiteLeads || 0,
       icon: TrendingUp,
       colorKey: "green",
@@ -47,6 +49,7 @@ export default function TodayStats({ todayStats, weekStats, statistics, isLoadin
       today: todayStats?.contactMessagesToday || 0,
       yesterday: todayStats?.contactMessagesYesterday || 0,
       week: weekStats?.contactMessagesThisWeek || 0,
+      lastMonth: monthStats?.contactMessagesLastMonth || 0,
       total: statistics?.contactUs || 0,
       icon: MessageSquare,
       colorKey: "purple",
@@ -90,6 +93,8 @@ export default function TodayStats({ todayStats, weekStats, statistics, isLoadin
                     <span>Yesterday: {stat.yesterday?.toLocaleString() || 0}</span>
                     <span>•</span>
                     <span>This week: {stat.week?.toLocaleString() || 0}</span>
+                    <span>•</span>
+                    <span>Last month: {stat.lastMonth?.toLocaleString() || 0}</span>
                     <span>•</span>
                     <span>Total: {stat.total?.toLocaleString() || 0}</span>
                   </p>

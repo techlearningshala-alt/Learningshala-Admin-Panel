@@ -67,6 +67,7 @@ export default function DashboardPage() {
                 <TodayStats
                   todayStats={data.todayStats}
                   weekStats={data.weekStats}
+                  monthStats={data.monthStats}
                   statistics={data.statistics}
                   isLoading={isLoading}
                   userRole={user?.role}
