@@ -14,19 +14,25 @@ export default function NewsTable({ items, onEdit, onDelete, onToggleVerified })
       key: "title",
       label: "Title",
       wrap: true,
-      cellClassName: "whitespace-normal break-words text-left align-top",
+      style: { minWidth: "220px", maxWidth: "360px" },
+      cellClassName:
+        "whitespace-normal break-words text-left align-top overflow-hidden max-w-[360px]",
       render: (row) => {
         const value = row.h1_tag || row.title || "-";
         return canUpdate && onEdit ? (
           <Button
             variant="link"
             onClick={() => onEdit(row)}
-            className="whitespace-normal break-words text-left block w-full"
+            title={value}
+            className="h-auto min-h-0 whitespace-normal break-words text-left justify-start items-start py-0 px-0 w-full max-w-full shrink font-medium leading-5"
           >
             {value}
           </Button>
         ) : (
-          <span className="text-gray-700 whitespace-normal break-words text-left block">
+          <span
+            title={value}
+            className="text-gray-700 whitespace-normal break-words text-left block leading-5"
+          >
             {value}
           </span>
         );

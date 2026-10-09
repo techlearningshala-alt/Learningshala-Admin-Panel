@@ -56,6 +56,7 @@ export default function App({ Component, pageProps }) {
     "/create-user",
     "/authors",
     "/website-banners",
+    "/home-title-description",
     "/mobile-banners",
     "/redirections",
     "/uploads",

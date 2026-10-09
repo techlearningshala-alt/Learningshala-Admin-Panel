@@ -27,6 +27,7 @@ export const SECTION_ROUTE_PREFIXES = [
     prefixes: [
       "/dashboard",
       "/website-banners",
+      "/home-title-description",
       "/mentors",
       "/post-admission-team",
       "/media-spotlight",

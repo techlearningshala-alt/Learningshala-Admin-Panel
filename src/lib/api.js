@@ -744,3 +744,27 @@ export async function fetchRecentActivity() {
   return res.data; // { success, data: { recentLeads, recentWebsiteLeads, ... } }
 }
 
+// ===== Home Title & Description APIs =====
+
+export async function fetchHomeTitleDescriptions({ page = 1, limit = 10 } = {}) {
+  const res = await api.get("/home-title-descriptions", {
+    params: { page, limit },
+  });
+  return res.data;
+}
+
+export async function addHomeTitleDescription(payload) {
+  const res = await api.post("/home-title-descriptions", payload);
+  return res.data;
+}
+
+export async function updateHomeTitleDescription(id, payload) {
+  const res = await api.put(`/home-title-descriptions/${id}`, payload);
+  return res.data;
+}
+
+export async function deleteHomeTitleDescription(id) {
+  const res = await api.delete(`/home-title-descriptions/${id}`);
+  return res.data;
+}
+

@@ -14,7 +14,8 @@ export default function DataTable({ columns, data = [], actions = [], columnsAft
 
               return (
                 <th 
-                  key={col.key} 
+                  key={col.key}
+                  style={col.style}
                   className={`text-xs font-semibold text-gray-700 text-center px-3 py-2 bg-blue-100 ${headerNowrapClass} ${col.className || ""}`} 
                 >
                   {col.label}
@@ -58,14 +59,16 @@ export default function DataTable({ columns, data = [], actions = [], columnsAft
                 className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 transition-all duration-200 border-b border-gray-100 bg-blue-50 bg"
               >
                 {columns.map((col) => {
-                  const defaultCellNowrapClass =
-                    col.wrap ? "" : "whitespace-nowrap text-nowrap truncate";
+                  const defaultCellNowrapClass = col.wrap
+                    ? "whitespace-normal break-words overflow-hidden [overflow-wrap:anywhere]"
+                    : "whitespace-nowrap text-nowrap truncate overflow-hidden";
                   const cellClassName =
                     col.cellClassName || defaultCellNowrapClass;
 
                   return (
                     <td 
-                      key={col.key} 
+                      key={col.key}
+                      style={col.style}
                       className={`text-gray-900 px-2 max-w-[290px] mx-auto ${cellClassName}`} 
                     >
                       {col.render ? col.render(row, rowIndex) : row[col.key]}

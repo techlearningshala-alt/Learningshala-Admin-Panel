@@ -18,6 +18,13 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
     //   cellClassName: "border px-2 py-1 align-middle text-center",
     // },
     {
+      key: "priority",
+      label: "Priority",
+      render: (row) => (
+        <span className="text-gray-700">{row.priority ?? "—"}</span>
+      ),
+    },
+    {
       key: "university_name",
       label: "University Name",
       render: (row) =>
@@ -34,13 +41,6 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
             {row.university_name}
           </span>
         ),
-    },
-    {
-      key: "priority",
-      label: "Priority",
-      render: (row) => (
-        <span className="text-gray-700">{row.priority ?? "—"}</span>
-      ),
     },
     {
       key: "university_slug",
