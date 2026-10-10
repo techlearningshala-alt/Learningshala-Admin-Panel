@@ -4,6 +4,9 @@ import DataTable from "../table/DataTable";
 import { usePermissions } from "@/hooks/usePermissions";
 import { createTableActions } from "@/utils/tableActions";
 
+const isVideoAsset = (value) =>
+  typeof value === "string" && /\.(mp4|webm|ogg|mov)(\?|$)/i.test(value);
+
 export default function WebsiteBannerTable({ banners, onEdit, onDelete }) {
   const { canRead } = usePermissions();
 
@@ -18,17 +21,34 @@ export default function WebsiteBannerTable({ banners, onEdit, onDelete }) {
     },
     {
       key: "banner_image",
-      label: "Banner Image",
-      render: (row) =>
-        row.banner_image ? (
+      label: "Banner Image/Video",
+      render: (row) => {
+        if (!row.banner_image) {
+          return <span className="text-gray-400">No media</span>;
+        }
+
+        const src = `${process.env.NEXT_PUBLIC_thumbnail_URL}${row.banner_image}`;
+
+        if (isVideoAsset(row.banner_image)) {
+          return (
+            <video
+              src={src}
+              className="h-16 w-32 object-cover rounded"
+              muted
+              playsInline
+              controls
+            />
+          );
+        }
+
+        return (
           <img
-            src={`${process.env.NEXT_PUBLIC_thumbnail_URL}${row.banner_image}`}
+            src={src}
             className="h-16 w-32 object-cover rounded"
             alt="Banner"
           />
-        ) : (
-          <span className="text-gray-400">No image</span>
-        ),
+        );
+      },
     },
     {
       key: "video_id",

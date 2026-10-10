@@ -23,6 +23,12 @@ const buildAssetUrl = (value) => {
   return `${normalizedBaseUrl}/${cleanPath}`;
 };
 
+const isVideoAsset = (value, file) => {
+  if (file?.type?.startsWith("video/")) return true;
+  if (typeof value !== "string" || !value) return false;
+  return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(value);
+};
+
 export default function AddWebsiteBannerForm({ banners, onCancel, onSuccess }) {
   const [previewBanners, setPreviewBanners] = useState([]);
   const queryClient = useQueryClient();
@@ -73,9 +79,14 @@ export default function AddWebsiteBannerForm({ banners, onCancel, onSuccess }) {
       }));
       reset({ banners: formattedBanners });
 
-      // Set preview images
+      // Set preview media
       const previews = banners.map((banner) =>
-        banner.banner_image ? buildAssetUrl(banner.banner_image) : null
+        banner.banner_image
+          ? {
+              url: buildAssetUrl(banner.banner_image),
+              isVideo: isVideoAsset(banner.banner_image),
+            }
+          : null
       );
       setPreviewBanners(previews);
     } else {
@@ -100,8 +111,8 @@ export default function AddWebsiteBannerForm({ banners, onCancel, onSuccess }) {
   useEffect(() => {
     return () => {
       previewBanners.forEach((preview) => {
-        if (preview && preview.startsWith("blob:")) {
-          URL.revokeObjectURL(preview);
+        if (preview?.url?.startsWith("blob:")) {
+          URL.revokeObjectURL(preview.url);
         }
       });
     };
@@ -181,31 +192,44 @@ export default function AddWebsiteBannerForm({ banners, onCancel, onSuccess }) {
                 className="relative p-4 border rounded-lg bg-gray-50 shadow-sm"
               >
                 <div className="grid grid-cols-2 gap-4">
-                  {/* Banner Image */}
+                  {/* Banner Image / Video */}
                   <div className="space-y-2">
-                    <Label>Banner Image</Label>
+                    <Label>Banner Image/Video</Label>
                     <input type="hidden" {...register(`${bannerField}.existing_banner_image`)} />
                     <input type="hidden" {...register(`${bannerField}.remove_image`)} />
-                    {previewBanners[index] && (
+                    {previewBanners[index]?.url && (
                       <div className="inline-block mb-2">
-                        <img
-                          src={previewBanners[index]}
-                          alt="Banner Preview"
-                          className="h-20 object-contain rounded border"
-                        />
+                        {previewBanners[index].isVideo ? (
+                          <video
+                            src={previewBanners[index].url}
+                            className="h-20 object-contain rounded border"
+                            muted
+                            playsInline
+                            controls
+                          />
+                        ) : (
+                          <img
+                            src={previewBanners[index].url}
+                            alt="Banner Preview"
+                            className="h-20 object-contain rounded border"
+                          />
+                        )}
                       </div>
                     )}
                     <Input
                       type="file"
                       className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-8 "
-                      accept="image/*"
+                      accept="image/*,video/mp4"
                       {...register(`${bannerField}.banner_image`)}
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
                           setPreviewBanners((prev) => {
                             const copy = [...prev];
-                            copy[index] = URL.createObjectURL(file);
+                            copy[index] = {
+                              url: URL.createObjectURL(file),
+                              isVideo: isVideoAsset(file.name, file),
+                            };
                             return copy;
                           });
                           setValue(`${bannerField}.remove_image`, false, { shouldDirty: true });
