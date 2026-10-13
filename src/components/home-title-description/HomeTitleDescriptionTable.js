@@ -16,6 +16,13 @@ export default function HomeTitleDescriptionTable({ items, onEdit, onDelete }) {
       style: { width: "80px" },
     },
     {
+      key: "page",
+      label: "Page",
+      render: (row) => (
+        <span className="text-gray-700 font-medium">{row.page || "-"}</span>
+      ),
+    },
+    {
       key: "meta_title",
       label: "Meta Title",
       wrap: true,
