@@ -746,9 +746,13 @@ export async function fetchRecentActivity() {
 
 // ===== Home Title & Description APIs =====
 
-export async function fetchHomeTitleDescriptions({ page = 1, limit = 10 } = {}) {
+export async function fetchHomeTitleDescriptions({
+  page = 1,
+  limit = 10,
+  type = "home",
+} = {}) {
   const res = await api.get("/home-title-descriptions", {
-    params: { page, limit },
+    params: { page, limit, type },
   });
   return res.data;
 }

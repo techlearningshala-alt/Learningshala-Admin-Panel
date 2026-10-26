@@ -28,6 +28,7 @@ export const SECTION_ROUTE_PREFIXES = [
       "/dashboard",
       "/website-banners",
       "/home-title-description",
+      "/static-pages-metadata",
       "/mentors",
       "/post-admission-team",
       "/media-spotlight",

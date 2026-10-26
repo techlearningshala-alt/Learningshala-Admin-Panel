@@ -32,9 +32,11 @@ export default function HomeTitleDescriptionPage() {
     setPage(1);
   }, [router.pathname]);
 
+  const metadataType = "home";
+
   const { data, isLoading } = useQuery({
-    queryKey: ["home-title-descriptions", page],
-    queryFn: () => fetchHomeTitleDescriptions({ page, limit }),
+    queryKey: ["home-title-descriptions", metadataType, page],
+    queryFn: () => fetchHomeTitleDescriptions({ page, limit, type: metadataType }),
     keepPreviousData: true,
   });
 
@@ -44,7 +46,7 @@ export default function HomeTitleDescriptionPage() {
     mutationFn: deleteHomeTitleDescription,
     onSuccess: () => {
       notifySuccess("Deleted successfully");
-      queryClient.invalidateQueries(["home-title-descriptions"]);
+      queryClient.invalidateQueries(["home-title-descriptions", metadataType]);
     },
     onError: (err) =>
       notifyError(err.response?.data?.message || "Delete failed"),
@@ -101,7 +103,7 @@ export default function HomeTitleDescriptionPage() {
   const handleFormSuccess = () => {
     setShowForm(false);
     setEditItem(null);
-    queryClient.invalidateQueries(["home-title-descriptions"]);
+    queryClient.invalidateQueries(["home-title-descriptions", metadataType]);
   };
 
   if (showForm) {
@@ -110,6 +112,8 @@ export default function HomeTitleDescriptionPage() {
         item={editItem}
         onCancel={handleFormClose}
         onSuccess={handleFormSuccess}
+        entityLabel="Title & Description"
+        metadataType={metadataType}
       />
     );
   }

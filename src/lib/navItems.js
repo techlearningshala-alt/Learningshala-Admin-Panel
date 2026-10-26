@@ -114,6 +114,12 @@ const navItemsData = [
       { name: "Accounts", href: "/whatsapp/accounts", roles: ["admin"] },
     ],
   },
+  {
+    name: "Static Pages Metadata",
+    href: "/static-pages-metadata",
+    roles: ["admin", "editor", "mentor"],
+    section: "home",
+  },
   { name: "Create User", href: "/create-user", roles: ["admin"] }
 ];
 

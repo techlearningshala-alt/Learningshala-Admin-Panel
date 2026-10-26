@@ -27,35 +27,48 @@ export default function UniversityTable({ items, onEdit, onDelete, onToggleStatu
     {
       key: "university_name",
       label: "University Name",
+      wrap: true,
+      style: { minWidth: "200px", maxWidth: "360px" },
+      cellClassName:
+        "whitespace-normal break-words text-left align-top overflow-hidden max-w-[360px]",
       render: (row) =>
         canRead && onEdit ? (
           <Button 
             variant="link" 
             onClick={() => onEdit(row)}
-            className="hover:text-blue-700 font-medium hover:underline p-0 h-auto text-left"
+            title={row.university_name}
+            className="h-auto min-h-0 whitespace-normal break-words text-left justify-start items-start py-0 px-0 w-full max-w-full shrink font-medium leading-5 hover:text-blue-700 hover:underline"
           >
             {row.university_name}
           </Button>
         ) : (
-          <span className="font-medium">
+          <span
+            title={row.university_name}
+            className="font-medium whitespace-normal break-words text-left block leading-5"
+          >
             {row.university_name}
           </span>
         ),
     },
     {
       key: "university_slug",
-      label: "University Slug", 
+      label: "University Slug",
+      wrap: true,
+      style: { minWidth: "160px", maxWidth: "280px" },
+      cellClassName:
+        "whitespace-normal break-words text-left align-top overflow-hidden max-w-[280px]",
       render: (row) =>
         canRead && onEdit ? (
           <Button 
             variant="link" 
             onClick={() => onEdit(row)}
-            className="hover:text-blue-700 font-medium hover:underline p-0 h-auto text-left"
+            title={row.university_slug}
+            className="h-auto min-h-0 whitespace-normal break-words text-left justify-start items-start py-0 px-0 w-full max-w-full shrink font-medium leading-5 hover:text-blue-700 hover:underline"
           >
-            <code className="">{row.university_slug}</code>
+            <code className="whitespace-normal break-words">{row.university_slug}</code>
           </Button>
         ) : (
-          <code className="">{row.university_slug}</code>
+          <code className="whitespace-normal break-words">{row.university_slug}</code>
         ),
     },
     {

@@ -25,6 +25,8 @@ export default function AddHomeTitleDescriptionForm({
   item,
   onCancel,
   onSuccess,
+  entityLabel = "Title & Description",
+  metadataType = "home",
 }) {
   const queryClient = useQueryClient();
   const isEdit = !!item?.id;
@@ -71,6 +73,7 @@ export default function AddHomeTitleDescriptionForm({
       if (isEdit) {
         const row = rows[0];
         return updateHomeTitleDescription(item.id, {
+          type: metadataType,
           page: row.page?.trim(),
           meta_title: row.meta_title?.trim(),
           meta_description: row.meta_description?.trim(),
@@ -81,6 +84,7 @@ export default function AddHomeTitleDescriptionForm({
       const results = [];
       for (const row of rows) {
         const result = await addHomeTitleDescription({
+          type: metadataType,
           page: row.page?.trim(),
           meta_title: row.meta_title?.trim(),
           meta_description: row.meta_description?.trim(),
@@ -94,7 +98,7 @@ export default function AddHomeTitleDescriptionForm({
       reset({ items: [emptyRow()] });
 
       setTimeout(() => {
-        queryClient.invalidateQueries(["home-title-descriptions"]);
+        queryClient.invalidateQueries(["home-title-descriptions", metadataType]);
         onSuccess?.();
       }, 200);
     },
@@ -118,7 +122,7 @@ export default function AddHomeTitleDescriptionForm({
           Back to List
         </Button>
         <h3 className="text-2xl text-blue-700 font-bold">
-          {isEdit ? "Edit Title & Description" : "Add Title & Description"}
+          {isEdit ? `Edit ${entityLabel}` : `Add ${entityLabel}`}
         </h3>
       </div>
 
