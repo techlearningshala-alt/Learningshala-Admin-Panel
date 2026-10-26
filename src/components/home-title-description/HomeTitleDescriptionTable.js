@@ -4,8 +4,14 @@ import { Button } from "../ui/button";
 import DataTable from "../table/DataTable";
 import { createTableActions } from "@/utils/tableActions";
 import { usePermissions } from "@/hooks/usePermissions";
+import { getPageLabel } from "@/lib/pageMetadataOptions";
 
-export default function HomeTitleDescriptionTable({ items, onEdit, onDelete }) {
+export default function HomeTitleDescriptionTable({
+  items,
+  onEdit,
+  onDelete,
+  metadataType = "home",
+}) {
   const { canRead } = usePermissions();
 
   const columns = [
@@ -19,7 +25,9 @@ export default function HomeTitleDescriptionTable({ items, onEdit, onDelete }) {
       key: "page",
       label: "Page",
       render: (row) => (
-        <span className="text-gray-700 font-medium">{row.page || "-"}</span>
+        <span className="text-gray-700 font-medium">
+          {getPageLabel(row.page, metadataType)}
+        </span>
       ),
     },
     {

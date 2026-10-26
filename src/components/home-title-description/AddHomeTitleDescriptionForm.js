@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -8,6 +8,7 @@ import {
   updateHomeTitleDescription,
 } from "@/lib/api";
 import { notifySuccess, notifyError } from "@/lib/notify";
+import { getPageOptionsByType } from "@/lib/pageMetadataOptions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,11 +16,14 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, Plus, X } from "lucide-react";
 import FormActionButtons from "@/components/common/FormActionButtons";
 
-const emptyRow = () => ({
-  page: "",
+const emptyRow = (defaultPage = "") => ({
+  page: defaultPage,
   meta_title: "",
   meta_description: "",
 });
+
+const selectClassName =
+  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200";
 
 export default function AddHomeTitleDescriptionForm({
   item,
@@ -30,6 +34,10 @@ export default function AddHomeTitleDescriptionForm({
 }) {
   const queryClient = useQueryClient();
   const isEdit = !!item?.id;
+  const pageOptions = useMemo(
+    () => getPageOptionsByType(metadataType),
+    [metadataType]
+  );
 
   const {
     register,
@@ -139,17 +147,19 @@ export default function AddHomeTitleDescriptionForm({
                 <Label className="text-sm font-medium text-gray-700">
                   Page <span className="text-red-500">*</span>
                 </Label>
-                <Input
+                <select
                   {...register(`items.${index}.page`, {
                     required: "Page is required",
-                    maxLength: {
-                      value: 255,
-                      message: "Page must be 255 characters or less",
-                    },
                   })}
-                  placeholder="e.g. home, about, contact"
-                  className="focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                />
+                  className={selectClassName}
+                >
+                  <option value="">Select page</option>
+                  {pageOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
                 {rowErrors?.page && (
                   <p className="text-red-500 text-sm mt-1">
                     {rowErrors.page.message}

@@ -131,6 +131,7 @@ export default function StaticPagesMetadataPage() {
           items={data?.data?.data || []}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          metadataType={metadataType}
         />
       </TableContainer>
 

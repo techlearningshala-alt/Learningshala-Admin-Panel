@@ -130,6 +130,7 @@ export default function HomeTitleDescriptionPage() {
           items={data?.data?.data || []}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          metadataType={metadataType}
         />
       </TableContainer>
 
