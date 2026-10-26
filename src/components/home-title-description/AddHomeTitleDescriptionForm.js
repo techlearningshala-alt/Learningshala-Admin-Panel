@@ -34,10 +34,13 @@ export default function AddHomeTitleDescriptionForm({
 }) {
   const queryClient = useQueryClient();
   const isEdit = !!item?.id;
+  const isHomeType = metadataType === "home";
+  const fixedHomePage = "home";
   const pageOptions = useMemo(
     () => getPageOptionsByType(metadataType),
     [metadataType]
   );
+  const defaultPageValue = isHomeType ? fixedHomePage : "";
 
   const {
     register,
@@ -47,7 +50,7 @@ export default function AddHomeTitleDescriptionForm({
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      items: [emptyRow()],
+      items: [emptyRow(defaultPageValue)],
     },
   });
 
@@ -63,16 +66,16 @@ export default function AddHomeTitleDescriptionForm({
       reset({
         items: [
           {
-            page: item.page || "",
+            page: isHomeType ? fixedHomePage : item.page || "",
             meta_title: item.meta_title || "",
             meta_description: item.meta_description || "",
           },
         ],
       });
     } else {
-      reset({ items: [emptyRow()] });
+      reset({ items: [emptyRow(defaultPageValue)] });
     }
-  }, [item, reset]);
+  }, [item, reset, isHomeType, defaultPageValue]);
 
   const mutation = useMutation({
     mutationFn: async ({ data, saveWithDate }) => {
@@ -82,7 +85,7 @@ export default function AddHomeTitleDescriptionForm({
         const row = rows[0];
         return updateHomeTitleDescription(item.id, {
           type: metadataType,
-          page: row.page?.trim(),
+          page: isHomeType ? fixedHomePage : row.page?.trim(),
           meta_title: row.meta_title?.trim(),
           meta_description: row.meta_description?.trim(),
           saveWithDate: saveWithDate ? "true" : "false",
@@ -93,7 +96,7 @@ export default function AddHomeTitleDescriptionForm({
       for (const row of rows) {
         const result = await addHomeTitleDescription({
           type: metadataType,
-          page: row.page?.trim(),
+          page: isHomeType ? fixedHomePage : row.page?.trim(),
           meta_title: row.meta_title?.trim(),
           meta_description: row.meta_description?.trim(),
         });
@@ -103,7 +106,7 @@ export default function AddHomeTitleDescriptionForm({
     },
     onSuccess: () => {
       notifySuccess(isEdit ? "Updated successfully" : "Added successfully");
-      reset({ items: [emptyRow()] });
+      reset({ items: [emptyRow(defaultPageValue)] });
 
       setTimeout(() => {
         queryClient.invalidateQueries(["home-title-descriptions", metadataType]);
@@ -147,23 +150,32 @@ export default function AddHomeTitleDescriptionForm({
                 <Label className="text-sm font-medium text-gray-700">
                   Page <span className="text-red-500">*</span>
                 </Label>
-                <select
-                  {...register(`items.${index}.page`, {
-                    required: "Page is required",
-                  })}
-                  className={selectClassName}
-                >
-                  <option value="">Select page</option>
-                  {pageOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                {rowErrors?.page && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {rowErrors.page.message}
-                  </p>
+                {isHomeType ? (
+                  <>
+                    <input type="hidden" {...register(`items.${index}.page`)} />
+                    <Input value="Home" disabled readOnly className="bg-gray-100" />
+                  </>
+                ) : (
+                  <>
+                    <select
+                      {...register(`items.${index}.page`, {
+                        required: "Page is required",
+                      })}
+                      className={selectClassName}
+                    >
+                      <option value="">Select page</option>
+                      {pageOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    {rowErrors?.page && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {rowErrors.page.message}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -208,7 +220,7 @@ export default function AddHomeTitleDescriptionForm({
                 )}
               </div>
 
-              {!isEdit && index >= initialCount && (
+              {!isEdit && !isHomeType && index >= initialCount && (
                 <div className="flex mt-1">
                   <Button
                     type="button"
@@ -224,7 +236,7 @@ export default function AddHomeTitleDescriptionForm({
           );
         })}
 
-        {!isEdit && (
+        {!isEdit && !isHomeType && (
           <div className="flex justify-start">
             <Button
               type="button"
